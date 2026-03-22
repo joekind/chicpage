@@ -123,9 +123,7 @@ export default function ChicEditor() {
           }
         }
       });
-      if (styleTheme === 'xhs') {
-        processed = processed.replace(/^# (.*)/gm, '<div class="xhs-h1">✨ $1 ✨</div>\n<div class="xhs-divider">━━━━━━━</div>').replace(/^## (.*)/gm, '<div class="xhs-h2">📍 $1</div>');
-      }
+
       const res = await markdownToHtml(processed, references);
       setHtml(res);
     }, 300);

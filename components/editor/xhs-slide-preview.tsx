@@ -158,35 +158,35 @@ function splitIntoSlides(html: string, themeCSS: string): string[] {
     position: fixed; top: -9999px; left: -9999px;
     width: ${CARD_W - PADDING_X * 2}px; visibility: hidden; pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-    box-sizing: border-box;
+    box-sizing: border-box; overflow: hidden;
   `;
 
   document.head.appendChild(styleEl);
   document.body.appendChild(probe);
 
-  const getH = (node: Node) => {
+  const getH = (nodesArr: Node[]) => {
     probe.innerHTML = "";
-    probe.appendChild(node.cloneNode(true));
+    nodesArr.forEach((n) => probe.appendChild(n.cloneNode(true)));
     return probe.scrollHeight;
   };
 
   const slides: string[] = [];
   let bucket: Node[] = [];
-  let used = 0;
 
   for (const node of nodes) {
-    const h = getH(node);
-    if (used + h > CONTENT_H && bucket.length > 0) {
+    bucket.push(node);
+    const currentH = getH(bucket);
+    
+    if (currentH > CONTENT_H && bucket.length > 1) {
+      // Exceeds the slide height, need to bump the very last node into a new slide.
+      bucket.pop();
       const tmp = document.createElement("div");
       bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
       slides.push(tmp.innerHTML);
       bucket = [node];
-      used = h;
-    } else {
-      bucket.push(node);
-      used += h;
     }
   }
+  
   if (bucket.length > 0) {
     const tmp = document.createElement("div");
     bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
