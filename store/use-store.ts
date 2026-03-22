@@ -9,7 +9,10 @@ interface AppState {
   previewMode: 'pc' | 'app' | 'xhs';
   styleTheme: 'wechat' | 'xhs';
   wechatTheme: string;
+  xhsTheme: string;
   layoutMode: 'split' | 'edit' | 'preview';
+  xhsShowHeader: boolean;
+  xhsShowFooter: boolean;
   past: { markdown: string, references: string }[];
   future: { markdown: string, references: string }[];
 
@@ -20,7 +23,10 @@ interface AppState {
   setPreviewMode: (mode: 'pc' | 'app' | 'xhs') => void;
   setStyleTheme: (theme: 'wechat' | 'xhs') => void;
   setWechatTheme: (id: string) => void;
+  setXHSTheme: (id: string) => void;
   setLayoutMode: (mode: 'split' | 'edit' | 'preview') => void;
+  setXHSShowHeader: (show: boolean) => void;
+  setXHSShowFooter: (show: boolean) => void;
   undo: () => void;
   redo: () => void;
   pushHistory: () => void;
@@ -80,7 +86,10 @@ export const useStore = create<AppState>()(
       previewMode: 'app',
       styleTheme: 'wechat',
       wechatTheme: 'default',
+      xhsTheme: 'pure-white',
       layoutMode: 'split',
+      xhsShowHeader: true,
+      xhsShowFooter: true,
       past: [],
       future: [],
 
@@ -95,7 +104,10 @@ export const useStore = create<AppState>()(
       setPreviewMode: (previewMode) => set({ previewMode }),
       setStyleTheme: (styleTheme) => set({ styleTheme }),
       setWechatTheme: (wechatTheme) => set({ wechatTheme }),
+      setXHSTheme: (xhsTheme) => set({ xhsTheme }),
       setLayoutMode: (layoutMode) => set({ layoutMode }),
+      setXHSShowHeader: (xhsShowHeader) => set({ xhsShowHeader }),
+      setXHSShowFooter: (xhsShowFooter) => set({ xhsShowFooter }),
 
       pushHistory: () => set((state) => ({
         past: [...state.past, { markdown: state.markdown, references: state.references }].slice(-50),
@@ -132,7 +144,10 @@ export const useStore = create<AppState>()(
         imgRadius: state.imgRadius,
         styleTheme: state.styleTheme,
         wechatTheme: state.wechatTheme,
+        xhsTheme: state.xhsTheme,
         layoutMode: state.layoutMode,
+        xhsShowHeader: state.xhsShowHeader,
+        xhsShowFooter: state.xhsShowFooter,
       }),
     }
   )

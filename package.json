@@ -24,6 +24,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.35.1",
     "highlight.js": "^11.11.1",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "radix-ui": "^1.4.3",

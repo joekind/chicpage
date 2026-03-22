@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Monitor,
   Smartphone,
@@ -9,12 +9,16 @@ import {
   MessageCircle,
   Sparkles,
   Copy,
-  Check
+  Check,
+  Download,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
 import { ThemePicker } from "@/components/editor/theme-picker";
+import { XHSThemePicker } from "@/components/editor/xhs-theme-picker";
+import { XHS_THEMES } from "@/lib/xhs-themes";
 
 interface TopNavProps {
   previewMode: 'pc' | 'app' | 'xhs';
@@ -25,10 +29,16 @@ interface TopNavProps {
   setStyleTheme: (t: 'wechat' | 'xhs') => void;
   wechatTheme: string;
   setWechatTheme: (t: string) => void;
+  xhsTheme: string;
+  setXHSTheme: (t: string) => void;
   onCopy: () => void;
   copyStatus: 'idle' | 'success' | 'error';
   previewRef: React.RefObject<HTMLDivElement | null>;
   markdown: string;
+  onExportXHS: () => void;
+  isExportingXHS: boolean;
+  xhsMode?: 'long' | 'slide';
+  setXHSMode?: (mode: 'long' | 'slide') => void;
 }
 
 export const TopNav = ({
@@ -40,11 +50,19 @@ export const TopNav = ({
   setStyleTheme,
   wechatTheme,
   setWechatTheme,
+  xhsTheme,
+  setXHSTheme,
   onCopy,
   copyStatus,
   previewRef,
   markdown,
+  onExportXHS,
+  isExportingXHS,
+  xhsMode = 'slide',
+  setXHSMode,
 }: TopNavProps) => {
+  const [showXHSThemePicker, setShowXHSThemePicker] = useState(false);
+  const currentXHSTheme = XHS_THEMES.find(t => t.id === xhsTheme) || XHS_THEMES[0];
 
   return (
     <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-zinc-200/50 bg-white/60 px-6 backdrop-blur-2xl">
@@ -87,40 +105,81 @@ export const TopNav = ({
           size="sm"
           className={cn(
             "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
-            styleTheme === 'wechat' 
-              ? "bg-white text-emerald-600 shadow-md ring-1 ring-zinc-200/50" 
-              : "text-zinc-500 hover:bg-white/50"
+            styleTheme === 'wechat'
+              ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200/80"
+              : "text-zinc-400 hover:text-zinc-600 hover:bg-white/50"
           )}
           onClick={() => {
             setStyleTheme('wechat');
             if (previewMode === 'xhs') setPreviewMode('app');
           }}
         >
-          <MessageCircle className={cn("size-4", styleTheme === 'wechat' && "fill-emerald-600/10")} />
-          公众号模式
+          <MessageCircle className="size-4" />
+          公众号
         </Button>
         <Button
           variant="ghost"
           size="sm"
           className={cn(
             "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
-            styleTheme === 'xhs' 
-              ? "bg-white text-pink-600 shadow-md ring-1 ring-zinc-200/50" 
-              : "text-zinc-500 hover:bg-white/50"
+            styleTheme === 'xhs'
+              ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200/80"
+              : "text-zinc-400 hover:text-zinc-600 hover:bg-white/50"
           )}
           onClick={() => {
             setStyleTheme('xhs');
             setPreviewMode('xhs');
           }}
         >
-          <Sparkles className={cn("size-4", styleTheme === 'xhs' && "fill-pink-600/10")} />
-          小红书模式
+          <Sparkles className="size-4" />
+          小红书
         </Button>
 
         {styleTheme === 'wechat' && (
           <>
             <div className="h-4 w-px bg-zinc-300 mx-1" />
             <ThemePicker value={wechatTheme} onChange={setWechatTheme} />
+          </>
+        )}
+
+        {styleTheme === 'xhs' && (
+          <>
+            <div className="h-4 w-px bg-zinc-300 mx-1" />
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowXHSThemePicker(!showXHSThemePicker)}
+                className="h-8 gap-2 px-3 text-[11px] font-bold"
+              >
+                <div 
+                  className="w-4 h-4 rounded-md shadow-sm" 
+                  style={{ background: currentXHSTheme.preview }}
+                />
+                {currentXHSTheme.name}
+              </Button>
+              
+              {showXHSThemePicker && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setShowXHSThemePicker(false)}
+                  />
+                  <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-zinc-200 z-50 overflow-hidden">
+                    <div className="px-3 py-2 border-b border-zinc-100">
+                      <span className="text-xs font-bold text-zinc-500">选择长图模板</span>
+                    </div>
+                    <XHSThemePicker 
+                      currentTheme={xhsTheme} 
+                      onSelectTheme={(id) => {
+                        setXHSTheme(id);
+                        setShowXHSThemePicker(false);
+                      }} 
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -154,7 +213,27 @@ export const TopNav = ({
 
       <div className="flex items-center gap-3">
         <div className="h-4 w-[1px] bg-zinc-200" />
-        <ExportButton previewRef={previewRef} markdown={markdown} />
+        
+        {styleTheme === 'xhs' ? (
+          <Button
+            onClick={onExportXHS}
+            disabled={isExportingXHS}
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "h-9 gap-2 rounded-xl px-4 text-xs font-bold transition-all",
+              "text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
+          >
+            {isExportingXHS
+              ? <><Loader2 className="size-3.5 animate-spin" />导出中...</>
+              : <><Download className="size-3.5" />导出</>
+            }
+          </Button>
+        ) : (
+          <ExportButton previewRef={previewRef} markdown={markdown} />
+        )}
+        
         <Button
           variant="ghost"
           size="sm"

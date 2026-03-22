@@ -6,7 +6,9 @@ import { markdownToHtml } from "@/lib/markdown";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
 import { useStore } from "@/store/use-store";
 import { getTheme } from "@/lib/themes";
+import { getXHSTheme } from "@/lib/xhs-themes";
 import { uploadToCloud } from "@/lib/image_service";
+import { exportToImage } from "@/lib/export-image";
 import dynamic from "next/dynamic";
 import type { EditorMethods } from "@/components/editor/mdx-editor";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,34 +16,41 @@ import { Type, Layers, Loader2 } from "lucide-react";
 
 import { TopNav } from "@/components/editor/top-nav";
 import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
-import { XHSScreenMockup } from "@/components/editor/mockups/xhs-mockup";
-import { IPhoneMockup } from "@/components/editor/mockups/iphone-mockup";
+import { IPhoneMockup, StatusBar } from "@/components/editor/mockups/iphone-mockup";
 import { DesktopMockup } from "@/components/editor/mockups/desktop-mockup";
 import { ContextMenu } from "@/components/editor/context-menu";
+import { XHSLongImagePreview } from "@/components/editor/xhs-long-image-preview";
+import { XHSSlidePreview, XHSSlidePreviewMethods } from "@/components/editor/xhs-slide-preview";
 
 const MDXEditor = dynamic(() => import("@/components/editor/mdx-editor"), { ssr: false });
 
 export default function ChicEditor() {
   const {
     markdown, setMarkdown,
-    references, setReferences,
+    references,
     html, setHtml,
     previewMode, setPreviewMode,
     imgRadius,
     styleTheme, setStyleTheme,
     wechatTheme, setWechatTheme,
+    xhsTheme, setXHSTheme,
     layoutMode, setLayoutMode,
+    xhsShowHeader, xhsShowFooter,
     undo, redo, pushHistory
   } = useStore();
 
   const activeTheme = getTheme(wechatTheme);
+  const activeXHSTheme = getXHSTheme(xhsTheme);
   const editorRef = useRef<EditorMethods>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const xhsPreviewRef = useRef<HTMLDivElement>(null);
+  const xhsSlideRef = useRef<XHSSlidePreviewMethods>(null);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [isUploading, setIsUploading] = useState(false);
+  const [isExportingXHS, setIsExportingXHS] = useState(false);
+  const [xhsMode, setXHSMode] = useState<'long' | 'slide'>('slide');
   const [activePopup, setActivePopup] = useState<string | null>(null);
 
-  // store hydrate 后同步到编辑器（解决 dynamic import + persist 时序问题）
   const hasHydrated = useRef(false);
   useEffect(() => {
     if (hasHydrated.current) return;
@@ -51,7 +60,6 @@ export default function ChicEditor() {
     }
   }, [markdown]);
 
-  // 在光标处插入/包裹文本
   const handleWrapText = (before: string, after?: string) => {
     editorRef.current?.wrapSelection(before, after ?? before);
   };
@@ -87,7 +95,6 @@ export default function ChicEditor() {
     try {
       const cloudUrl = await uploadToCloud(file);
       console.log('✅ 上传成功:', cloudUrl);
-      // 直接插入内联图片，URL 存在 markdown 里，persist 自然保存
       if (editorRef.current) {
         editorRef.current.insertMarkdown(`![${file.name}](${cloudUrl})`);
         setMarkdown(editorRef.current.getMarkdown());
@@ -124,6 +131,7 @@ export default function ChicEditor() {
     }, 300);
     return () => clearTimeout(timer);
   }, [markdown, references, styleTheme, setHtml]);
+
   const handleCopy = async () => {
     if (!previewRef.current) return;
     try {
@@ -135,7 +143,269 @@ export default function ChicEditor() {
       await navigator.clipboard.write(data);
       setCopyStatus('success');
       setTimeout(() => setCopyStatus('idle'), 2000);
-    } catch (err) { setCopyStatus('error'); }
+    } catch { setCopyStatus('error'); }
+  };
+
+  const handleExportXHS = async () => {
+    if (!xhsSlideRef.current) return;
+    
+    setIsExportingXHS(true);
+    try {
+      const totalSlides = xhsSlideRef.current.getSlidesCount();
+      const originalSlide = xhsSlideRef.current.getCurrentSlide();
+      
+      // 小红书卡片尺寸常量（与 xhs-slide-preview.tsx 保持一致）
+      const CARD_W = 334;
+      const CARD_H = 672;
+      const FOOTER_H = 48;
+      const PADDING_X = 20;
+      const PADDING_Y = 24;
+      const SAFE_MARGIN = 16; // 底部安全边距
+      const CONTENT_H = CARD_H - FOOTER_H - PADDING_Y * 2 - SAFE_MARGIN; // 584px
+      
+      // 导出容器的实际高度（包含 padding + 额外的底部空间防止截断）
+      const EXPORT_HEIGHT = CONTENT_H + PADDING_Y * 2 + 20; // 652px，额外增加 20px
+      
+      // 辅助函数：将图片转为 base64（使用服务端代理）
+      const imgToBase64 = async (img: HTMLImageElement): Promise<string> => {
+        // 如果已经是 base64，直接返回
+        if (img.src.startsWith('data:')) {
+          console.log('图片已是 base64 格式');
+          return img.src;
+        }
+        
+        try {
+          // 使用服务端代理获取图片
+          const url = new URL(img.src, window.location.href);
+          console.log('通过服务端代理获取图片:', url.href);
+          
+          const response = await fetch(`/api/image-proxy?url=${encodeURIComponent(url.href)}`);
+          
+          if (!response.ok) {
+            throw new Error(`代理请求失败: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.dataUrl) {
+            console.log('✓ 图片转换成功');
+            return data.dataUrl;
+          } else {
+            throw new Error('代理返回数据格式错误');
+          }
+        } catch (e) {
+          console.warn('服务端代理失败，尝试客户端转换:', e);
+          
+          // Fallback: 尝试客户端转换（可能因 CORS 失败）
+          return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            if (!ctx) {
+              console.warn('无法创建 canvas context');
+              resolve(img.src);
+              return;
+            }
+            
+            // 如果图片已经加载完成，尝试直接转换
+            if (img.complete && img.naturalWidth > 0) {
+              try {
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                ctx.drawImage(img, 0, 0);
+                const dataUrl = canvas.toDataURL('image/png');
+                console.log('✓ 客户端转换成功');
+                resolve(dataUrl);
+                return;
+              } catch (err) {
+                console.warn('✗ 客户端转换失败（CORS）:', err);
+                resolve(img.src);
+                return;
+              }
+            }
+            
+            // 尝试重新加载图片
+            const image = new Image();
+            image.crossOrigin = 'anonymous';
+            
+            const timeout = setTimeout(() => {
+              console.warn('✗ 图片加载超时');
+              resolve(img.src);
+            }, 5000);
+            
+            image.onload = () => {
+              clearTimeout(timeout);
+              try {
+                canvas.width = image.naturalWidth || image.width;
+                canvas.height = image.naturalHeight || image.height;
+                ctx.drawImage(image, 0, 0);
+                const dataUrl = canvas.toDataURL('image/png');
+                console.log('✓ 重新加载并转换成功');
+                resolve(dataUrl);
+              } catch (err) {
+                console.warn('✗ 转换失败:', err);
+                resolve(img.src);
+              }
+            };
+            
+            image.onerror = () => {
+              clearTimeout(timeout);
+              console.warn('✗ 图片加载失败');
+              resolve(img.src);
+            };
+            
+            try {
+              const url = new URL(img.src, window.location.href);
+              image.src = url.href;
+            } catch (err) {
+              console.warn('URL 解析失败:', err);
+              resolve(img.src);
+            }
+          });
+        }
+      };
+      
+      // 逐页导出
+      for (let i = 0; i < totalSlides; i++) {
+        xhsSlideRef.current.goToSlide(i);
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 获取当前页的完整 slide 容器（包含 padding）
+        const slideContainers = document.querySelectorAll('.xhs-slide-page');
+        const slideContainer = slideContainers[i];
+        if (!slideContainer) continue;
+        
+        // 创建离屏容器 - 与预览完全一致的结构
+        const exportContainer = document.createElement('div');
+        exportContainer.style.cssText = `
+          position: fixed; top: -9999px; left: -9999px;
+          width: ${CARD_W}px;
+          height: ${CARD_H - FOOTER_H}px;
+          background: ${activeXHSTheme.background};
+          box-sizing: border-box;
+          overflow: hidden;
+        `;
+        document.body.appendChild(exportContainer);
+
+        // 注入主题样式
+        const styleEl = document.createElement('style');
+        styleEl.textContent = activeXHSTheme.css;
+        exportContainer.appendChild(styleEl);
+        
+        // 克隆完整的 slide 容器（包含 padding）
+        const slideClone = slideContainer.cloneNode(true) as HTMLElement;
+        exportContainer.appendChild(slideClone);
+        
+        // 转换所有图片为 base64
+        const images = exportContainer.querySelectorAll('img');
+        console.log(`第 ${i + 1} 页找到 ${images.length} 张图片`);
+        
+        if (images.length > 0) {
+          const results = await Promise.all(
+            Array.from(images).map(async (img, idx) => {
+              try {
+                const originalSrc = img.src;
+                const base64 = await imgToBase64(img as HTMLImageElement);
+                (img as HTMLImageElement).src = base64;
+                const success = base64.startsWith('data:');
+                console.log(`图片 ${idx + 1}: ${success ? '✓ 转换成功' : '✗ 转换失败'}`);
+                return success;
+              } catch (e) {
+                console.warn(`图片 ${idx + 1} 转换失败:`, e);
+                return false;
+              }
+            })
+          );
+          
+          const successCount = results.filter(r => r).length;
+          console.log(`图片转换完成: ${successCount}/${images.length} 成功`);
+          
+          // 等待 DOM 更新
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
+        // 注入内容样式
+        const contentStyleEl = document.createElement('style');
+        contentStyleEl.textContent = `
+          #xhs-content {
+            font-size: 15px;
+            line-height: 1.8;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+          }
+          #xhs-content > * {
+            margin-bottom: 0.8em;
+          }
+          #xhs-content > *:last-child {
+            margin-bottom: 0;
+          }
+          #xhs-content h1, #xhs-content h2, #xhs-content h3 {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            line-height: 1.4;
+          }
+          #xhs-content p {
+            margin: 0.6em 0;
+          }
+          #xhs-content ul, #xhs-content ol {
+            padding-left: 1.5em;
+            margin: 0.6em 0;
+          }
+          #xhs-content li {
+            margin: 0.3em 0;
+          }
+          #xhs-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0.8em 0;
+            border-radius: 8px;
+          }
+          #xhs-content pre {
+            overflow-x: auto;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 0.8em 0;
+            font-size: 13px;
+          }
+          #xhs-content code {
+            font-size: 0.9em;
+          }
+          #xhs-content blockquote {
+            margin: 0.8em 0;
+            padding-left: 1em;
+            border-left: 3px solid currentColor;
+            opacity: 0.8;
+          }
+        `;
+        exportContainer.appendChild(contentStyleEl);
+        
+        // 等待渲染完成
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 调试：输出容器实际高度
+        console.log('导出容器尺寸:', {
+          offsetHeight: exportContainer.offsetHeight,
+          scrollHeight: exportContainer.scrollHeight,
+          clientHeight: exportContainer.clientHeight,
+          设定高度: EXPORT_HEIGHT
+        });
+        
+        await exportToImage(exportContainer, {
+          filename: `xhs-slide-${i + 1}-of-${totalSlides}`,
+          format: 'png',
+          scale: 3,
+        });
+        
+        document.body.removeChild(exportContainer);
+      }
+      
+      xhsSlideRef.current.goToSlide(originalSlide);
+    } catch (error) {
+      console.error('导出失败:', error);
+    } finally {
+      setIsExportingXHS(false);
+    }
   };
 
   const renderContent = () => (
@@ -156,6 +426,26 @@ export default function ChicEditor() {
     </div>
   );
 
+  const renderXHSLongImage = () => (
+    <XHSLongImagePreview
+      ref={xhsPreviewRef}
+      html={html}
+      theme={activeXHSTheme}
+      showHeader={xhsShowHeader}
+      showFooter={xhsShowFooter}
+    />
+  );
+
+  const renderXHSSlide = () => (
+    <XHSSlidePreview
+      ref={xhsSlideRef}
+      html={html}
+      theme={activeXHSTheme}
+      showHeader={xhsShowHeader}
+      showFooter={xhsShowFooter}
+    />
+  );
+
   return (
     <div className="flex h-screen flex-col bg-[#F9FAFB] overflow-hidden selection:bg-indigo-100 selection:text-indigo-900" onDragOver={(e) => e.preventDefault()}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
@@ -171,10 +461,16 @@ export default function ChicEditor() {
         setStyleTheme={setStyleTheme} 
         wechatTheme={wechatTheme}
         setWechatTheme={setWechatTheme}
+        xhsTheme={xhsTheme}
+        setXHSTheme={setXHSTheme}
         onCopy={handleCopy} 
         copyStatus={copyStatus} 
-        previewRef={previewRef} 
-        markdown={markdown} 
+        previewRef={previewRef}
+        markdown={markdown}
+        onExportXHS={handleExportXHS}
+        isExportingXHS={isExportingXHS}
+        xhsMode={xhsMode}
+        setXHSMode={setXHSMode}
       />
       
       <main className="flex flex-1 overflow-hidden relative p-4 gap-4">
@@ -253,7 +549,6 @@ export default function ChicEditor() {
                 layoutMode === 'preview' ? "w-full" : ""
               )}
             >
-              {/* 上传状态提示 */}
               <AnimatePresence>
                 {isUploading && (
                   <motion.div
@@ -270,11 +565,52 @@ export default function ChicEditor() {
               </AnimatePresence>
               <div className="w-full max-w-5xl mx-auto h-full flex flex-col pt-8">
                 <div className="flex-1 flex items-center justify-center overflow-visible">
-                  <div className="origin-top transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]" style={{ transform: previewMode === 'pc' ? 'none' : 'scale(0.9)' }}>
-                    {previewMode === 'pc' ? (
+                  <div className="origin-top transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]" style={{ transform: (previewMode === 'pc' || styleTheme === 'xhs') ? 'none' : 'scale(0.9)' }}>
+                    {styleTheme === 'xhs' ? (
+                      previewMode === 'pc' ? (
+                        // 小红书 PC：浏览器外框 + 居中卡片
+                        <div style={{ background: '#f0f0f0', borderRadius: 12, padding: '40px 60px', boxShadow: '0 8px 40px rgba(0,0,0,0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+                          {/* 浏览器顶栏 */}
+                          <div style={{ width: '100%', background: '#fff', borderRadius: '10px 10px 0 0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: '1px solid #e8e8e8' }}>
+                            <div style={{ display: 'flex', gap: 5 }}>
+                              {['#ff5f57','#febc2e','#28c840'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
+                            </div>
+                            <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 6, height: 22, marginLeft: 8, display: 'flex', alignItems: 'center', paddingLeft: 10 }}>
+                              <span style={{ fontSize: 11, color: '#999' }}>xiaohongshu.com</span>
+                            </div>
+                          </div>
+                          {/* 卡片 */}
+                          <div style={{ background: '#fff', borderRadius: '0 0 10px 10px', padding: '24px', display: 'flex', justifyContent: 'center' }}>
+                            <XHSSlidePreview
+                              ref={xhsSlideRef}
+                              html={html}
+                              theme={activeXHSTheme}
+                              showHeader={xhsShowHeader}
+                              showFooter={xhsShowFooter}
+                              hideMockUI={true}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                         // 移动端：套手机壳
+                         <div className="relative mx-auto overflow-hidden rounded-[55px] border-[8px] border-zinc-900 bg-zinc-900 shadow-2xl"
+                           style={{ width: 350, height: 712 }}>
+                           <div className="relative h-full w-full overflow-hidden rounded-[47px]" style={{ background: activeXHSTheme.background }}>
+                             <div style={{ position: 'absolute', top: 0, left: 0, width: 334 }}>
+                               <XHSSlidePreview
+                                 ref={xhsSlideRef}
+                                 html={html}
+                                 theme={activeXHSTheme}
+                                 showHeader={xhsShowHeader}
+                                 showFooter={xhsShowFooter}
+                                 hideMockUI={false}
+                               />
+                             </div>
+                           </div>
+                         </div>
+                      )
+                    ) : previewMode === 'pc' ? (
                       <DesktopMockup>{renderContent()}</DesktopMockup>
-                    ) : (styleTheme === 'xhs' || previewMode === 'xhs') ? (
-                      <XHSScreenMockup>{renderContent()}</XHSScreenMockup>
                     ) : (
                       <IPhoneMockup mode={previewMode}>{renderContent()}</IPhoneMockup>
                     )}
