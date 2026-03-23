@@ -12,6 +12,7 @@ interface AppState {
   layoutMode: 'split' | 'edit' | 'preview';
   xhsShowHeader: boolean;
   xhsShowFooter: boolean;
+  showWordCount: boolean;
   past: { markdown: string }[];
   future: { markdown: string }[];
 
@@ -25,6 +26,7 @@ interface AppState {
   setLayoutMode: (mode: 'split' | 'edit' | 'preview') => void;
   setXHSShowHeader: (show: boolean) => void;
   setXHSShowFooter: (show: boolean) => void;
+  setShowWordCount: (show: boolean) => void;
   undo: () => void;
   redo: () => void;
   pushHistory: () => void;
@@ -49,7 +51,7 @@ const INITIAL_MARKDOWN = `# ChicPage：让每一篇文章都值得被看见
 - **Markdown 实时预览**：左边写，右边看，所见即所得
 - **多套精美主题**：默认、绿意、典雅、科技、玫瑰，一键切换
 - **一键复制到公众号**：样式完整内联，粘贴即用，无需二次调整
-- **本地持久化存储**：基于 IndexedDB，无需云端，隐私安全，刷新不丢失
+- **图片云端存储**：上传即永久保存，刷新不丢失
 - **丰富的快捷工具**：加粗、引用、代码块、提示盒、表格……应有尽有
 
 ## 适合谁用？
@@ -57,7 +59,7 @@ const INITIAL_MARKDOWN = `# ChicPage：让每一篇文章都值得被看见
 ![冬季小屋小镇](https://pub-165e4a840b054521b838c89222b94062.r2.dev/uploads/%E3%80%90%E5%93%B2%E9%A3%8E%E5%A3%81%E7%BA%B8%E3%80%91%E5%86%AC%E5%AD%A3-%E5%B0%8F%E5%B1%8B-%E5%B0%8F%E9%95%87.png)
 
 1. 公众号作者，想要更高效的创作流程
-2. 技术博主，需要代码高亮和规范排版
+2. 技术博主，需要代码高亮 and 规范排版
 3. 内容运营，追求视觉一致性和品牌调性
 4. 任何热爱写作、在意细节的人
 
@@ -87,6 +89,7 @@ export const useStore = create<AppState>()(
       layoutMode: 'split',
       xhsShowHeader: true,
       xhsShowFooter: true,
+      showWordCount: false,
       past: [],
       future: [],
 
@@ -97,11 +100,12 @@ export const useStore = create<AppState>()(
       setImgRadius: (imgRadius) => set({ imgRadius }),
       setPreviewMode: (previewMode) => set({ previewMode }),
       setStyleTheme: (styleTheme) => set({ styleTheme }),
+      setXHSShowHeader: (xhsShowHeader) => set({ xhsShowHeader }),
+      setXHSShowFooter: (xhsShowFooter) => set({ xhsShowFooter }),
+      setShowWordCount: (showWordCount) => set({ showWordCount }),
       setWechatTheme: (wechatTheme) => set({ wechatTheme }),
       setXHSTheme: (xhsTheme) => set({ xhsTheme }),
       setLayoutMode: (layoutMode) => set({ layoutMode }),
-      setXHSShowHeader: (xhsShowHeader) => set({ xhsShowHeader }),
-      setXHSShowFooter: (xhsShowFooter) => set({ xhsShowFooter }),
 
       pushHistory: () => set((state) => ({
         past: [...state.past, { markdown: state.markdown }].slice(-50),
@@ -139,6 +143,7 @@ export const useStore = create<AppState>()(
         layoutMode: state.layoutMode,
         xhsShowHeader: state.xhsShowHeader,
         xhsShowFooter: state.xhsShowFooter,
+        showWordCount: state.showWordCount,
       }),
     }
   )

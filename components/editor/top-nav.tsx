@@ -11,8 +11,10 @@ import {
   Copy,
   Check,
   Download,
-  Loader2
+  Loader2,
+  FileText
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
@@ -40,7 +42,10 @@ interface TopNavProps {
   exportProgress?: { current: number; total: number };
   xhsMode?: 'long' | 'slide';
   setXHSMode?: (mode: 'long' | 'slide') => void;
+  showWordCount: boolean;
+  setShowWordCount: (show: boolean) => void;
 }
+
 
 export const TopNav = ({
   previewMode,
@@ -62,7 +67,10 @@ export const TopNav = ({
   exportProgress,
   xhsMode = 'slide',
   setXHSMode,
+  showWordCount,
+  setShowWordCount,
 }: TopNavProps) => {
+
   const [showXHSThemePicker, setShowXHSThemePicker] = useState(false);
   const currentXHSTheme = XHS_THEMES.find(t => t.id === xhsTheme) || XHS_THEMES[0];
 
@@ -177,7 +185,21 @@ export const TopNav = ({
         >
           <Smartphone className="size-3.5" />
         </Button>
+        <div className="h-4 w-px bg-zinc-300 mx-1" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setShowWordCount(!showWordCount)}
+          title={showWordCount ? "隐藏字数信息" : "显示字数信息"}
+          className={cn(
+            "size-7 rounded-md transition-all", 
+            showWordCount ? "bg-white text-indigo-500 shadow-sm ring-1 ring-zinc-200" : "text-zinc-400 hover:text-zinc-600"
+          )}
+        >
+          <FileText className="size-3.5" />
+        </Button>
       </div>
+
 
       <div className="flex items-center gap-3">
         <div className="h-4 w-[1px] bg-zinc-200" />

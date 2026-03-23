@@ -10,7 +10,10 @@ import { getTheme } from "@/lib/themes";
 import { getXHSTheme } from "@/lib/xhs-themes";
 import { storeImageLocally } from "@/lib/image_service";
 import { exportToImage } from "@/lib/export-image";
+import { injectReadInfo, getCleanText } from "@/lib/utils-content";
 import JSZip from "jszip";
+
+
 import dynamic from "next/dynamic";
 import type { EditorMethods } from "@/components/editor/mdx-editor";
 import { TopNav } from "@/components/editor/top-nav";
@@ -32,7 +35,9 @@ export default function ChicEditor() {
     xhsTheme, setXHSTheme,
     layoutMode, setLayoutMode,
     xhsShowHeader, xhsShowFooter,
+    showWordCount, setShowWordCount,
     undo, redo, pushHistory
+
   } = useStore();
 
   const activeTheme = getTheme(wechatTheme);
@@ -145,25 +150,45 @@ export default function ChicEditor() {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      const res = await markdownToHtml(markdown);
+      const contentToRender = showWordCount ? injectReadInfo(markdown) : markdown;
+      const res = await markdownToHtml(contentToRender);
       setHtml(res);
     }, 300);
     return () => clearTimeout(timer);
-  }, [markdown, styleTheme, setHtml]);
+  }, [markdown, styleTheme, showWordCount, setHtml]);
+
 
   const handleCopy = async () => {
-    if (!previewRef.current) return;
     try {
+      if (styleTheme === 'xhs') {
+        // 小红书模式：一键复制纯正文，移除 Markdown 语法
+        let textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
+        textToCopy = getCleanText(textToCopy);
+        await navigator.clipboard.writeText(textToCopy);
+        setCopyStatus('success');
+        setTimeout(() => setCopyStatus('idle'), 2000);
+        return;
+      }
+
+      if (!previewRef.current) return;
       const chicpageEl = previewRef.current.querySelector('#chicpage') as HTMLElement | null;
       const target = chicpageEl ?? previewRef.current;
       const contentHtml = getInlinedHtml(target, { wechatOptimized: true });
       const finalHtml = getWeChatHtml(contentHtml, activeTheme.containerStyle);
-      const data = [new ClipboardItem({ "text/html": new Blob([finalHtml], { type: "text/html" }), "text/plain": new Blob([markdown], { type: "text/plain" }) })];
+      const textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
+      const data = [new ClipboardItem({ 
+        "text/html": new Blob([finalHtml], { type: "text/html" }), 
+        "text/plain": new Blob([textToCopy], { type: "text/plain" }) 
+      })];
       await navigator.clipboard.write(data);
       setCopyStatus('success');
       setTimeout(() => setCopyStatus('idle'), 2000);
-    } catch { setCopyStatus('error'); }
+    } catch (err) {
+      console.error('Copy failed:', err);
+      setCopyStatus('error');
+    }
   };
+
 
   const handleExportXHS = async () => {
     if (!xhsSlideRef.current) return;
@@ -291,7 +316,10 @@ export default function ChicEditor() {
         exportProgress={exportProgress}
         xhsMode={xhsMode}
         setXHSMode={setXHSMode}
+        showWordCount={showWordCount}
+        setShowWordCount={setShowWordCount}
       />
+
       
       <main className="flex flex-1 overflow-hidden relative p-4 gap-4">
         <EditorSection

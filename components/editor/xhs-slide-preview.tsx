@@ -85,8 +85,10 @@ const HEADER_H = 0;
 export const XHS_FOOTER_H = 48;
 const PADDING_X = 20; // 左右内边距
 const PADDING_Y = 24; // 上下内边距
-const SAFE_MARGIN = 16; // 底部安全边距，防止截断
-export const XHS_CONTENT_H = XHS_CARD_H - XHS_STATUS_H - HEADER_H - XHS_FOOTER_H - PADDING_Y * 2 - SAFE_MARGIN; // 520px
+const SAFE_MARGIN = 32; // 底部安全边距，防止截断
+
+export const XHS_CONTENT_H = XHS_CARD_H - XHS_STATUS_H - HEADER_H - XHS_FOOTER_H - PADDING_Y * 2 - SAFE_MARGIN; // 504px
+
 
 // 导出内容区域的通用 CSS，供导出时注入
 export function getXHSContentCSS(themeCSS: string): string {
@@ -179,7 +181,10 @@ function shouldKeepTogether(nodes: Node[]): boolean {
   return false;
 }
 
-function splitIntoSlides(html: string, themeCSS: string): string[] {
+/**
+ * 离屏探针，用于精确计算内容高度
+ */
+async function splitIntoSlides(html: string, themeCSS: string): Promise<string[]> {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
   const nodes = Array.from(doc.body.childNodes).filter(
@@ -189,21 +194,34 @@ function splitIntoSlides(html: string, themeCSS: string): string[] {
   );
   if (nodes.length === 0) return [html];
 
-  // 离屏 probe，注入主题 CSS 以获得准确高度
+  // 注入主题 CSS 以获得准确高度
   const styleEl = document.createElement("style");
   styleEl.textContent = getXHSContentCSS(themeCSS);
 
   const probe = document.createElement("div");
   probe.id = "xhs-content";
+  // 必须使用相同的样式上下文
   probe.style.cssText = `
     position: fixed; top: -9999px; left: -9999px;
     width: ${XHS_CARD_W - PADDING_X * 2}px; visibility: hidden; pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     box-sizing: border-box; overflow: hidden;
+    line-height: 1.8;
   `;
 
   document.head.appendChild(styleEl);
   document.body.appendChild(probe);
+
+  // 预加载所有图片，确保高度计算准确
+  const images = Array.from(doc.querySelectorAll('img'));
+  await Promise.all(images.map(img => {
+    return new Promise((resolve) => {
+      const i = new Image();
+      i.onload = () => resolve(null);
+      i.onerror = () => resolve(null);
+      i.src = (img as HTMLImageElement).src;
+    });
+  }));
 
   const getH = (nodesArr: Node[]) => {
     probe.innerHTML = "";
@@ -219,33 +237,16 @@ function splitIntoSlides(html: string, themeCSS: string): string[] {
     const currentH = getH(bucket);
     
     if (currentH > XHS_CONTENT_H && bucket.length > 1) {
-      const lastNode = bucket[bucket.length - 1];
-      const secondLastNode = bucket[bucket.length - 2];
+      const lastNode = bucket.pop()!;
       
-      // 智能分页策略
-      let shouldSplit = true;
-      
-      // 1. 如果最后一个元素是不可分割的，必须移到下一页
-      if (isNonSplittable(lastNode)) {
-        bucket.pop();
-        shouldSplit = true;
-      }
-      // 2. 如果最后两个元素应该保持在一起（如标题+段落），一起移到下一页
-      else if (shouldKeepTogether(bucket)) {
-        bucket.pop();
-        bucket.pop();
+      // 检查分页策略
+      if (shouldKeepTogether([...bucket, lastNode])) {
+        const secondLastNode = bucket.pop()!;
         const tmp = document.createElement("div");
         bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
         slides.push(tmp.innerHTML);
         bucket = [secondLastNode, lastNode];
-        continue;
-      }
-      // 3. 普通元素，移到下一页
-      else {
-        bucket.pop();
-      }
-      
-      if (shouldSplit && bucket.length > 0) {
+      } else {
         const tmp = document.createElement("div");
         bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
         slides.push(tmp.innerHTML);
@@ -266,6 +267,7 @@ function splitIntoSlides(html: string, themeCSS: string): string[] {
   return slides.length > 0 ? slides : [html];
 }
 
+
 export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePreviewProps>(
   ({
     html,
@@ -285,10 +287,20 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
 
     useEffect(() => {
       if (!html) return;
-      setCurrent(0);
-      const result = splitIntoSlides(html, theme.css);
-      setSlides(result);
+      
+      let isMounted = true;
+      const run = async () => {
+        const result = await splitIntoSlides(html, theme.css);
+        if (isMounted) {
+          setSlides(result);
+          setCurrent(0);
+        }
+      };
+      run();
+      
+      return () => { isMounted = false; };
     }, [html, theme.css]);
+
 
     const go = (dir: 1 | -1) => {
       setCurrent((p) => Math.max(0, Math.min(slides.length - 1, p + dir)));

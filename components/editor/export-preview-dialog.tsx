@@ -60,20 +60,23 @@ export function ExportPreviewDialog({
                   className="w-full overflow-hidden relative"
                   style={{ 
                     background: themeBackground,
-                    aspectRatio: '334/560',
+                    aspectRatio: '334/584', // 672 - 40 - 48 = 584
                   }}
                 >
                   <div
                     className="preview-content w-full h-full"
                     dangerouslySetInnerHTML={{ __html: slide.html }}
                     style={{
-                      padding: '7.2% 6%',
+                      padding: '4.1% 6%', // 24/584 ≈ 4.1%, 20/334 ≈ 6%
                       fontFamily: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif',
-                      fontSize: '4.5%',
+                      fontSize: '4.5%', // 15/334 ≈ 4.5%
                       lineHeight: 1.8,
+                      boxSizing: 'border-box',
                     }}
                   />
+
                 </div>
+
               </div>
             ))}
           </div>
