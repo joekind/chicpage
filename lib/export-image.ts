@@ -1,4 +1,4 @@
-import html2canvas from "html2canvas";
+import { toPng, toJpeg } from "html-to-image";
 
 export interface ExportOptions {
   filename?: string;
@@ -7,114 +7,124 @@ export interface ExportOptions {
   scale?: number;
   backgroundColor?: string;
   cropHeight?: number; // 裁剪到指定高度
+  returnDataUrl?: boolean; // 返回 dataUrl 而不是下载
 }
+
+// 预加载元素内所有图片
+const preloadImages = async (element: HTMLElement): Promise<void> => {
+  const images = element.querySelectorAll('img');
+  console.log(`准备导出，找到 ${images.length} 张图片`);
+
+  await Promise.all(
+    Array.from(images).map((img, idx) => {
+      return new Promise<void>((resolve) => {
+        if (img.complete && img.naturalWidth > 0) {
+          console.log(`图片 ${idx + 1} 已加载`);
+          resolve();
+          return;
+        }
+        const timeout = setTimeout(() => {
+          console.warn(`图片 ${idx + 1} 加载超时`);
+          resolve();
+        }, 5000);
+
+        img.onload = () => {
+          clearTimeout(timeout);
+          console.log(`图片 ${idx + 1} 加载完成`);
+          resolve();
+        };
+        img.onerror = () => {
+          clearTimeout(timeout);
+          console.warn(`图片 ${idx + 1} 加载失败`);
+          resolve();
+        };
+
+        if (!img.src) {
+          console.warn(`图片 ${idx + 1} 没有 src`);
+          resolve();
+        }
+      });
+    })
+  );
+};
+
+// html-to-image 通用配置
+const getOptions = (element: HTMLElement, scale: number, backgroundColor: string) => ({
+  cacheBust: true,
+  pixelRatio: scale,
+  backgroundColor,
+  width: element.offsetWidth,
+  height: element.offsetHeight,
+  style: {
+    transform: 'none',
+    transformOrigin: 'top left',
+  },
+});
 
 export const exportToImage = async (
   element: HTMLElement,
   options: ExportOptions = {}
-): Promise<void> => {
+): Promise<string | void> => {
   const {
     filename = `chicpage-xhs-${Date.now()}`,
     format = 'png',
     quality = 1,
     scale = 2,
     backgroundColor = '#ffffff',
-    cropHeight
+    cropHeight,
+    returnDataUrl = false
   } = options;
 
   try {
-    // 预加载所有图片
-    const images = element.querySelectorAll('img');
-    console.log(`准备导出，找到 ${images.length} 张图片`);
-    
-    await Promise.all(
-      Array.from(images).map((img, idx) => {
-        return new Promise<void>((resolve) => {
-          if (img.complete && img.naturalWidth > 0) {
-            console.log(`图片 ${idx + 1} 已加载`);
-            resolve();
-            return;
-          }
-          const timeout = setTimeout(() => {
-            console.warn(`图片 ${idx + 1} 加载超时`);
-            resolve();
-          }, 5000);
-          
-          img.onload = () => {
-            clearTimeout(timeout);
-            console.log(`图片 ${idx + 1} 加载完成`);
-            resolve();
-          };
-          img.onerror = () => {
-            clearTimeout(timeout);
-            console.warn(`图片 ${idx + 1} 加载失败`);
-            resolve();
-          };
-          
-          // 如果图片还没开始加载，触发加载
-          if (!img.src) {
-            console.warn(`图片 ${idx + 1} 没有 src`);
-            resolve();
-          }
-        });
-      })
-    );
+    await preloadImages(element);
 
-    console.log('开始 html2canvas 渲染...');
-    const canvas = await html2canvas(element, {
-      scale,
-      backgroundColor,
-      useCORS: true, // 启用 CORS 以允许跨域图片下载并避免污染 canvas
-      allowTaint: false, // 禁止污染，否则无法导出（toDataURL 报错）
-      logging: true, // 开启日志便于调试
-      imageTimeout: 0, // 禁用超时，因为图片已预加载
-      windowHeight: element.scrollHeight + 100, // 增加窗口高度确保内容完整
-      onclone: (clonedDoc) => {
-        console.log('html2canvas 克隆文档');
-        // 确保克隆文档中的图片路径正确
-        const clonedImages = clonedDoc.querySelectorAll('img');
-        clonedImages.forEach((img, idx) => {
-          // 如果是相对路径，转换为绝对路径
-          if (img.src && !img.src.startsWith('data:') && !img.src.startsWith('http')) {
-            const absoluteUrl = new URL(img.src, window.location.href).href;
-            img.src = absoluteUrl;
-            console.log(`图片 ${idx + 1} 转为绝对路径:`, absoluteUrl);
-          }
-        });
-      }
+    console.log('开始 html-to-image 渲染...');
+    const opts = getOptions(element, scale, backgroundColor);
+    const toImageFn = format === 'jpeg' ? toJpeg : toPng;
+    let dataUrl = await toImageFn(element, {
+      ...opts,
+      quality: format === 'jpeg' ? quality : undefined,
     });
 
-    console.log('html2canvas 渲染完成，canvas 尺寸:', canvas.width, 'x', canvas.height);
-    
+    console.log('html-to-image 渲染完成');
+
     // 如果指定了裁剪高度，进行裁剪
-    let finalCanvas = canvas;
     if (cropHeight && cropHeight > 0) {
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+
       const croppedCanvas = document.createElement('canvas');
       const targetHeight = Math.floor(cropHeight * scale);
-      croppedCanvas.width = canvas.width;
-      croppedCanvas.height = Math.min(targetHeight, canvas.height);
-      
+      croppedCanvas.width = img.width;
+      croppedCanvas.height = Math.min(targetHeight, img.height);
+
       const ctx = croppedCanvas.getContext('2d');
       if (ctx) {
-        ctx.drawImage(canvas, 0, 0);
-        finalCanvas = croppedCanvas;
-        console.log('裁剪后尺寸:', finalCanvas.width, 'x', finalCanvas.height);
+        ctx.drawImage(img, 0, 0);
+        const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+        dataUrl = croppedCanvas.toDataURL(mimeType, quality);
+        console.log('裁剪后尺寸:', croppedCanvas.width, 'x', croppedCanvas.height);
       }
     }
-    
-    console.log('生成下载链接...');
-    const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
-    const dataUrl = finalCanvas.toDataURL(mimeType, quality);
 
+    // 如果只需要返回 dataUrl，不下载
+    if (returnDataUrl) {
+      return dataUrl;
+    }
+
+    console.log('生成下载链接...');
     const link = document.createElement('a');
     link.href = dataUrl;
     link.download = `${filename}.${format}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     console.log('导出完成！');
-    return Promise.resolve();
   } catch (error) {
     console.error('导出图片失败:', error);
     throw error;
@@ -132,40 +142,12 @@ export const getImageDataUrl = async (
     backgroundColor = '#ffffff'
   } = options;
 
-  // 预加载所有图片
-  const images = element.querySelectorAll('img');
-  await Promise.all(
-    Array.from(images).map((img) => {
-      return new Promise<void>((resolve) => {
-        if (img.complete && img.naturalWidth > 0) {
-          resolve();
-          return;
-        }
-        img.onload = () => resolve();
-        img.onerror = () => resolve();
-        if (!img.src) resolve();
-      });
-    })
-  );
+  await preloadImages(element);
 
-  const canvas = await html2canvas(element, {
-    scale,
-    backgroundColor,
-    useCORS: true,
-    allowTaint: false,
-    logging: false,
-    imageTimeout: 15000,
-    onclone: (clonedDoc) => {
-      const clonedImages = clonedDoc.querySelectorAll('img');
-      clonedImages.forEach((img) => {
-        img.crossOrigin = 'anonymous';
-        if (img.src && !img.src.startsWith('data:') && !img.src.startsWith('http')) {
-          img.src = new URL(img.src, window.location.href).href;
-        }
-      });
-    }
+  const opts = getOptions(element, scale, backgroundColor);
+  const toImageFn = format === 'jpeg' ? toJpeg : toPng;
+  return toImageFn(element, {
+    ...opts,
+    quality: format === 'jpeg' ? quality : undefined,
   });
-
-  const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
-  return canvas.toDataURL(mimeType, quality);
 };

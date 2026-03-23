@@ -63,6 +63,8 @@ export interface XHSSlidePreviewMethods {
   getSlidesCount: () => number;
   goToSlide: (index: number) => void;
   getCurrentSlide: () => number;
+  goPrev: () => void;
+  goNext: () => void;
 }
 
 interface XHSSlidePreviewProps {
@@ -76,29 +78,19 @@ interface XHSSlidePreviewProps {
   hideMockUI?: boolean;
 }
 
-const CARD_W = 334;
-const CARD_H = 672;
-const STATUS_BAR_H = 40; // 状态栏高度
+export const XHS_CARD_W = 334;
+export const XHS_CARD_H = 672;
+export const XHS_STATUS_H = 40; // 状态栏高度
 const HEADER_H = 0;
-const FOOTER_H = 48;
+export const XHS_FOOTER_H = 48;
 const PADDING_X = 20; // 左右内边距
 const PADDING_Y = 24; // 上下内边距
 const SAFE_MARGIN = 16; // 底部安全边距，防止截断
-const CONTENT_H = CARD_H - STATUS_BAR_H - HEADER_H - FOOTER_H - PADDING_Y * 2 - SAFE_MARGIN; // 520px
+export const XHS_CONTENT_H = XHS_CARD_H - XHS_STATUS_H - HEADER_H - XHS_FOOTER_H - PADDING_Y * 2 - SAFE_MARGIN; // 520px
 
-function splitIntoSlides(html: string, themeCSS: string): string[] {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const nodes = Array.from(doc.body.childNodes).filter(
-    (n) =>
-      n.nodeType === Node.ELEMENT_NODE ||
-      (n.nodeType === Node.TEXT_NODE && n.textContent?.trim())
-  );
-  if (nodes.length === 0) return [html];
-
-  // 离屏 probe，注入主题 CSS 以获得准确高度
-  const styleEl = document.createElement("style");
-  styleEl.textContent = `
+// 导出内容区域的通用 CSS，供导出时注入
+export function getXHSContentCSS(themeCSS: string): string {
+  return `
     ${themeCSS}
     #xhs-content {
       font-size: 15px;
@@ -151,12 +143,61 @@ function splitIntoSlides(html: string, themeCSS: string): string[] {
       opacity: 0.8;
     }
   `;
+}
+
+// 判断节点是否为不可分割元素
+function isNonSplittable(node: Node): boolean {
+  if (node.nodeType !== Node.ELEMENT_NODE) return false;
+  const tagName = (node as Element).tagName.toLowerCase();
+  // 标题、代码块、引用块、表格、图片等不可分割
+  return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'blockquote', 'table', 'img', 'figure'].includes(tagName);
+}
+
+// 判断节点组是否包含紧密关联的元素（如标题+段落）
+function shouldKeepTogether(nodes: Node[]): boolean {
+  if (nodes.length < 2) return false;
+  
+  // 检查最后两个节点：如果是标题+内容，应该保持在一起
+  const lastTwo = nodes.slice(-2);
+  if (lastTwo.length === 2) {
+    const first = lastTwo[0];
+    const second = lastTwo[1];
+    
+    if (first.nodeType === Node.ELEMENT_NODE && second.nodeType === Node.ELEMENT_NODE) {
+      const firstTag = (first as Element).tagName.toLowerCase();
+      const secondTag = (second as Element).tagName.toLowerCase();
+      
+      // 标题后面跟着段落/列表，应该保持在一起
+      if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(firstTag)) {
+        if (['p', 'ul', 'ol', 'blockquote'].includes(secondTag)) {
+          return true;
+        }
+      }
+    }
+  }
+  
+  return false;
+}
+
+function splitIntoSlides(html: string, themeCSS: string): string[] {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+  const nodes = Array.from(doc.body.childNodes).filter(
+    (n) =>
+      n.nodeType === Node.ELEMENT_NODE ||
+      (n.nodeType === Node.TEXT_NODE && n.textContent?.trim())
+  );
+  if (nodes.length === 0) return [html];
+
+  // 离屏 probe，注入主题 CSS 以获得准确高度
+  const styleEl = document.createElement("style");
+  styleEl.textContent = getXHSContentCSS(themeCSS);
 
   const probe = document.createElement("div");
   probe.id = "xhs-content";
   probe.style.cssText = `
     position: fixed; top: -9999px; left: -9999px;
-    width: ${CARD_W - PADDING_X * 2}px; visibility: hidden; pointer-events: none;
+    width: ${XHS_CARD_W - PADDING_X * 2}px; visibility: hidden; pointer-events: none;
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     box-sizing: border-box; overflow: hidden;
   `;
@@ -177,13 +218,39 @@ function splitIntoSlides(html: string, themeCSS: string): string[] {
     bucket.push(node);
     const currentH = getH(bucket);
     
-    if (currentH > CONTENT_H && bucket.length > 1) {
-      // Exceeds the slide height, need to bump the very last node into a new slide.
-      bucket.pop();
-      const tmp = document.createElement("div");
-      bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
-      slides.push(tmp.innerHTML);
-      bucket = [node];
+    if (currentH > XHS_CONTENT_H && bucket.length > 1) {
+      const lastNode = bucket[bucket.length - 1];
+      const secondLastNode = bucket[bucket.length - 2];
+      
+      // 智能分页策略
+      let shouldSplit = true;
+      
+      // 1. 如果最后一个元素是不可分割的，必须移到下一页
+      if (isNonSplittable(lastNode)) {
+        bucket.pop();
+        shouldSplit = true;
+      }
+      // 2. 如果最后两个元素应该保持在一起（如标题+段落），一起移到下一页
+      else if (shouldKeepTogether(bucket)) {
+        bucket.pop();
+        bucket.pop();
+        const tmp = document.createElement("div");
+        bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
+        slides.push(tmp.innerHTML);
+        bucket = [secondLastNode, lastNode];
+        continue;
+      }
+      // 3. 普通元素，移到下一页
+      else {
+        bucket.pop();
+      }
+      
+      if (shouldSplit && bucket.length > 0) {
+        const tmp = document.createElement("div");
+        bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
+        slides.push(tmp.innerHTML);
+        bucket = [lastNode];
+      }
     }
   }
   
@@ -247,7 +314,7 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
     };
 
     const displaySlides = slides.length > 0 ? slides : [html];
-    const translateX = dragOffset - current * CARD_W;
+    const translateX = dragOffset - current * XHS_CARD_W;
 
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -255,6 +322,8 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
       getSlidesCount: () => displaySlides.length,
       goToSlide: (index: number) => setCurrent(Math.max(0, Math.min(displaySlides.length - 1, index))),
       getCurrentSlide: () => current,
+      goPrev: () => setCurrent((prev) => Math.max(0, prev - 1)),
+      goNext: () => setCurrent((prev) => Math.min(displaySlides.length - 1, prev + 1)),
     }));
 
     return (
@@ -263,8 +332,8 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
         className="xhs-slide-container select-none"
         style={{
           background: theme.background,
-          width: `${CARD_W}px`,
-          height: `${CARD_H}px`,
+          width: `${XHS_CARD_W}px`,
+          height: `${XHS_CARD_H}px`,
           position: "relative",
           overflow: "hidden",
           borderRadius: "0",
@@ -296,61 +365,11 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
         )}
         
         {/* Status Bar */}
-        <div style={{ height: `${STATUS_BAR_H}px`, flexShrink: 0, position: "relative", zIndex: 20 }}>
+        <div style={{ height: `${XHS_STATUS_H}px`, flexShrink: 0, position: "relative", zIndex: 20 }}>
           {!hideMockUI && <StatusBar backgroundColor={theme.background} />}
         </div>
         <style>{`
-          ${theme.css}
-          #xhs-content {
-            font-size: 15px;
-            line-height: 1.8;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-          }
-          #xhs-content > * {
-            margin-bottom: 0.8em;
-          }
-          #xhs-content > *:last-child {
-            margin-bottom: 0;
-          }
-          #xhs-content h1, #xhs-content h2, #xhs-content h3 {
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
-            line-height: 1.4;
-          }
-          #xhs-content p {
-            margin: 0.6em 0;
-          }
-          #xhs-content ul, #xhs-content ol {
-            padding-left: 1.5em;
-            margin: 0.6em 0;
-          }
-          #xhs-content li {
-            margin: 0.3em 0;
-          }
-          #xhs-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 0.8em 0;
-            border-radius: 8px;
-          }
-          #xhs-content pre {
-            overflow-x: auto;
-            padding: 12px;
-            border-radius: 6px;
-            margin: 0.8em 0;
-            font-size: 13px;
-          }
-          #xhs-content code {
-            font-size: 0.9em;
-          }
-          #xhs-content blockquote {
-            margin: 0.8em 0;
-            padding-left: 1em;
-            border-left: 3px solid currentColor;
-            opacity: 0.8;
-          }
+          ${getXHSContentCSS(theme.css)}
           .xhs-slide-nav {
             position: absolute;
             top: 50%;
@@ -365,8 +384,8 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
           }
           .xhs-slide-container:hover .xhs-slide-nav { opacity: 1; }
           .xhs-slide-nav:hover { background: rgba(0,0,0,0.5); }
-          .xhs-slide-nav.left { left: 12px; }
-          .xhs-slide-nav.right { right: 12px; }
+          .xhs-slide-nav.left { left: -20px; }
+          .xhs-slide-nav.right { right: -20px; }
           .xhs-slide-nav svg { width: 14px; height: 14px; color: #fff; }
         `}</style>
 
@@ -375,7 +394,7 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
           <div
             style={{
               display: "flex",
-              width: `${displaySlides.length * CARD_W}px`,
+              width: `${displaySlides.length * XHS_CARD_W}px`,
               height: "100%",
               transform: `translateX(${translateX}px)`,
               transition: isDragging ? "none" : "transform 0.3s ease",
@@ -386,7 +405,7 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
                 key={i}
                 className="xhs-slide-page"
                 style={{ 
-                  width: `${CARD_W}px`, 
+                  width: `${XHS_CARD_W}px`, 
                   flexShrink: 0, 
                   height: "100%", 
                   overflow: "hidden", 
@@ -410,16 +429,9 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
           </div>
         </div>
 
-        {/* Nav arrows */}
-        <div className="xhs-slide-nav left" onClick={(e) => { e.stopPropagation(); go(-1); }}>
-          <ChevronLeft />
-        </div>
-        <div className="xhs-slide-nav right" onClick={(e) => { e.stopPropagation(); go(1); }}>
-          <ChevronRight />
-        </div>
-
+        
         {/* Dots */}
-        <div style={{ position: "absolute", bottom: showFooter ? `${FOOTER_H + 6}px` : "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, zIndex: 10 }}>
+        <div style={{ position: "absolute", bottom: showFooter ? `${XHS_FOOTER_H + 6}px` : "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, zIndex: 10 }}>
           {displaySlides.map((_, i) => (
             <div key={i} style={{ width: i === current ? 16 : 6, height: 6, borderRadius: 3, background: i === current ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.2)", transition: "all 0.3s" }} />
           ))}
@@ -427,7 +439,7 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
 
         {/* Footer */}
         {showFooter && (
-          <div style={{ height: `${FOOTER_H}px`, flexShrink: 0 }} />
+          <div style={{ height: `${XHS_FOOTER_H}px`, flexShrink: 0 }} />
         )}
 
         <div style={{ position: "absolute", bottom: 8, right: 12, fontSize: 10, color: "rgba(0,0,0,0.2)" }}>ChicPage</div>

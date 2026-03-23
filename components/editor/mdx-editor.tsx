@@ -20,6 +20,7 @@ export interface EditorMethods {
 interface EditorProps {
   markdown: string;
   onChange: (markdown: string) => void;
+  onPaste?: (e: ClipboardEvent) => void;
   className?: string;
   isXHSTheme?: boolean;
 }
@@ -81,7 +82,7 @@ const chicpageTheme = EditorView.theme({
 });
 
 const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
-  ({ markdown: initialMarkdown, onChange, className }, ref) => {
+  ({ markdown: initialMarkdown, onChange, onPaste, className }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const onChangeRef = useRef(onChange);
@@ -159,6 +160,13 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
               onChangeRef.current(update.state.doc.toString());
             }
           }),
+          EditorView.domEventHandlers({
+            paste(event) {
+              if (onPaste) {
+                onPaste(event);
+              }
+            }
+          })
         ],
       });
 

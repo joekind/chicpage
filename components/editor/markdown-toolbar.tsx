@@ -9,7 +9,7 @@ import {
   Heading1, Heading2, Minus,
   Highlighter, Info, AlertCircle, AlertTriangle,
   Code, Code2, Image, Eraser,
-  Superscript, Subscript, CheckSquare, Keyboard,
+  Superscript, Subscript, CheckSquare, Keyboard, FolderUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ interface MarkdownToolbarProps {
   onApplyPangu: () => void;
   onInsertTable: (rows: number, cols: number) => void;
   onInsertImage?: () => void;
+  onImportMarkdown?: () => void;
   isXHSTheme?: boolean;
   activePopup: string | null;
   setActivePopup: (popup: string | null) => void;
@@ -43,6 +44,7 @@ export const MarkdownToolbar = ({
   onApplyPangu,
   onInsertTable,
   onInsertImage,
+  onImportMarkdown,
   isXHSTheme,
   activePopup,
   setActivePopup,
@@ -75,34 +77,32 @@ export const MarkdownToolbar = ({
     setCustomColor('');
   };
 
-  const groupHeadings = isXHSTheme ? [
-    btn(<Heading1 className="size-4" />, "主标题", () => onInsertText('\n✨ 在这输入标题 ✨\n━━━━━━━\n'), "hover:bg-pink-50 text-pink-600"),
-    btn(<Heading2 className="size-4" />, "小标题", () => onInsertText('\n📍 '), "hover:bg-pink-50 text-pink-600"),
-  ] : [];
+  const groupHeadings = [
+    btn(<Heading1 className="size-4" />, "H1 / 主标题", () => isXHSTheme ? onInsertText('\n✨ 在这输入标题 ✨\n━━━━━━━\n') : onInsertAtLineStart('# '), isXHSTheme ? "hover:bg-pink-50 text-pink-600" : ""),
+    btn(<Heading2 className="size-4" />, "H2 / 小标题", () => isXHSTheme ? onInsertText('\n📍 ') : onInsertAtLineStart('## '), isXHSTheme ? "hover:bg-pink-50 text-pink-600" : ""),
+  ];
 
   const groupInline = [
-    btn(<Bold className="size-4" />,         isXHSTheme ? "强调符号" : "加粗",  () => isXHSTheme ? onWrapText('「', '」') : onWrapText('**')),
+    btn(<Bold className="size-4" />,         isXHSTheme ? "强调" : "加粗",  () => isXHSTheme ? onWrapText('「', '」') : onWrapText('**')),
     btn(<Italic className="size-4" />,        "斜体",       () => onWrapText('*')),
     btn(<Strikethrough className="size-4" />, "删除线",     () => onWrapText('~~')),
     btn(<Code className="size-4" />,          "行内代码",   () => onWrapText('`'), "hover:bg-violet-50 text-violet-600"),
     btn(<Keyboard className="size-4" />,      "键盘按键",   () => onWrapText('<kbd>', '</kbd>')),
     btn(<Superscript className="size-4" />,   "上标",       () => onWrapText('<sup>', '</sup>'), "hover:bg-sky-50 text-sky-600"),
     btn(<Subscript className="size-4" />,     "下标",       () => onWrapText('<sub>', '</sub>'), "hover:bg-sky-50 text-sky-600"),
-    !isXHSTheme && (
-      <button
-        key="highlight"
-        ref={highlightBtnRef}
-        title="荧光笔"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => setActivePopup(activePopup === 'highlight' ? null : 'highlight')}
-        className={cn(
-          "size-8 rounded-lg transition-all flex items-center justify-center",
-          activePopup === 'highlight' ? "bg-amber-100 text-amber-600" : "hover:bg-amber-50 text-amber-500"
-        )}>
-        <Highlighter className="size-4" />
-      </button>
-    ),
-  ].filter(Boolean);
+    <button
+      key="highlight"
+      ref={highlightBtnRef}
+      title="荧光笔"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => setActivePopup(activePopup === 'highlight' ? null : 'highlight')}
+      className={cn(
+        "size-8 rounded-lg transition-all flex items-center justify-center",
+        activePopup === 'highlight' ? "bg-amber-100 text-amber-600" : "hover:bg-amber-50 text-amber-500"
+      )}>
+      <Highlighter className="size-4" />
+    </button>,
+  ];
 
   const groupBlock = [
     btn(isXHSTheme ? <List className="size-4" /> : <Quote className="size-4" />, isXHSTheme ? "项目符号" : "引用", () => onInsertText(isXHSTheme ? '\n✅ ' : '\n> ')),
@@ -113,24 +113,25 @@ export const MarkdownToolbar = ({
     btn(<Code2 className="size-4" />,         "代码块",    () => onInsertText('\n```js\n\n```\n'), "hover:bg-violet-50 text-violet-600"),
   ];
 
-  const groupMedia = !isXHSTheme ? [
+  const groupMedia = [
     btn(<LinkIcon className="size-4" />, "超链接",  () => onWrapText('[', '](url)'), "hover:bg-indigo-50 text-indigo-600"),
     btn(<Image className="size-4" />,    "插入图片", () => onInsertImage?.(), "hover:bg-indigo-50 text-indigo-600"),
+    btn(<FolderUp className="size-4" />, "导入 Markdown", () => onImportMarkdown?.(), "hover:bg-indigo-50 text-indigo-600"),
     <Button key="table" variant="ghost" size="icon" title="插入表格"
       className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-indigo-50 text-indigo-600" : "hover:bg-zinc-100 text-zinc-600")}
       onMouseDown={(e) => e.preventDefault()}
       onClick={() => setActivePopup(activePopup === 'table' ? null : 'table')}>
       <Table className="size-4" />
     </Button>,
-  ] : [];
+  ];
 
-  const groupCallouts = !isXHSTheme ? [
+  const groupCallouts = [
     btn(<Info className="size-4" />,          "提示盒 tip",     () => onInsertText('\n:::tip\n在这输入提示内容\n:::\n'), "hover:bg-blue-50 text-blue-600"),
     btn(<AlertCircle className="size-4" />,   "警告盒 warning", () => onInsertText('\n:::warning\n在这输入警告内容\n:::\n'), "hover:bg-orange-50 text-orange-500"),
     btn(<AlertTriangle className="size-4" />, "危险盒 danger",  () => onInsertText('\n:::danger\n在这输入危险内容\n:::\n'), "hover:bg-red-50 text-red-600"),
-  ] : [];
+  ];
 
-  const groups = [groupHeadings, groupInline, groupBlock, groupMedia, groupCallouts].filter(g => g.length > 0);
+  const groups = [groupHeadings, groupInline, groupBlock, groupMedia, groupCallouts];
 
   return (
     <div ref={toolbarRef} className="toolbar-root sticky top-0 z-20 flex flex-col border-b border-zinc-100 bg-white/95 backdrop-blur-md overflow-visible">

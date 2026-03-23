@@ -9,85 +9,29 @@ import { visit } from 'unist-util-visit';
 import hljs from 'highlight.js';
 import type { Node, Parent } from 'unist';
 import type { Element, Root } from 'hast';
+import { getLocalImage } from './image_service';
 
 /**
- * remark plugin: Resolves reference-style images by looking up their ID 
- * in the provided references string.
+ * remark plugin: Resolves local images using 'img://' protocol from IndexedDB
  */
-/**
- * remark plugin: Aggressively resolves reference-style image text.
- * It scans all text nodes for the ![alt][id] pattern and manually converts them to images.
- * This bypasses strict markdown parsing rules that often fail with special characters.
- */
-function remarkImageResolver(references: string) {
-  return (tree: Node) => {
-    // 1. Build a robust ID -> URL map
-    const refMap: Record<string, string> = {};
-    // Extract any [img_xxx]: url pattern from references
-    const lines = references.split('\n');
-    lines.forEach(line => {
-      const match = line.match(/\[(img_[a-z0-9]+)\]:\s*([^\s|]+)/);
-      if (match) {
-        refMap[match[1]] = match[2];
+function remarkLocalImageResolver() {
+  return async (tree: Node) => {
+    const images: any[] = [];
+    visit(tree, 'image', (node: any) => {
+      if (node.url && node.url.startsWith('img://')) {
+        images.push(node);
       }
     });
 
-    // 2. Visit all nodes and manually transform text that looks like an image tag
-    visit(tree, (node: any, index, parent: any) => {
-      if (node.type === 'text' && parent && typeof index === 'number') {
-        const regex = /!\[([^\]]*)\]\[(img_[a-z0-9]+)\]/g;
-        let lastIndex = 0;
-        const children = [];
-        let match;
+    if (images.length === 0) return;
 
-        while ((match = regex.exec(node.value)) !== null) {
-          const [, alt, id] = match;
-          const url = refMap[id];
-
-          if (url) {
-            // Push text before the match
-            if (match.index > lastIndex) {
-              children.push({ type: 'text', value: node.value.slice(lastIndex, match.index) });
-            }
-
-            // Push the new image node
-            children.push({
-              type: 'image',
-              url: url,
-              alt: alt,
-              title: null
-            });
-
-            lastIndex = regex.lastIndex;
-          }
-        }
-
-        // Push remaining text
-        if (lastIndex < node.value.length && lastIndex > 0) {
-          children.push({ type: 'text', value: node.value.slice(lastIndex) });
-        }
-
-        // If we found any matches, replace the single text node with our new sequence
-        if (children.length > 0) {
-          parent.children.splice(index, 1, ...children);
-          return index + children.length;
-        }
+    // 并行获取所有本地图片数据
+    await Promise.all(images.map(async (node) => {
+      const data = await getLocalImage(node.url);
+      if (data) {
+        node.url = data;
       }
-      
-      // Also handle cases where remark-parse DID identify it as an image/imageReference
-      if ((node.type === 'image' || node.type === 'imageReference') && (node.url || node.identifier)) {
-        const id = node.url || node.identifier;
-        if (id && id.startsWith('img_')) {
-          const url = refMap[id];
-          if (url) {
-            node.type = 'image';
-            node.url = url;
-            delete node.identifier;
-            delete node.referenceType;
-          }
-        }
-      }
-    });
+    }));
   };
 }
 
@@ -111,7 +55,6 @@ function remarkDirectivePlugin() {
         const name = (node as any).name as string;
         const s = STYLES[name];
         if (s) {
-          // 转成 <div> 并带 inline style，公众号可以识别
           data.hName = 'div';
           data.hProperties = {
             style: `display:block;margin:1.2em 0;padding:12px 16px;background:${s.bg};border-left:4px solid ${s.border};border-radius:0 6px 6px 0;color:${s.color};font-size:14px;`,
@@ -125,14 +68,9 @@ function remarkDirectivePlugin() {
   };
 }
 
-/**
- * rehype plugin: walks code blocks and applies highlight.js inline styles.
- * This ensures colors survive when pasting into WeChat / other platforms.
- */
 function rehypeInlineHighlight() {
   return (tree: Root) => {
     visit(tree, 'element', (node, _index, parent) => {
-      // Target <code> inside <pre>
       if (
         node.tagName === 'code' &&
         (parent as Parent | undefined)?.type === 'element' &&
@@ -142,7 +80,6 @@ function rehypeInlineHighlight() {
         const langClass = classNames.find((c) => c.startsWith('language-'));
         const lang = langClass?.replace('language-', '');
 
-        // Get raw text content
         const raw = node.children
           .filter((c): c is { type: 'text'; value: string } => c.type === 'text')
           .map((c) => c.value)
@@ -157,10 +94,8 @@ function rehypeInlineHighlight() {
           highlighted = raw;
         }
 
-        // Replace children with raw HTML — rehypeRaw will parse it
         node.children = [{ type: 'raw', value: highlighted }];
 
-        // Apply container styles inline so they survive copy-paste
         node.properties = {
           ...node.properties,
           style: [
@@ -176,7 +111,6 @@ function rehypeInlineHighlight() {
           ].join(';'),
         };
 
-        // Also style the parent <pre>
         if (parent && (parent as Element).tagName) {
           (parent as Element).properties = {
             ...(parent as Element).properties,
@@ -188,11 +122,11 @@ function rehypeInlineHighlight() {
   };
 }
 
-export async function markdownToHtml(markdown: string, references: string = ''): Promise<string> {
+export async function markdownToHtml(markdown: string): Promise<string> {
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(remarkImageResolver, references)
+    .use(remarkLocalImageResolver)
     .use(remarkDirective)
     .use(remarkDirectivePlugin)
     .use(remarkRehype, { allowDangerousHtml: true })

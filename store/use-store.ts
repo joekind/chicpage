@@ -3,7 +3,6 @@ import { persist } from 'zustand/middleware';
 
 interface AppState {
   markdown: string;
-  references: string;
   html: string;
   imgRadius: number;
   previewMode: 'pc' | 'app' | 'xhs';
@@ -13,11 +12,10 @@ interface AppState {
   layoutMode: 'split' | 'edit' | 'preview';
   xhsShowHeader: boolean;
   xhsShowFooter: boolean;
-  past: { markdown: string, references: string }[];
-  future: { markdown: string, references: string }[];
+  past: { markdown: string }[];
+  future: { markdown: string }[];
 
   setMarkdown: (markdown: string | ((prev: string) => string)) => void;
-  setReferences: (refs: string | ((prev: string) => string)) => void;
   setHtml: (html: string) => void;
   setImgRadius: (radius: number) => void;
   setPreviewMode: (mode: 'pc' | 'app' | 'xhs') => void;
@@ -51,7 +49,7 @@ const INITIAL_MARKDOWN = `# ChicPage：让每一篇文章都值得被看见
 - **Markdown 实时预览**：左边写，右边看，所见即所得
 - **多套精美主题**：默认、绿意、典雅、科技、玫瑰，一键切换
 - **一键复制到公众号**：样式完整内联，粘贴即用，无需二次调整
-- **图片云端存储**：上传即永久保存，刷新不丢失
+- **本地持久化存储**：基于 IndexedDB，无需云端，隐私安全，刷新不丢失
 - **丰富的快捷工具**：加粗、引用、代码块、提示盒、表格……应有尽有
 
 ## 适合谁用？
@@ -80,7 +78,6 @@ export const useStore = create<AppState>()(
   persist(
     (set) => ({
       markdown: INITIAL_MARKDOWN,
-      references: "",
       html: "",
       imgRadius: 12,
       previewMode: 'app',
@@ -96,9 +93,6 @@ export const useStore = create<AppState>()(
       setMarkdown: (markdown) => set((state) => ({
         markdown: typeof markdown === 'function' ? markdown(state.markdown) : markdown,
       })),
-      setReferences: (references) => set((state) => ({
-        references: typeof references === 'function' ? references(state.references) : references,
-      })),
       setHtml: (html) => set({ html }),
       setImgRadius: (imgRadius) => set({ imgRadius }),
       setPreviewMode: (previewMode) => set({ previewMode }),
@@ -110,7 +104,7 @@ export const useStore = create<AppState>()(
       setXHSShowFooter: (xhsShowFooter) => set({ xhsShowFooter }),
 
       pushHistory: () => set((state) => ({
-        past: [...state.past, { markdown: state.markdown, references: state.references }].slice(-50),
+        past: [...state.past, { markdown: state.markdown }].slice(-50),
         future: []
       })),
 
@@ -119,9 +113,8 @@ export const useStore = create<AppState>()(
         const last = state.past[state.past.length - 1];
         return {
           markdown: last.markdown,
-          references: last.references,
           past: state.past.slice(0, -1),
-          future: [{ markdown: state.markdown, references: state.references }, ...state.future],
+          future: [{ markdown: state.markdown }, ...state.future],
         };
       }),
 
@@ -130,8 +123,7 @@ export const useStore = create<AppState>()(
         const next = state.future[0];
         return {
           markdown: next.markdown,
-          references: next.references,
-          past: [...state.past, { markdown: state.markdown, references: state.references }],
+          past: [...state.past, { markdown: state.markdown }],
           future: state.future.slice(1),
         };
       }),
@@ -140,7 +132,6 @@ export const useStore = create<AppState>()(
       name: 'chicpage-storage',
       partialize: (state) => ({
         markdown: state.markdown,
-        references: state.references,
         imgRadius: state.imgRadius,
         styleTheme: state.styleTheme,
         wechatTheme: state.wechatTheme,

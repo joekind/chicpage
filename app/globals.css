@@ -39,6 +39,7 @@
   --radius: 1.25rem;
 }@layer base {
   * {
+    box-sizing: border-box;
     border-color: var(--border);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;

@@ -6,7 +6,7 @@ import { WECHAT_THEMES } from "@/lib/themes";
 
 // Visual swatches for each theme
 const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
-  default:  { bg: '#ffffff', accent: '#555555' },
+  shaoshupai:  { bg: '#ffffff', accent: '#555555' },
   green:    { bg: '#f0faf4', accent: '#07c160' },
   elegant:  { bg: '#fdf9f3', accent: '#c8a96e' },
   tech:     { bg: '#1a1a2e', accent: '#7c83fd' },
@@ -16,12 +16,13 @@ const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
 interface ThemePickerProps {
   value: string;
   onChange: (id: string) => void;
+  themes?: Array<{ id: string; name: string }>;
 }
 
-export const ThemePicker = ({ value, onChange }: ThemePickerProps) => {
+export const ThemePicker = ({ value, onChange, themes = WECHAT_THEMES }: ThemePickerProps) => {
   return (
-    <div className="flex items-center gap-1.5">
-      {WECHAT_THEMES.map(theme => {
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {themes.map(theme => {
         const swatch = THEME_SWATCHES[theme.id] ?? { bg: '#fff', accent: '#333' };
         const isActive = value === theme.id;
         return (

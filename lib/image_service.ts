@@ -1,10 +1,10 @@
 /**
- * 图像压缩与 IndexedDB 存储服务
+ * 图像压缩与 IndexedDB 本地存储服务
  */
 
 const DB_NAME = 'ChicPageDB';
-const STORE_NAME = 'image_references';
-const DB_VERSION = 1;
+const STORE_NAME = 'images'; // 存储实际图片数据
+const DB_VERSION = 2; // 如果之前已经是 2，可以保持或升级
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -22,32 +22,43 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 /**
- * 将图片上传到 Cloudflare R2
+ * 将图片存储到本地 IndexedDB
  */
-export async function uploadToCloud(file: File): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await fetch("/api/upload/r2", {
-    method: "POST",
-    body: formData,
+export async function storeImageLocally(file: File): Promise<string> {
+  const compressedBase64 = await compressImage(file);
+  const id = `img-${Math.random().toString(36).substr(2, 9)}`;
+  const db = await openDB();
+  
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.put(compressedBase64, id);
+    request.onsuccess = () => resolve(`img://${id}`);
+    request.onerror = () => reject(request.error);
   });
+}
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || "Upload failed");
-  }
-
-  const data = await response.json();
-  return data.url;
+/**
+ * 从 IndexedDB 获取图片数据
+ */
+export async function getLocalImage(id: string): Promise<string | null> {
+  const db = await openDB();
+  const cleanId = id.replace('img://', '');
+  
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.get(cleanId);
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error);
+  });
 }
 
 /**
  * 图片压缩逻辑
-
- * 将图片缩放到指定宽度并降低质量
+ * 将图片缩放到最大 1920px 并使用 85% 质量
  */
-export async function compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<string> {
+export async function compressImage(file: File, maxWidth = 1920, quality = 0.85): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -59,7 +70,6 @@ export async function compressImage(file: File, maxWidth = 1200, quality = 0.8):
         let width = img.width;
         let height = img.height;
 
-        // 等比缩放
         if (width > maxWidth) {
           height = (maxWidth / width) * height;
           width = maxWidth;
@@ -71,8 +81,6 @@ export async function compressImage(file: File, maxWidth = 1200, quality = 0.8):
         if (!ctx) return reject('Failed to get canvas context');
         
         ctx.drawImage(img, 0, 0, width, height);
-
-        // 使用 JPEG 格式进行压缩，0.8 的质量通常能在肉眼无损的情况下显著减小体积
         const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
         resolve(compressedBase64);
       };
@@ -83,48 +91,11 @@ export async function compressImage(file: File, maxWidth = 1200, quality = 0.8):
 }
 
 /**
- * 将图片的 Markdown 引用部分存入 IndexedDB
+ * 删除文件关联的所有本地图片
  */
-export async function saveImageRef(docId: string, references: string): Promise<void> {
+export async function deleteLocalImages(ids: string[]): Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(references, docId);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
-/**
- * 从 IndexedDB 读取图片的 Markdown 引用
- */
-export async function getImageRef(docId: string): Promise<string> {
-  try {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, 'readonly');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.get(docId);
-      request.onsuccess = () => resolve(request.result || "");
-      request.onerror = () => reject(request.error);
-    });
-  } catch (err) {
-    console.warn('IndexedDB not ready yet:', err);
-    return "";
-  }
-}
-
-/**
- * 删除文档关联的图片数据
- */
-export async function deleteImageRef(docId: string): Promise<void> {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.delete(docId);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  const transaction = db.transaction(STORE_NAME, 'readwrite');
+  const store = transaction.objectStore(STORE_NAME);
+  ids.forEach(id => store.delete(id.replace('img://', '')));
 }

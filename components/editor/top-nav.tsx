@@ -37,6 +37,7 @@ interface TopNavProps {
   markdown: string;
   onExportXHS: () => void;
   isExportingXHS: boolean;
+  exportProgress?: { current: number; total: number };
   xhsMode?: 'long' | 'slide';
   setXHSMode?: (mode: 'long' | 'slide') => void;
 }
@@ -58,6 +59,7 @@ export const TopNav = ({
   markdown,
   onExportXHS,
   isExportingXHS,
+  exportProgress,
   xhsMode = 'slide',
   setXHSMode,
 }: TopNavProps) => {
@@ -145,41 +147,7 @@ export const TopNav = ({
         {styleTheme === 'xhs' && (
           <>
             <div className="h-4 w-px bg-zinc-300 mx-1" />
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowXHSThemePicker(!showXHSThemePicker)}
-                className="h-8 gap-2 px-3 text-[11px] font-bold"
-              >
-                <div 
-                  className="w-4 h-4 rounded-md shadow-sm" 
-                  style={{ background: currentXHSTheme.preview }}
-                />
-                {currentXHSTheme.name}
-              </Button>
-              
-              {showXHSThemePicker && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setShowXHSThemePicker(false)}
-                  />
-                  <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-zinc-200 z-50 overflow-hidden">
-                    <div className="px-3 py-2 border-b border-zinc-100">
-                      <span className="text-xs font-bold text-zinc-500">选择长图模板</span>
-                    </div>
-                    <XHSThemePicker 
-                      currentTheme={xhsTheme} 
-                      onSelectTheme={(id) => {
-                        setXHSTheme(id);
-                        setShowXHSThemePicker(false);
-                      }} 
-                    />
-                  </div>
-                </>
-              )}
-            </div>
+            <ThemePicker value={xhsTheme} onChange={setXHSTheme} themes={XHS_THEMES} />
           </>
         )}
       </div>
@@ -226,7 +194,7 @@ export const TopNav = ({
             )}
           >
             {isExportingXHS
-              ? <><Loader2 className="size-3.5 animate-spin" />导出中...</>
+              ? <><Loader2 className="size-3.5 animate-spin" />{exportProgress ? `正在导出第 ${exportProgress.current}/${exportProgress.total} 页` : '导出中...'}</>
               : <><Download className="size-3.5" />导出</>
             }
           </Button>
