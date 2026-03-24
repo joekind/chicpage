@@ -35,7 +35,7 @@ export function getReadInfo(text: string) {
  */
 export function injectReadInfo(markdown: string) {
   const { wordCount, readTime } = getReadInfo(markdown);
-  // 使用居中/引用样式
-  const info = `> 💡 全文共 ${wordCount} 字，预计阅读时间 ${readTime} 分钟。\n\n---\n\n`;
+  // 使用普通段落格式，避免被当作不可分割元素
+  const info = `全文共 ${wordCount} 字，预计阅读时间 ${readTime} 分钟。\n\n`;
   return info + markdown;
 }

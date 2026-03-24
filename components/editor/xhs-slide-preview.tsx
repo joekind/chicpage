@@ -92,8 +92,10 @@ export const XHS_CONTENT_H = XHS_CARD_H - XHS_STATUS_H - HEADER_H - XHS_FOOTER_H
 
 // 导出内容区域的通用 CSS，供导出时注入
 export function getXHSContentCSS(themeCSS: string): string {
+  // 将主题中的 #chicpage 替换为 #xhs-content 以适配小红书预览
+  const adjustedCSS = themeCSS.replace(/#chicpage/g, '#xhs-content');
   return `
-    ${themeCSS}
+    ${adjustedCSS}
     #xhs-content {
       font-size: 15px;
       line-height: 1.8;

@@ -46,6 +46,7 @@ export const XHS_THEMES: XHSTheme[] = WECHAT_THEMES.map(theme => {
   const background = bgMatch ? bgMatch[1] : '#ffffff';
   return {
     ...theme,
+    background,
     preview: background,
     containerStyle: 'width:100%;min-height:100%;box-sizing:border-box;' + theme.containerStyle.replace(/margin:[^;]+;/g, '').replace(/max-width:[^;]+;/g, '').replace(/padding:[^;]+;/g, ''),
   };
