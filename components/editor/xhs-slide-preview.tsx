@@ -231,29 +231,48 @@ async function splitIntoSlides(html: string, themeCSS: string): Promise<string[]
     return probe.scrollHeight;
   };
 
+  // 优化：添加缓冲区，避免因微小高度差异触发分页
+  const BUFFER = 20; // 20px 缓冲区
+  const MAX_HEIGHT = XHS_CONTENT_H + BUFFER;
+
   const slides: string[] = [];
   let bucket: Node[] = [];
 
   for (const node of nodes) {
-    bucket.push(node);
-    const currentH = getH(bucket);
+    // 预检测：先检查添加当前节点是否会超出限制
+    const tempBucket = [...bucket, node];
+    const tempH = getH(tempBucket);
     
-    if (currentH > XHS_CONTENT_H && bucket.length > 1) {
-      const lastNode = bucket.pop()!;
+    if (tempH > MAX_HEIGHT && bucket.length > 0) {
+      // 检查是否是不可分割元素
+      const isLastNodeNonSplittable = isNonSplittable(node);
       
-      // 检查分页策略
-      if (shouldKeepTogether([...bucket, lastNode])) {
-        const secondLastNode = bucket.pop()!;
-        const tmp = document.createElement("div");
-        bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
-        slides.push(tmp.innerHTML);
-        bucket = [secondLastNode, lastNode];
+      if (isLastNodeNonSplittable) {
+        // 不可分割元素：如果当前桶为空，直接放入；否则先输出当前桶
+        if (bucket.length > 0) {
+          const tmp = document.createElement("div");
+          bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
+          slides.push(tmp.innerHTML);
+          bucket = [node];
+        } else {
+          bucket = [node];
+        }
       } else {
-        const tmp = document.createElement("div");
-        bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
-        slides.push(tmp.innerHTML);
-        bucket = [lastNode];
+        // 可分割元素：检查是否需要保持在一起
+        if (shouldKeepTogether(tempBucket)) {
+          // 需要保持在一起的内容，一起放入下一页
+          bucket = tempBucket;
+        } else {
+          // 正常分页
+          const tmp = document.createElement("div");
+          bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
+          slides.push(tmp.innerHTML);
+          bucket = [node];
+        }
       }
+    } else {
+      // 可以放下，直接添加
+      bucket.push(node);
     }
   }
   

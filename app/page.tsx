@@ -223,53 +223,60 @@ export default function ChicEditor() {
       const originalSlide = xhsSlideRef.current.getCurrentSlide();
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
 
-      // 创建 ZIP 文件
-      const zip = new JSZip();
-      const imageDataUrls: { filename: string; dataUrl: string }[] = [];
-
+      // 并行处理所有页面的导出
+      console.log('开始并行处理导出...');
+      const exportPromises = [];
+      
       for (let i = 0; i < totalSlides; i++) {
-        setExportProgress({ current: i + 1, total: totalSlides });
-        xhsSlideRef.current.goToSlide(i);
-        // 第一页需要更长的等待时间，确保DOM完全渲染
-        const waitTime = i === 0 ? 500 : 300;
-        await new Promise(resolve => setTimeout(resolve, waitTime));
-
-        // 找到当前页的 #xhs-content 内容
-        const slidePages = document.querySelectorAll('.xhs-slide-page');
-        console.log(`找到 ${slidePages.length} 个页面元素`);
-        const slidePage = slidePages[i];
-        if (!slidePage) {
-          console.warn(`第 ${i + 1} 页：找不到 slidePage`);
-          continue;
-        }
-        const chicpageEl = slidePage.querySelector('#xhs-content');
-        if (!chicpageEl) {
-          console.warn(`第 ${i + 1} 页：找不到 #xhs-content`);
-          continue;
-        }
-        console.log(`第 ${i + 1} 页：找到内容元素，内容长度:`, chicpageEl.innerHTML.length);
-
-        // 导出为 dataUrl
-        const dataUrl = await exportToImage(slidePage as HTMLElement, {
-          filename: `xhs-${timestamp}-${i + 1}-of-${totalSlides}`,
-          format: 'png',
-          scale: 3,
-          backgroundColor: activeXHSTheme.background,
-          returnDataUrl: true,
-        }) as string;
-
-        if (dataUrl) {
-          const filename = `xhs-${timestamp}-${i + 1}-of-${totalSlides}.png`;
-          imageDataUrls.push({ filename, dataUrl });
+        const exportPromise = (async (slideIndex) => {
+          // 跳转到对应页面
+          xhsSlideRef.current?.goToSlide(slideIndex);
+          // 等待页面渲染（进一步减少等待时间）
+          await new Promise(resolve => setTimeout(resolve, slideIndex === 0 ? 300 : 100));
           
-          // 将 base64 转换为 blob 并添加到 ZIP
-          const base64Data = dataUrl.split(',')[1];
-          zip.file(filename, base64Data, { base64: true });
-        }
+          // 找到页面元素
+          const slidePages = document.querySelectorAll('.xhs-slide-page');
+          const slidePage = slidePages[slideIndex];
+          if (!slidePage) {
+            console.warn(`第 ${slideIndex + 1} 页：找不到 slidePage`);
+            return null;
+          }
+          
+          // 导出为图片（优化速度）
+          const dataUrl = await exportToImage(slidePage as HTMLElement, {
+            filename: `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}`,
+            format: 'png',
+            scale: 2, // 降低缩放比例提高速度
+            backgroundColor: activeXHSTheme.background,
+            returnDataUrl: true,
+          }) as string;
+          
+          if (dataUrl) {
+            const filename = `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}.png`;
+            return { filename, dataUrl, base64Data: dataUrl.split(',')[1] };
+          }
+          return null;
+        })(i);
+        
+        exportPromises.push(exportPromise);
       }
-
-      // 生成 ZIP 文件并下载
-      console.log('正在打包 ZIP 文件...');
+      
+      // 执行所有导出任务
+      console.log('执行导出任务...');
+      const results = await Promise.all(exportPromises);
+      const validResults = results.filter(result => result !== null);
+      
+      // 创建 ZIP 文件
+      console.log('创建 ZIP 文件...');
+      const zip = new JSZip();
+      validResults.forEach(result => {
+        if (result) {
+          zip.file(result.filename, result.base64Data, { base64: true });
+        }
+      });
+      
+      // 生成并下载 ZIP
+      console.log('生成 ZIP 文件...');
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const zipUrl = URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
@@ -279,8 +286,8 @@ export default function ChicEditor() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(zipUrl);
+      
       console.log('ZIP 文件下载完成！');
-
       xhsSlideRef.current.goToSlide(originalSlide);
     } catch (error) {
       console.error('Export failed:', error);
