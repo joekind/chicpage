@@ -58,7 +58,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         color: #333; 
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", Arial, sans-serif;
       }
-      #chicpage h1 { color: #181832; padding-bottom: 0.4em; font-size: 28px; font-weight: 700; line-height: 1.4; }
+      #chicpage h1 { color: #181832; padding-bottom: 0.4em; font-size: 28px; font-weight: 700; line-height: 1.2 !important; }
       #chicpage h2 { color: #181832; font-size: 22px; font-weight: 600; line-height: 1.5; margin: 2em 0 0.6em; }
       #chicpage h3 { color: #333; font-size: 18px; font-weight: 600; margin: 1.5em 0 0.5em; }
       #chicpage p { font-size: 16px; margin: 1.2em 0; line-height: 1.75; font-weight: 400; color: #444; }

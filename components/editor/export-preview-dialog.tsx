@@ -25,7 +25,7 @@ export function ExportPreviewDialog({
   if (!isOpen) return null;
 
   // 将 CSS 中的 #xhs-content 替换为 .preview-content，避免 ID 冲突
-  const scopedCSS = themeCSS.replace(/#xhs-content/g, '.preview-content');
+  const scopedCSS = themeCSS.replace(/#xhs-content/g, ".preview-content");
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -35,7 +35,9 @@ export function ExportPreviewDialog({
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
           <div>
             <h2 className="text-lg font-bold text-zinc-900">导出预览</h2>
-            <p className="text-xs text-zinc-500 mt-0.5">共 {slides.length} 页，确认无误后点击导出</p>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              共 {slides.length} 页，确认无误后点击导出
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -58,25 +60,25 @@ export function ExportPreviewDialog({
                 </div>
                 <div
                   className="w-full overflow-hidden relative"
-                  style={{ 
+                  style={{
                     background: themeBackground,
-                    aspectRatio: '334/584', // 672 - 40 - 48 = 584
+                    aspectRatio: "9/16", // 672 - 40 - 48 = 584
+                    scale: 0.9,
                   }}
                 >
                   <div
                     className="preview-content w-full h-full"
                     dangerouslySetInnerHTML={{ __html: slide.html }}
                     style={{
-                      padding: '4.1% 6%', // 24/584 ≈ 4.1%, 20/334 ≈ 6%
-                      fontFamily: '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif',
-                      fontSize: '4.5%', // 15/334 ≈ 4.5%
+                      padding: "4.1% 6%", // 24/584 ≈ 4.1%, 20/334 ≈ 6%
+                      fontFamily:
+                        '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif',
+                      fontSize: "4.5%", // 15/334 ≈ 4.5%
                       lineHeight: 1.8,
-                      boxSizing: 'border-box',
+                      boxSizing: "border-box",
                     }}
                   />
-
                 </div>
-
               </div>
             ))}
           </div>
