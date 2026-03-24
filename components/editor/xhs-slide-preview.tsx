@@ -17,7 +17,7 @@ function isColorDark(color: string): boolean {
 function StatusBar({ backgroundColor }: { backgroundColor: string }) {
   const isDark = isColorDark(backgroundColor);
   const color = isDark ? "#fff" : "#000";
-  
+
   const [time, setTime] = useState("");
 
   useEffect(() => {
@@ -83,11 +83,11 @@ export const XHS_CARD_H = 672;
 export const XHS_STATUS_H = 40; // 状态栏高度
 const HEADER_H = 0;
 export const XHS_FOOTER_H = 48;
-const PADDING_X = 20; // 左右内边距
-const PADDING_Y = 24; // 上下内边距
-const SAFE_MARGIN = 32; // 底部安全边距，防止截断
+const PADDING_X = 26; // 增加左右内边距，从 20px 提升至 26px
+const PADDING_Y = 32; // 增加上下内边距，从 24px 提升至 32px
+export const SAFE_MARGIN = 20; // 极大幅度降低安全边距，优先保证内容不被拆分（原 102 -> 64 -> 20）
 
-export const XHS_CONTENT_H = XHS_CARD_H - XHS_STATUS_H - HEADER_H - XHS_FOOTER_H - PADDING_Y * 2 - SAFE_MARGIN; // 504px
+export const XHS_CONTENT_H = XHS_CARD_H - XHS_STATUS_H - HEADER_H - XHS_FOOTER_H - PADDING_Y * 2 - SAFE_MARGIN; // 450px 左右
 
 
 // 导出内容区域的通用 CSS，供导出时注入
@@ -97,10 +97,16 @@ export function getXHSContentCSS(themeCSS: string): string {
   return `
     ${adjustedCSS}
     #xhs-content {
-      font-size: 15px;
-      line-height: 1.8;
+      font-size: 14.5px;
       word-wrap: break-word;
       overflow-wrap: break-word;
+      word-break: break-word; /* 确保长单词/链接换行 */
+      padding: 0 !important; /* 强制覆盖主题内边距，交给预览容器统一控制 */
+      margin: 0 !important;
+      min-height: auto !important; /* 必须：防止主题自带的 100% 高度撑开探测容器 */
+      height: auto !important;
+      display: block !important;
+      overflow: visible !important;
     }
     #xhs-content > * {
       margin-bottom: 0.8em;
@@ -112,16 +118,6 @@ export function getXHSContentCSS(themeCSS: string): string {
       margin-top: 0.5em;
       margin-bottom: 0.5em;
       line-height: 1.4;
-    }
-    #xhs-content p {
-      margin: 0.6em 0;
-    }
-    #xhs-content ul, #xhs-content ol {
-      padding-left: 1.5em;
-      margin: 0.6em 0;
-    }
-    #xhs-content li {
-      margin: 0.3em 0;
     }
     #xhs-content img {
       max-width: 100%;
@@ -137,14 +133,17 @@ export function getXHSContentCSS(themeCSS: string): string {
       margin: 0.8em 0;
       font-size: 13px;
     }
-    #xhs-content code {
-      font-size: 0.9em;
-    }
     #xhs-content blockquote {
       margin: 0.8em 0;
-      padding-left: 1em;
+      padding: 10px 14px;
       border-left: 3px solid currentColor;
       opacity: 0.8;
+    }
+    #xhs-content ul, #xhs-content ol {
+      padding-left: 1.4em;
+    }
+    #xhs-content li {
+      margin-bottom: 0.4em;
     }
   `;
 }
@@ -160,17 +159,17 @@ function isNonSplittable(node: Node): boolean {
 // 判断节点组是否包含紧密关联的元素（如标题+段落）
 function shouldKeepTogether(nodes: Node[]): boolean {
   if (nodes.length < 2) return false;
-  
+
   // 检查最后两个节点：如果是标题+内容，应该保持在一起
   const lastTwo = nodes.slice(-2);
   if (lastTwo.length === 2) {
     const first = lastTwo[0];
     const second = lastTwo[1];
-    
+
     if (first.nodeType === Node.ELEMENT_NODE && second.nodeType === Node.ELEMENT_NODE) {
       const firstTag = (first as Element).tagName.toLowerCase();
       const secondTag = (second as Element).tagName.toLowerCase();
-      
+
       // 标题后面跟着段落/列表，应该保持在一起
       if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(firstTag)) {
         if (['p', 'ul', 'ol', 'blockquote'].includes(secondTag)) {
@@ -179,7 +178,7 @@ function shouldKeepTogether(nodes: Node[]): boolean {
       }
     }
   }
-  
+
   return false;
 }
 
@@ -189,26 +188,22 @@ function shouldKeepTogether(nodes: Node[]): boolean {
 async function splitIntoSlides(html: string, themeCSS: string): Promise<string[]> {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
-  const nodes = Array.from(doc.body.childNodes).filter(
+  const initialNodes = Array.from(doc.body.childNodes).filter(
     (n) =>
       n.nodeType === Node.ELEMENT_NODE ||
       (n.nodeType === Node.TEXT_NODE && n.textContent?.trim())
   );
-  if (nodes.length === 0) return [html];
+  if (initialNodes.length === 0) return [html];
 
-  // 注入主题 CSS 以获得准确高度
   const styleEl = document.createElement("style");
   styleEl.textContent = getXHSContentCSS(themeCSS);
 
   const probe = document.createElement("div");
   probe.id = "xhs-content";
-  // 必须使用相同的样式上下文
   probe.style.cssText = `
     position: fixed; top: -9999px; left: -9999px;
     width: ${XHS_CARD_W - PADDING_X * 2}px; visibility: hidden; pointer-events: none;
-    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
     box-sizing: border-box; overflow: hidden;
-    line-height: 1.8;
   `;
 
   document.head.appendChild(styleEl);
@@ -231,51 +226,93 @@ async function splitIntoSlides(html: string, themeCSS: string): Promise<string[]
     return probe.scrollHeight;
   };
 
-  // 优化：添加缓冲区，避免因微小高度差异触发分页
-  const BUFFER = 20; // 20px 缓冲区
+  const BUFFER = 40;
   const MAX_HEIGHT = XHS_CONTENT_H + BUFFER;
 
   const slides: string[] = [];
   let bucket: Node[] = [];
+  const queue: Node[] = [...initialNodes];
 
-  for (const node of nodes) {
-    // 预检测：先检查添加当前节点是否会超出限制
+  while (queue.length > 0) {
+    const node = queue.shift()!;
     const tempBucket = [...bucket, node];
     const tempH = getH(tempBucket);
-    
-    if (tempH > MAX_HEIGHT && bucket.length > 0) {
-      // 检查是否是不可分割元素
-      const isLastNodeNonSplittable = isNonSplittable(node);
-      
-      if (isLastNodeNonSplittable) {
-        // 不可分割元素：如果当前桶为空，直接放入；否则先输出当前桶
-        if (bucket.length > 0) {
+
+    if (tempH > MAX_HEIGHT) {
+      if (bucket.length > 0) {
+        // 当前页已有内容，检查是否需要保持在一起（如标题+下一段）
+        if (shouldKeepTogether(tempBucket)) {
+          const lastOne = bucket.pop()!; // 将相关联的第一个元素（如标题）移出
+          if (bucket.length > 0) {
+            // 如果桶里还有别的内容，正常输出当前页
+            const tmp = document.createElement("div");
+            bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
+            slides.push(tmp.innerHTML);
+            bucket = [lastOne]; // 让这个标题去下一页
+          } else {
+            // 如果桶里原本就只有这个标题，那躲不掉了，只能在当前页强行输出
+            bucket = [lastOne];
+          }
+          queue.unshift(node);
+        } else {
+          // 正常换页
           const tmp = document.createElement("div");
           bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
           slides.push(tmp.innerHTML);
-          bucket = [node];
-        } else {
-          bucket = [node];
+          bucket = [];
+          queue.unshift(node);
         }
       } else {
-        // 可分割元素：检查是否需要保持在一起
-        if (shouldKeepTogether(tempBucket)) {
-          // 需要保持在一起的内容，一起放入下一页
-          bucket = tempBucket;
-        } else {
-          // 正常分页
-          const tmp = document.createElement("div");
-          bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
-          slides.push(tmp.innerHTML);
-          bucket = [node];
+        // 当前页为空但该节点仍超重，尝试对容器（列表/div）进行拆分
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const el = node as Element;
+          const tagName = el.tagName.toLowerCase();
+          
+          if (tagName === 'ul' || tagName === 'ol' || tagName === 'div') {
+            const children = Array.from(el.childNodes).filter(n => 
+              n.nodeType === Node.ELEMENT_NODE || (n.nodeType === Node.TEXT_NODE && n.textContent?.trim())
+            );
+            
+            if (children.length > 1) {
+              // 寻找拆分点
+              let splitIndex = 1;
+              for (let i = 1; i <= children.length; i++) {
+                const testWrapper = el.cloneNode(false) as Element;
+                for (let j = 0; j < i; j++) testWrapper.appendChild(children[j].cloneNode(true));
+                if (getH([testWrapper]) > MAX_HEIGHT) {
+                  splitIndex = Math.max(1, i - 1);
+                  break;
+                }
+                splitIndex = i;
+              }
+              
+              const firstPart = el.cloneNode(false) as Element;
+              const secondPart = el.cloneNode(false) as Element;
+              
+              for (let i = 0; i < splitIndex; i++) firstPart.appendChild(children[i].cloneNode(true));
+              for (let i = splitIndex; i < children.length; i++) secondPart.appendChild(children[i].cloneNode(true));
+              
+              // 有序列表特殊处理：保持序列连续性
+              if (tagName === 'ol') {
+                const startAttr = el.getAttribute('start');
+                const start = startAttr ? parseInt(startAttr) : 1;
+                secondPart.setAttribute('start', (start + splitIndex).toString());
+              }
+              
+              queue.unshift(secondPart);
+              queue.unshift(firstPart);
+              continue; // 重新处理拆分后的第一部分
+            }
+          }
         }
+        // 如果不可拆分或只有一个子节点也放不下，则强制放入（会产生溢出，但已是最小颗粒）
+        bucket.push(node);
       }
     } else {
-      // 可以放下，直接添加
       bucket.push(node);
     }
   }
-  
+
   if (bucket.length > 0) {
     const tmp = document.createElement("div");
     bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
@@ -308,7 +345,7 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
 
     useEffect(() => {
       if (!html) return;
-      
+
       let isMounted = true;
       const run = async () => {
         const result = await splitIntoSlides(html, theme.css);
@@ -318,7 +355,7 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
         }
       };
       run();
-      
+
       return () => { isMounted = false; };
     }, [html, theme.css]);
 
@@ -384,19 +421,19 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
       >
         {/* Notch */}
         {!hideMockUI && (
-          <div style={{ 
-            position: "absolute", 
-            top: 0, 
-            left: "50%", 
-            transform: "translateX(-50%)", 
-            width: "120px", 
-            height: "24px", 
-            borderRadius: "0 0 20px 20px", 
-            background: "#000", 
-            zIndex: 30 
+          <div style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "120px",
+            height: "24px",
+            borderRadius: "0 0 20px 20px",
+            background: "#000",
+            zIndex: 30
           }} />
         )}
-        
+
         {/* Status Bar */}
         <div style={{ height: `${XHS_STATUS_H}px`, flexShrink: 0, position: "relative", zIndex: 20 }}>
           {!hideMockUI && <StatusBar backgroundColor={theme.background} />}
@@ -437,11 +474,11 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
               <div
                 key={i}
                 className="xhs-slide-page"
-                style={{ 
-                  width: `${XHS_CARD_W}px`, 
-                  flexShrink: 0, 
-                  height: "100%", 
-                  overflow: "hidden", 
+                style={{
+                  width: `${XHS_CARD_W}px`,
+                  flexShrink: 0,
+                  height: "100%",
+                  overflow: "hidden",
                   boxSizing: "border-box",
                   padding: `${PADDING_Y}px ${PADDING_X}px`,
                   display: "flex",
@@ -449,8 +486,8 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
                   justifyContent: "flex-start"
                 }}
               >
-                <div 
-                  id="xhs-content" 
+                <div
+                  id="xhs-content"
                   dangerouslySetInnerHTML={{ __html: slideHtml }}
                   style={{
                     width: "100%",
@@ -462,7 +499,7 @@ export const XHSSlidePreview = forwardRef<XHSSlidePreviewMethods, XHSSlidePrevie
           </div>
         </div>
 
-        
+
         {/* Dots */}
         <div style={{ position: "absolute", bottom: showFooter ? `${XHS_FOOTER_H + 6}px` : "12px", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 5, zIndex: 10 }}>
           {displaySlides.map((_, i) => (
