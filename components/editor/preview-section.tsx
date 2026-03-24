@@ -16,6 +16,7 @@ interface PreviewSectionProps {
   html: string;
   activeThemeCss: string;
   activeXHSTheme: any;
+  xhsFont: string;
   xhsShowHeader: boolean;
   xhsShowFooter: boolean;
   imgRadius: number;
@@ -31,6 +32,7 @@ export const PreviewSection = ({
   html,
   activeThemeCss,
   activeXHSTheme,
+  xhsFont,
   xhsShowHeader,
   xhsShowFooter,
   imgRadius,
@@ -47,7 +49,7 @@ export const PreviewSection = ({
       exit={{ opacity: 0, x: 20 }}
       className={cn(
         "flex-1 overflow-y-auto bg-white/20 backdrop-blur-sm rounded-3xl border border-white/40 flex flex-col items-center justify-center p-8 no-scrollbar relative",
-        layoutMode === "preview" ? "w-full" : ""
+        layoutMode === "preview" ? "w-full" : "",
       )}
     >
       <AnimatePresence>
@@ -69,9 +71,10 @@ export const PreviewSection = ({
           <div
             className="origin-top transition-transform duration-500 ease-out"
             style={{
-              transform: previewMode === "pc" ? "none" : "scale(0.9) translateZ(0)",
+              transform:
+                previewMode === "pc" ? "none" : "scale(0.9) translateZ(0)",
               backfaceVisibility: "hidden",
-              WebkitFontSmoothing: "antialiased"
+              WebkitFontSmoothing: "antialiased",
             }}
           >
             {styleTheme === "xhs" ? (
@@ -145,6 +148,7 @@ export const PreviewSection = ({
                       ref={xhsSlideRef}
                       html={html}
                       theme={activeXHSTheme}
+                      font={xhsFont}
                       showHeader={xhsShowHeader}
                       showFooter={xhsShowFooter}
                       hideMockUI={true}
@@ -152,36 +156,37 @@ export const PreviewSection = ({
                   </div>
                 </div>
               ) : (
-              <div className="relative group">
-                <IPhoneMockup
-                  screenStyle={{ background: activeXHSTheme.background }}
-                  hideStatusBar={false}
-                  showDynamicIsland={true}
-                >
-                  <XHSSlidePreview
-                    ref={xhsSlideRef}
-                    html={html}
-                    theme={activeXHSTheme}
-                    showHeader={xhsShowHeader}
-                    showFooter={xhsShowFooter}
-                    hideMockUI={true}
-                  />
-                </IPhoneMockup>
+                <div className="relative group">
+                  <IPhoneMockup
+                    screenStyle={{ background: activeXHSTheme.background }}
+                    hideStatusBar={false}
+                    showDynamicIsland={true}
+                  >
+                    <XHSSlidePreview
+                      ref={xhsSlideRef}
+                      html={html}
+                      theme={activeXHSTheme}
+                      font={xhsFont}
+                      showHeader={xhsShowHeader}
+                      showFooter={xhsShowFooter}
+                      hideMockUI={true}
+                    />
+                  </IPhoneMockup>
 
-                {/* External Navigation Arrows */}
-                <button 
-                  onClick={() => xhsSlideRef.current?.goPrev()}
-                  className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
-                >
-                  <ChevronLeft className="size-8 stroke-[2.5px]" />
-                </button>
-                <button 
-                  onClick={() => xhsSlideRef.current?.goNext()}
-                  className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
-                >
-                  <ChevronRight className="size-8 stroke-[2.5px]" />
-                </button>
-              </div>
+                  {/* External Navigation Arrows */}
+                  <button
+                    onClick={() => xhsSlideRef.current?.goPrev()}
+                    className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                  >
+                    <ChevronLeft className="size-8 stroke-[2.5px]" />
+                  </button>
+                  <button
+                    onClick={() => xhsSlideRef.current?.goNext()}
+                    className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                  >
+                    <ChevronRight className="size-8 stroke-[2.5px]" />
+                  </button>
+                </div>
               )
             ) : previewMode === "pc" ? (
               <DesktopMockup>

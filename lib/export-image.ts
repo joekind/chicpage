@@ -77,7 +77,7 @@ export const exportToImage = async (
     filename = `chicpage-xhs-${Date.now()}`,
     format = 'png',
     quality = 1,
-    scale = 2,
+    scale = 3,
     backgroundColor = '#ffffff',
     cropHeight,
     returnDataUrl = false
@@ -146,7 +146,7 @@ export const getImageDataUrl = async (
   const {
     format = 'png',
     quality = 1,
-    scale = 2,
+    scale = 3,
     backgroundColor = '#ffffff'
   } = options;
 

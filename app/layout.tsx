@@ -4,7 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "ChicPage — 公众号排版工具",
@@ -17,11 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
+    <html
+      lang="zh-CN"
+      className={cn("font-sans", inter.variable)}
+      suppressHydrationWarning
+    >
       <body className="antialiased">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

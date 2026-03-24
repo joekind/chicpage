@@ -8,36 +8,55 @@ import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
 import { useStore } from "@/store/use-store";
 import { getTheme } from "@/lib/themes";
 import { getXHSTheme } from "@/lib/xhs-themes";
+import { XHS_FONTS } from "@/lib/fonts";
 import { storeImageLocally } from "@/lib/image_service";
 import { exportToImage } from "@/lib/export-image";
 import { injectReadInfo, getCleanText } from "@/lib/utils-content";
 import JSZip from "jszip";
-
 
 import dynamic from "next/dynamic";
 import type { EditorMethods } from "@/components/editor/mdx-editor";
 import { TopNav } from "@/components/editor/top-nav";
 import { ContextMenu } from "@/components/editor/context-menu";
 import { XHSSlidePreviewMethods } from "@/components/editor/xhs-slide-preview";
-import { XHS_CARD_W, XHS_CARD_H, XHS_STATUS_H, XHS_FOOTER_H, XHS_CONTENT_H, getXHSContentCSS } from "@/components/editor/xhs-slide-preview";
+import {
+  XHS_CARD_W,
+  XHS_CARD_H,
+  XHS_STATUS_H,
+  XHS_FOOTER_H,
+  XHS_CONTENT_H,
+  getXHSContentCSS,
+} from "@/components/editor/xhs-slide-preview";
 import { EditorSection } from "@/components/editor/editor-section";
 import { PreviewSection } from "@/components/editor/preview-section";
 import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
 
 export default function ChicEditor() {
   const {
-    markdown, setMarkdown,
-    html, setHtml,
-    previewMode, setPreviewMode,
+    markdown,
+    setMarkdown,
+    html,
+    setHtml,
+    previewMode,
+    setPreviewMode,
     imgRadius,
-    styleTheme, setStyleTheme,
-    wechatTheme, setWechatTheme,
-    xhsTheme, setXHSTheme,
-    layoutMode, setLayoutMode,
-    xhsShowHeader, xhsShowFooter,
-    showWordCount, setShowWordCount,
-    undo, redo, pushHistory
-
+    styleTheme,
+    setStyleTheme,
+    wechatTheme,
+    setWechatTheme,
+    xhsTheme,
+    setXHSTheme,
+    xhsFont,
+    setXHSFont,
+    layoutMode,
+    setLayoutMode,
+    xhsShowHeader,
+    xhsShowFooter,
+    showWordCount,
+    setShowWordCount,
+    undo,
+    redo,
+    pushHistory,
   } = useStore();
 
   const activeTheme = getTheme(wechatTheme);
@@ -45,23 +64,31 @@ export default function ChicEditor() {
   const editorRef = useRef<EditorMethods>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const xhsSlideRef = useRef<XHSSlidePreviewMethods>(null);
-  const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
+    "idle",
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [isExportingXHS, setIsExportingXHS] = useState(false);
-  const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | undefined>(undefined);
-  const [xhsMode, setXHSMode] = useState<'long' | 'slide'>('slide');
+  const [exportProgress, setExportProgress] = useState<
+    { current: number; total: number } | undefined
+  >(undefined);
+  const [xhsMode, setXHSMode] = useState<"long" | "slide">("slide");
   const [activePopup, setActivePopup] = useState<string | null>(null);
   const [showExportPreview, setShowExportPreview] = useState(false);
-  const [previewSlides, setPreviewSlides] = useState<{ html: string; index: number }[]>([]);
+  const [previewSlides, setPreviewSlides] = useState<
+    { html: string; index: number }[]
+  >([]);
 
   const handlePaste = async (e: React.ClipboardEvent | ClipboardEvent) => {
-    const clipboardData = (e as React.ClipboardEvent).clipboardData || (e as ClipboardEvent).clipboardData;
+    const clipboardData =
+      (e as React.ClipboardEvent).clipboardData ||
+      (e as ClipboardEvent).clipboardData;
     if (!clipboardData) return;
-    
-    const htmlData = clipboardData.getData('text/html');
+
+    const htmlData = clipboardData.getData("text/html");
     const items = Array.from(clipboardData.items);
-    
-    const imageItem = items.find(item => item.type.includes('image'));
+
+    const imageItem = items.find((item) => item.type.includes("image"));
     if (imageItem) {
       e.preventDefault();
       const file = imageItem.getAsFile();
@@ -69,14 +96,14 @@ export default function ChicEditor() {
       return;
     }
 
-    if (htmlData && !clipboardData.types.includes('Files')) {
+    if (htmlData && !clipboardData.types.includes("Files")) {
       e.preventDefault();
       const turndown = new TurndownService({
-        headingStyle: 'atx',
-        codeBlockStyle: 'fenced',
-        hr: '---',
+        headingStyle: "atx",
+        codeBlockStyle: "fenced",
+        hr: "---",
       });
-      turndown.keep(['kbd', 'sup', 'sub', 'mark']);
+      turndown.keep(["kbd", "sup", "sub", "mark"]);
       const markdownContent = turndown.turndown(htmlData);
       if (editorRef.current) {
         editorRef.current.insertMarkdown(markdownContent);
@@ -100,7 +127,7 @@ export default function ChicEditor() {
       }
     };
     reader.readAsText(file);
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleWrapText = (before: string, after?: string) => {
@@ -116,10 +143,11 @@ export default function ChicEditor() {
   };
 
   const handleInsertTable = (rows: number, cols: number) => {
-    const header = '| ' + Array(cols).fill('标题').join(' | ') + ' |';
-    const divider = '| ' + Array(cols).fill('---').join(' | ') + ' |';
-    const row = '| ' + Array(cols).fill('内容').join(' | ') + ' |';
-    const table = '\n' + [header, divider, ...Array(rows).fill(row)].join('\n') + '\n';
+    const header = "| " + Array(cols).fill("标题").join(" | ") + " |";
+    const divider = "| " + Array(cols).fill("---").join(" | ") + " |";
+    const row = "| " + Array(cols).fill("内容").join(" | ") + " |";
+    const table =
+      "\n" + [header, divider, ...Array(rows).fill(row)].join("\n") + "\n";
     editorRef.current?.insertMarkdown(table);
     setActivePopup(null);
   };
@@ -127,13 +155,15 @@ export default function ChicEditor() {
   const applyPangu = () => {
     pushHistory();
     const text = editorRef.current?.getMarkdown() || markdown;
-    const processed = text.replace(/([\u4e00-\u9fa5])([a-zA-Z0-9])/g, '$1 $2').replace(/([a-zA-Z0-9])([\u4e00-\u9fa5])/g, '$1 $2');
+    const processed = text
+      .replace(/([\u4e00-\u9fa5])([a-zA-Z0-9])/g, "$1 $2")
+      .replace(/([a-zA-Z0-9])([\u4e00-\u9fa5])/g, "$1 $2");
     setMarkdown(processed);
     editorRef.current?.setMarkdown(processed);
   };
 
   const handleImageFile = async (file: File) => {
-    if (!file.type.startsWith('image/')) return;
+    if (!file.type.startsWith("image/")) return;
     setIsUploading(true);
     try {
       const localUrl = await storeImageLocally(file);
@@ -142,7 +172,7 @@ export default function ChicEditor() {
         setMarkdown(editorRef.current.getMarkdown());
       }
     } catch (err) {
-      console.error('❌ 图片处理失败:', err);
+      console.error("❌ 图片处理失败:", err);
     } finally {
       setIsUploading(false);
     }
@@ -150,66 +180,70 @@ export default function ChicEditor() {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      const contentToRender = showWordCount ? injectReadInfo(markdown) : markdown;
+      const contentToRender = showWordCount
+        ? injectReadInfo(markdown)
+        : markdown;
       const res = await markdownToHtml(contentToRender);
       setHtml(res);
     }, 300);
     return () => clearTimeout(timer);
   }, [markdown, styleTheme, showWordCount, setHtml]);
 
-
   const handleCopy = async () => {
     try {
-      if (styleTheme === 'xhs') {
+      if (styleTheme === "xhs") {
         // 小红书模式：一键复制纯正文，移除 Markdown 语法
         let textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
         textToCopy = getCleanText(textToCopy);
         await navigator.clipboard.writeText(textToCopy);
-        setCopyStatus('success');
-        setTimeout(() => setCopyStatus('idle'), 2000);
+        setCopyStatus("success");
+        setTimeout(() => setCopyStatus("idle"), 2000);
         return;
       }
 
       if (!previewRef.current) return;
-      const chicpageEl = previewRef.current.querySelector('#chicpage') as HTMLElement | null;
+      const chicpageEl = previewRef.current.querySelector(
+        "#chicpage",
+      ) as HTMLElement | null;
       const target = chicpageEl ?? previewRef.current;
       const contentHtml = getInlinedHtml(target, { wechatOptimized: true });
       const finalHtml = getWeChatHtml(contentHtml, activeTheme.containerStyle);
       const textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
-      const data = [new ClipboardItem({ 
-        "text/html": new Blob([finalHtml], { type: "text/html" }), 
-        "text/plain": new Blob([textToCopy], { type: "text/plain" }) 
-      })];
+      const data = [
+        new ClipboardItem({
+          "text/html": new Blob([finalHtml], { type: "text/html" }),
+          "text/plain": new Blob([textToCopy], { type: "text/plain" }),
+        }),
+      ];
       await navigator.clipboard.write(data);
-      setCopyStatus('success');
-      setTimeout(() => setCopyStatus('idle'), 2000);
+      setCopyStatus("success");
+      setTimeout(() => setCopyStatus("idle"), 2000);
     } catch (err) {
-      console.error('Copy failed:', err);
-      setCopyStatus('error');
+      console.error("Copy failed:", err);
+      setCopyStatus("error");
     }
   };
 
-
   const handleExportXHS = async () => {
     if (!xhsSlideRef.current) return;
-    
+
     // 收集所有页面用于预览
     const totalSlides = xhsSlideRef.current.getSlidesCount();
     const slides: { html: string; index: number }[] = [];
-    
+
     for (let i = 0; i < totalSlides; i++) {
       xhsSlideRef.current.goToSlide(i);
-      await new Promise(resolve => setTimeout(resolve, 100));
-      const slidePages = document.querySelectorAll('.xhs-slide-page');
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      const slidePages = document.querySelectorAll(".xhs-slide-page");
       const slidePage = slidePages[i];
       if (slidePage) {
-        const content = slidePage.querySelector('#xhs-content');
+        const content = slidePage.querySelector("#xhs-content");
         if (content) {
           slides.push({ html: content.innerHTML, index: i });
         }
       }
     }
-    
+
     setPreviewSlides(slides);
     setShowExportPreview(true);
   };
@@ -221,76 +255,81 @@ export default function ChicEditor() {
     try {
       const totalSlides = xhsSlideRef.current.getSlidesCount();
       const originalSlide = xhsSlideRef.current.getCurrentSlide();
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[:.]/g, "-")
+        .slice(0, -5);
 
       // 并行处理所有页面的导出
-      console.log('开始并行处理导出...');
+      console.log("开始并行处理导出...");
       const exportPromises = [];
-      
+
       for (let i = 0; i < totalSlides; i++) {
         const exportPromise = (async (slideIndex) => {
           // 跳转到对应页面
           xhsSlideRef.current?.goToSlide(slideIndex);
           // 等待页面渲染（进一步减少等待时间）
-          await new Promise(resolve => setTimeout(resolve, slideIndex === 0 ? 300 : 100));
-          
+          await new Promise((resolve) =>
+            setTimeout(resolve, slideIndex === 0 ? 300 : 100),
+          );
+
           // 找到页面元素
-          const slidePages = document.querySelectorAll('.xhs-slide-page');
+          const slidePages = document.querySelectorAll(".xhs-slide-page");
           const slidePage = slidePages[slideIndex];
           if (!slidePage) {
             console.warn(`第 ${slideIndex + 1} 页：找不到 slidePage`);
             return null;
           }
-          
+
           // 导出为图片（优化速度）
-          const dataUrl = await exportToImage(slidePage as HTMLElement, {
+          const dataUrl = (await exportToImage(slidePage as HTMLElement, {
             filename: `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}`,
-            format: 'png',
-            scale: 2, // 降低缩放比例提高速度
+            format: "png",
+            scale: 8,
             backgroundColor: activeXHSTheme.background,
             returnDataUrl: true,
-          }) as string;
-          
+          })) as string;
+
           if (dataUrl) {
             const filename = `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}.png`;
-            return { filename, dataUrl, base64Data: dataUrl.split(',')[1] };
+            return { filename, dataUrl, base64Data: dataUrl.split(",")[1] };
           }
           return null;
         })(i);
-        
+
         exportPromises.push(exportPromise);
       }
-      
+
       // 执行所有导出任务
-      console.log('执行导出任务...');
+      console.log("执行导出任务...");
       const results = await Promise.all(exportPromises);
-      const validResults = results.filter(result => result !== null);
-      
+      const validResults = results.filter((result) => result !== null);
+
       // 创建 ZIP 文件
-      console.log('创建 ZIP 文件...');
+      console.log("创建 ZIP 文件...");
       const zip = new JSZip();
-      validResults.forEach(result => {
+      validResults.forEach((result) => {
         if (result) {
           zip.file(result.filename, result.base64Data, { base64: true });
         }
       });
-      
+
       // 生成并下载 ZIP
-      console.log('生成 ZIP 文件...');
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      console.log("生成 ZIP 文件...");
+      const zipBlob = await zip.generateAsync({ type: "blob" });
       const zipUrl = URL.createObjectURL(zipBlob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = zipUrl;
       link.download = `xhs-export-${timestamp}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(zipUrl);
-      
-      console.log('ZIP 文件下载完成！');
+
+      console.log("ZIP 文件下载完成！");
       xhsSlideRef.current.goToSlide(originalSlide);
     } catch (error) {
-      console.error('Export failed:', error);
+      console.error("Export failed:", error);
     } finally {
       setIsExportingXHS(false);
       setExportProgress(undefined);
@@ -298,24 +337,29 @@ export default function ChicEditor() {
   };
 
   return (
-    <div className="flex h-screen flex-col bg-[#F9FAFB] overflow-hidden selection:bg-indigo-100 selection:text-indigo-900" onDragOver={(e) => e.preventDefault()}>
+    <div
+      className="flex h-screen flex-col bg-[#F9FAFB] overflow-hidden selection:bg-indigo-100 selection:text-indigo-900"
+      onDragOver={(e) => e.preventDefault()}
+    >
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-indigo-200/50 blur-[120px]" />
         <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] rounded-full bg-purple-200/50 blur-[100px]" />
       </div>
-      <TopNav 
-        previewMode={previewMode} 
-        setPreviewMode={setPreviewMode} 
-        layoutMode={layoutMode} 
-        setLayoutMode={setLayoutMode} 
-        styleTheme={styleTheme} 
-        setStyleTheme={setStyleTheme} 
+      <TopNav
+        previewMode={previewMode}
+        setPreviewMode={setPreviewMode}
+        layoutMode={layoutMode}
+        setLayoutMode={setLayoutMode}
+        styleTheme={styleTheme}
+        setStyleTheme={setStyleTheme}
         wechatTheme={wechatTheme}
         setWechatTheme={setWechatTheme}
         xhsTheme={xhsTheme}
         setXHSTheme={setXHSTheme}
-        onCopy={handleCopy} 
-        copyStatus={copyStatus} 
+        xhsFont={xhsFont}
+        setXHSFont={setXHSFont}
+        onCopy={handleCopy}
+        copyStatus={copyStatus}
         previewRef={previewRef}
         markdown={markdown}
         onExportXHS={handleExportXHS}
@@ -327,7 +371,6 @@ export default function ChicEditor() {
         setShowWordCount={setShowWordCount}
       />
 
-      
       <main className="flex flex-1 overflow-hidden relative p-4 gap-4">
         <EditorSection
           layoutMode={layoutMode}
@@ -340,9 +383,9 @@ export default function ChicEditor() {
           onApplyPangu={applyPangu}
           onInsertTable={handleInsertTable}
           onInsertImage={() => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "image/*";
             input.onchange = (e) => {
               const file = (e.target as HTMLInputElement).files?.[0];
               if (file) handleImageFile(file);
@@ -350,7 +393,9 @@ export default function ChicEditor() {
             input.click();
           }}
           onImportMarkdown={() => {
-            const input = document.getElementById('md-import-input') as HTMLInputElement;
+            const input = document.getElementById(
+              "md-import-input",
+            ) as HTMLInputElement;
             input?.click();
           }}
           onPaste={handlePaste}
@@ -369,6 +414,7 @@ export default function ChicEditor() {
           html={html}
           activeThemeCss={activeTheme.css}
           activeXHSTheme={activeXHSTheme}
+          xhsFont={xhsFont}
           xhsShowHeader={xhsShowHeader}
           xhsShowFooter={xhsShowFooter}
           imgRadius={imgRadius}
@@ -378,26 +424,26 @@ export default function ChicEditor() {
         />
       </main>
 
-      <ContextMenu 
-        onUndo={undo} 
-        onRedo={redo} 
-        onCopy={handleCopy} 
-        onCut={() => document.execCommand('cut')} 
-        onPaste={() => {}} 
-        onInsertLink={() => {}} 
+      <ContextMenu
+        onUndo={undo}
+        onRedo={redo}
+        onCopy={handleCopy}
+        onCut={() => document.execCommand("cut")}
+        onPaste={() => {}}
+        onInsertLink={() => {}}
         onInsertImage={() => {
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.accept = 'image/*';
+          const input = document.createElement("input");
+          input.type = "file";
+          input.accept = "image/*";
           input.onchange = (e) => {
             const file = (e.target as HTMLInputElement).files?.[0];
             if (file) handleImageFile(file);
           };
           input.click();
-        }} 
-        onInsertHeading={() => editorRef.current?.insertMarkdown('\n# ')} 
-        onInsertSeparator={() => editorRef.current?.insertMarkdown('\n---\n')} 
-        onDeleteLine={() => editorRef.current?.insertMarkdown('\n')} 
+        }}
+        onInsertHeading={() => editorRef.current?.insertMarkdown("\n# ")}
+        onInsertSeparator={() => editorRef.current?.insertMarkdown("\n---\n")}
+        onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
       />
 
       <ExportPreviewDialog
@@ -406,7 +452,10 @@ export default function ChicEditor() {
         onConfirm={handleConfirmExport}
         slides={previewSlides}
         themeBackground={activeXHSTheme.background}
-        themeCSS={getXHSContentCSS(activeXHSTheme.css)}
+        themeCSS={getXHSContentCSS(
+          activeXHSTheme.css,
+          XHS_FONTS.find((f) => f.id === xhsFont)?.value || XHS_FONTS[0].value,
+        )}
       />
     </div>
   );

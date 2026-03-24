@@ -9,6 +9,7 @@ interface AppState {
   styleTheme: 'wechat' | 'xhs';
   wechatTheme: string;
   xhsTheme: string;
+  xhsFont: string;
   layoutMode: 'split' | 'edit' | 'preview';
   xhsShowHeader: boolean;
   xhsShowFooter: boolean;
@@ -23,6 +24,7 @@ interface AppState {
   setStyleTheme: (theme: 'wechat' | 'xhs') => void;
   setWechatTheme: (id: string) => void;
   setXHSTheme: (id: string) => void;
+  setXHSFont: (id: string) => void;
   setLayoutMode: (mode: 'split' | 'edit' | 'preview') => void;
   setXHSShowHeader: (show: boolean) => void;
   setXHSShowFooter: (show: boolean) => void;
@@ -86,6 +88,7 @@ export const useStore = create<AppState>()(
       styleTheme: 'wechat',
       wechatTheme: 'default',
       xhsTheme: 'pure-white',
+      xhsFont: 'system',
       layoutMode: 'split',
       xhsShowHeader: true,
       xhsShowFooter: true,
@@ -105,6 +108,7 @@ export const useStore = create<AppState>()(
       setShowWordCount: (showWordCount) => set({ showWordCount }),
       setWechatTheme: (wechatTheme) => set({ wechatTheme }),
       setXHSTheme: (xhsTheme) => set({ xhsTheme }),
+      setXHSFont: (xhsFont) => set({ xhsFont }),
       setLayoutMode: (layoutMode) => set({ layoutMode }),
 
       pushHistory: () => set((state) => ({
@@ -140,6 +144,7 @@ export const useStore = create<AppState>()(
         styleTheme: state.styleTheme,
         wechatTheme: state.wechatTheme,
         xhsTheme: state.xhsTheme,
+        xhsFont: state.xhsFont,
         layoutMode: state.layoutMode,
         xhsShowHeader: state.xhsShowHeader,
         xhsShowFooter: state.xhsShowFooter,
