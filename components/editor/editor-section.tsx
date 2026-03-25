@@ -34,18 +34,21 @@ export const EditorSection = ({
 }: EditorSectionProps) => {
   return (
     <motion.section
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
       className={cn(
-        "flex flex-col bg-white/80 backdrop-blur-xl rounded-3xl floating-shadow border border-zinc-200/50 transition-all duration-500 ease-[cubic-bezier(0.2,0,0,1)] overflow-hidden relative",
+        "flex flex-col bg-white rounded-none border border-zinc-900/10 shadow-2xl shadow-zinc-200/50 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] overflow-hidden relative",
         layoutMode === "split"
           ? "flex-1"
           : layoutMode === "edit"
-          ? "w-full max-w-4xl mx-auto"
+          ? "w-full max-w-5xl mx-auto"
           : "w-0 opacity-0 pointer-events-none p-0"
       )}
     >
-      {/* Toolbar has been moved to top-level page for sharing */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-900/5" />
+      
       <div
-        className="flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-12 pb-20"
+        className="flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-16 py-12"
         onDrop={(e) => {
           e.preventDefault();
           Array.from(e.dataTransfer.files).forEach(onImageFile);
@@ -67,24 +70,29 @@ export const EditorSection = ({
         />
       </div>
 
-      <div className="absolute bottom-6 left-8 flex items-center gap-4 bg-white/60 backdrop-blur-2xl px-4 py-2 rounded-2xl text-[10px] font-bold text-zinc-500 border border-zinc-100 shadow-lg">
-        {isUploading && (
-          <>
-            <div className="flex items-center gap-2 text-indigo-500 animate-pulse">
+      <div className="flex items-center justify-between px-8 py-4 bg-zinc-50 border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
+        <div className="flex items-center gap-6">
+          {isUploading && (
+            <div className="flex items-center gap-2 text-zinc-900 animate-pulse">
               <Loader2 className="size-3 animate-spin" />
-              <span>Processing Image...</span>
+              <span>Processing Media</span>
             </div>
-            <div className="w-px h-3 bg-zinc-200" />
-          </>
-        )}
-        <div className="flex items-center gap-2">
-          <Type className="size-3" />
-          <span>{markdown.length} 字符</span>
+          )}
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-900 font-black">字数统计:</span>
+            <span>{markdown.length}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-zinc-900 font-black">预计阅读:</span>
+            <span>{Math.ceil(markdown.length / 400)} 分钟</span>
+          </div>
         </div>
-        <div className="w-px h-3 bg-zinc-200" />
         <div className="flex items-center gap-2">
-          <Layers className="size-3" />
-          <span>约 {Math.ceil(markdown.length / 400)} 分钟阅读</span>
+           <span className="text-zinc-900 font-black">系统状态:</span>
+           <span className="text-emerald-500 flex items-center gap-1.5">
+             <div className="size-1.5 rounded-full bg-emerald-500" />
+             运行良好
+           </span>
         </div>
       </div>
     </motion.section>

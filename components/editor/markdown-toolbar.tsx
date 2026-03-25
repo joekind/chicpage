@@ -75,7 +75,7 @@ export const MarkdownToolbar = ({
 
   const btn = (icon: React.ReactNode, title: string, onClick: () => void, extra = "") =>
     <Button key={title} variant="ghost" size="icon" title={title}
-      className={cn("size-8 rounded-lg hover:bg-zinc-100 text-zinc-600", extra)}
+      className={cn("size-8 rounded-xl hover:bg-zinc-100/80 text-zinc-600 hover:scale-110 active:scale-90 transition-all duration-300", extra)}
       onMouseDown={(e) => e.preventDefault()} onClick={onClick}>
       {icon}
     </Button>;

@@ -20,8 +20,10 @@ import {
   CheckCircle2,
   BookOpen,
   Image as ImageIcon,
+  Command,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -116,29 +118,25 @@ export const TopNav = ({
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-zinc-200/50 bg-white/60 px-6 backdrop-blur-2xl">
+    <nav className="sticky top-0 z-50 flex h-20 items-center justify-between border-b border-zinc-900/10 bg-white px-10">
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <img
-            src="/wmremove-transformed.png"
-            alt="ChicPage Logo"
-            className="size-7 object-contain"
-          />
-          <h1 className="text-xl font-black tracking-tighter text-zinc-900">
+        <Link href="/" className="flex items-center gap-4 hover:translate-x-1 transition-transform">
+           <img src="/wmremove-transformed.png" alt="Logo" className="h-7 w-auto object-contain [image-rendering:--webkit-optimize-contrast]" />
+          <h1 className="text-2xl font-display font-black tracking-tighter text-zinc-900 uppercase">
             ChicPage
           </h1>
-        </div>
+        </Link>
 
-        <div className="ml-4 flex items-center gap-0.5 rounded-xl bg-zinc-100/80 p-1 shadow-inner border border-zinc-200/50">
+        <div className="ml-8 flex items-center p-0.5 border border-zinc-900/10 rounded-none bg-zinc-50">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setLayoutMode("edit")}
             className={cn(
-              "size-8 rounded-lg transition-all",
+              "size-9 rounded-none transition-all",
               layoutMode === "edit"
-                ? "bg-white text-indigo-500 shadow-md ring-1 ring-zinc-200/50"
-                : "text-zinc-500 hover:text-zinc-900",
+                ? "bg-zinc-900 text-white shadow-lg"
+                : "text-zinc-400 hover:text-zinc-900",
             )}
           >
             <Sidebar className="size-4 rotate-180" />

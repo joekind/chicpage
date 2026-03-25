@@ -1,512 +1,274 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import TurndownService from "turndown";
-import { cn } from "@/lib/utils";
-import { markdownToHtml } from "@/lib/markdown";
-import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
-import { useStore } from "@/store/use-store";
-import { getTheme } from "@/lib/themes";
-import { getXHSTheme } from "@/lib/xhs-themes";
-import { XHS_FONTS } from "@/lib/fonts";
-import { storeImageLocally } from "@/lib/image_service";
-import { exportToImage } from "@/lib/export-image";
-import { injectReadInfo, getCleanText } from "@/lib/utils-content";
-import JSZip from "jszip";
-
-import dynamic from "next/dynamic";
-import type { EditorMethods } from "@/components/editor/mdx-editor";
-import { TopNav } from "@/components/editor/top-nav";
-import { ContextMenu } from "@/components/editor/context-menu";
-import { XHSSlidePreviewMethods } from "@/components/editor/xhs-slide-preview";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useRef } from "react";
+import Link from "next/link";
+import { motion, useScroll, useTransform } from "framer-motion";
 import {
-  XHS_CARD_W,
-  XHS_CARD_H,
-  XHS_STATUS_H,
-  XHS_FOOTER_H,
-  XHS_CONTENT_H,
-  getXHSContentCSS,
-} from "@/components/editor/xhs-slide-preview";
-import { EditorSection } from "@/components/editor/editor-section";
-import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
-import { PreviewSection } from "@/components/editor/preview-section";
-import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
+  ArrowRight,
+  Zap,
+  Layout,
+  BookOpen,
+  Image as ImageIcon,
+  Sparkles,
+  Github,
+  Command,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export default function ChicEditor() {
-  const {
-    markdown,
-    setMarkdown,
-    html,
-    setHtml,
-    previewMode,
-    setPreviewMode,
-    imgRadius,
-    styleTheme,
-    setStyleTheme,
-    wechatTheme,
-    setWechatTheme,
-    xhsTheme,
-    setXHSTheme,
-    xhsFont,
-    setXHSFont,
-    layoutMode,
-    setLayoutMode,
-    xhsShowHeader,
-    xhsShowFooter,
-    showWordCount,
-    setShowWordCount,
-    undo,
-    redo,
-    pushHistory,
-  } = useStore();
+// --- Components ---
 
-  const activeTheme = getTheme(wechatTheme);
-  const activeXHSTheme = getXHSTheme(xhsTheme);
-  const editorRef = useRef<EditorMethods>(null);
-  const previewRef = useRef<HTMLDivElement>(null);
-  const xhsSlideRef = useRef<XHSSlidePreviewMethods>(null);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
-    "idle",
-  );
-  const [isUploading, setIsUploading] = useState(false);
-  const [isExportingXHS, setIsExportingXHS] = useState(false);
-  const [exportProgress, setExportProgress] = useState<
-    { current: number; total: number } | undefined
-  >(undefined);
-  const [xhsMode, setXHSMode] = useState<"long" | "slide">("slide");
-  const [activePopup, setActivePopup] = useState<string | null>(null);
-  const [showExportPreview, setShowExportPreview] = useState(false);
-  const [previewSlides, setPreviewSlides] = useState<
-    { html: string; index: number }[]
-  >([]);
+const EditorialLine = ({ delay = 0 }: { delay?: number }) => (
+  <motion.div
+    initial={{ scaleX: 0 }}
+    whileInView={{ scaleX: 1 }}
+    transition={{ duration: 1.5, delay, ease: [0.19, 1, 0.22, 1] }}
+    className="h-px w-full bg-zinc-900/10 origin-left"
+  />
+);
 
-  const handlePaste = async (e: React.ClipboardEvent | ClipboardEvent) => {
-    const clipboardData =
-      (e as React.ClipboardEvent).clipboardData ||
-      (e as ClipboardEvent).clipboardData;
-    if (!clipboardData) return;
+const Nav = () => (
+  <nav className="fixed top-0 left-0 right-0 z-50 h-[80px] bg-[#fcfcfc]/80 backdrop-blur-md px-10 border-b border-zinc-900/5">
+    <div className="mx-auto h-full flex items-center justify-between">
+      <div className="flex items-center gap-12">
+        <Link href="/" className="flex items-center gap-4 group">
+          <img
+            src="/wmremove-transformed.png"
+            alt="ChicPage Logo"
+            className="h-8 w-auto object-contain "
+          />
+          <span className="text-3xl font-black font-display tracking-tighter text-zinc-900 uppercase">
+            ChicPage
+          </span>
+        </Link>
+        <div className="hidden lg:flex items-center gap-8 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
+          <a href="#vision" className="hover:text-zinc-900 transition-colors">01. 愿景</a>
+          <a href="#lab" className="hover:text-zinc-900 transition-colors">02. 实验室</a>
+          <a href="#source" className="hover:text-zinc-900 transition-colors">03. 开源</a>
+        </div>
+      </div>
+      <Link href="/workspace">
+        <Button className="h-12 bg-zinc-900 hover:bg-zinc-800 text-white font-mono text-xs uppercase tracking-widest px-8 rounded-none">
+          进入工作区
+          <ArrowRight className="ml-3 size-4" />
+        </Button>
+      </Link>
+    </div>
+  </nav>
+);
 
-    const htmlData = clipboardData.getData("text/html");
-    const items = Array.from(clipboardData.items);
-
-    const imageItem = items.find((item) => item.type.includes("image"));
-    if (imageItem) {
-      e.preventDefault();
-      const file = imageItem.getAsFile();
-      if (file) handleImageFile(file);
-      return;
-    }
-
-    if (htmlData && !clipboardData.types.includes("Files")) {
-      e.preventDefault();
-      const turndown = new TurndownService({
-        headingStyle: "atx",
-        codeBlockStyle: "fenced",
-        hr: "---",
-      });
-      turndown.keep(["kbd", "sup", "sub", "mark"]);
-      const markdownContent = turndown.turndown(htmlData);
-      if (editorRef.current) {
-        editorRef.current.insertMarkdown(markdownContent);
-        setMarkdown(editorRef.current.getMarkdown());
-      }
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      if (content) {
-        pushHistory();
-        setMarkdown(content);
-        if (editorRef.current) {
-          editorRef.current.setMarkdown(content);
-        }
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = "";
-  };
-
-  const handleWrapText = (before: string, after?: string) => {
-    editorRef.current?.wrapSelection(before, after ?? before);
-  };
-
-  const handleInsertText = (text: string) => {
-    editorRef.current?.insertMarkdown(text);
-  };
-
-  const handleInsertAtLineStart = (prefix: string) => {
-    editorRef.current?.insertAtLineStart(prefix);
-  };
-
-  const handleInsertTable = (rows: number, cols: number) => {
-    const header = "| " + Array(cols).fill("标题").join(" | ") + " |";
-    const divider = "| " + Array(cols).fill("---").join(" | ") + " |";
-    const row = "| " + Array(cols).fill("内容").join(" | ") + " |";
-    const table =
-      "\n" + [header, divider, ...Array(rows).fill(row)].join("\n") + "\n";
-    editorRef.current?.insertMarkdown(table);
-    setActivePopup(null);
-  };
-
-  const applyPangu = () => {
-    pushHistory();
-    const text = editorRef.current?.getMarkdown() || markdown;
-    const processed = text
-      .replace(/([\u4e00-\u9fa5])([a-zA-Z0-9])/g, "$1 $2")
-      .replace(/([a-zA-Z0-9])([\u4e00-\u9fa5])/g, "$1 $2");
-    setMarkdown(processed);
-    editorRef.current?.setMarkdown(processed);
-  };
-
-  const handleImageFile = async (file: File) => {
-    if (!file.type.startsWith("image/")) return;
-    setIsUploading(true);
-    try {
-      const localUrl = await storeImageLocally(file);
-      if (editorRef.current) {
-        editorRef.current.insertMarkdown(`![${file.name}](${localUrl})`);
-        setMarkdown(editorRef.current.getMarkdown());
-      }
-    } catch (err) {
-      console.error("❌ 图片处理失败:", err);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      const contentToRender = showWordCount
-        ? injectReadInfo(markdown)
-        : markdown;
-      const res = await markdownToHtml(contentToRender);
-      setHtml(res);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [markdown, styleTheme, showWordCount, setHtml]);
-
-  const handleCopy = async () => {
-    try {
-      if (styleTheme === "xhs") {
-        // 小红书模式：一键复制纯正文，移除 Markdown 语法
-        let textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
-        textToCopy = getCleanText(textToCopy);
-        await navigator.clipboard.writeText(textToCopy);
-        setCopyStatus("success");
-        setTimeout(() => setCopyStatus("idle"), 2000);
-        return;
-      }
-
-      if (!previewRef.current) return;
-      const chicpageEl = previewRef.current.querySelector(
-        "#chicpage",
-      ) as HTMLElement | null;
-      const target = chicpageEl ?? previewRef.current;
-      const contentHtml = getInlinedHtml(target, { wechatOptimized: true });
-      const finalHtml = getWeChatHtml(contentHtml, activeTheme.containerStyle);
-      const textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
-      const data = [
-        new ClipboardItem({
-          "text/html": new Blob([finalHtml], { type: "text/html" }),
-          "text/plain": new Blob([textToCopy], { type: "text/plain" }),
-        }),
-      ];
-      await navigator.clipboard.write(data);
-      setCopyStatus("success");
-      setTimeout(() => setCopyStatus("idle"), 2000);
-    } catch (err) {
-      console.error("Copy failed:", err);
-      setCopyStatus("error");
-    }
-  };
-
-  const handleExportXHS = async () => {
-    if (!xhsSlideRef.current) return;
-
-    // 收集所有页面用于预览
-    const totalSlides = xhsSlideRef.current.getSlidesCount();
-    const slides: { html: string; index: number }[] = [];
-
-    for (let i = 0; i < totalSlides; i++) {
-      xhsSlideRef.current.goToSlide(i);
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      const slidePages = document.querySelectorAll(".xhs-slide-page");
-      const slidePage = slidePages[i];
-      if (slidePage) {
-        const content = slidePage.querySelector("#xhs-content");
-        if (content) {
-          slides.push({ html: content.innerHTML, index: i });
-        }
-      }
-    }
-
-    setPreviewSlides(slides);
-    setShowExportPreview(true);
-  };
-
-  const handleConfirmExport = async () => {
-    if (!xhsSlideRef.current) return;
-    setIsExportingXHS(true);
-    setExportProgress(undefined);
-    try {
-      const totalSlides = xhsSlideRef.current.getSlidesCount();
-      const originalSlide = xhsSlideRef.current.getCurrentSlide();
-      const timestamp = new Date()
-        .toISOString()
-        .replace(/[:.]/g, "-")
-        .slice(0, -5);
-
-      // 并行处理所有页面的导出
-      console.log("开始并行处理导出...");
-      const exportPromises = [];
-
-      for (let i = 0; i < totalSlides; i++) {
-        const exportPromise = (async (slideIndex) => {
-          // 跳转到对应页面
-          xhsSlideRef.current?.goToSlide(slideIndex);
-          // 等待页面渲染（进一步减少等待时间）
-          await new Promise((resolve) =>
-            setTimeout(resolve, slideIndex === 0 ? 300 : 100),
-          );
-
-          // 找到页面元素
-          const slidePages = document.querySelectorAll(".xhs-slide-page");
-          const slidePage = slidePages[slideIndex];
-          if (!slidePage) {
-            console.warn(`第 ${slideIndex + 1} 页：找不到 slidePage`);
-            return null;
-          }
-
-          // 导出为图片（优化速度）
-          const dataUrl = (await exportToImage(slidePage as HTMLElement, {
-            filename: `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}`,
-            format: "png",
-            scale: 8,
-            backgroundColor: activeXHSTheme.background,
-            returnDataUrl: true,
-          })) as string;
-
-          if (dataUrl) {
-            const filename = `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}.png`;
-            return { filename, dataUrl, base64Data: dataUrl.split(",")[1] };
-          }
-          return null;
-        })(i);
-
-        exportPromises.push(exportPromise);
-      }
-
-      // 执行所有导出任务
-      console.log("执行导出任务...");
-      const results = await Promise.all(exportPromises);
-      const validResults = results.filter((result) => result !== null);
-
-      // 创建 ZIP 文件
-      console.log("创建 ZIP 文件...");
-      const zip = new JSZip();
-      validResults.forEach((result) => {
-        if (result) {
-          zip.file(result.filename, result.base64Data, { base64: true });
-        }
-      });
-
-      // 生成并下载 ZIP
-      console.log("生成 ZIP 文件...");
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-      const zipUrl = URL.createObjectURL(zipBlob);
-      const link = document.createElement("a");
-      link.href = zipUrl;
-      link.download = `xhs-export-${timestamp}.zip`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(zipUrl);
-
-      console.log("ZIP 文件下载完成！");
-      xhsSlideRef.current.goToSlide(originalSlide);
-    } catch (error) {
-      console.error("Export failed:", error);
-    } finally {
-      setIsExportingXHS(false);
-      setExportProgress(undefined);
-    }
-  };
+export default function LandingPage() {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
 
   return (
-    <div
-      className="flex h-screen flex-col bg-[#F9FAFB] overflow-hidden selection:bg-indigo-100 selection:text-indigo-900"
-      onDragOver={(e) => e.preventDefault()}
-    >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-indigo-200/50 blur-[120px]" />
-        <div className="absolute top-[20%] -right-[5%] w-[30%] h-[30%] rounded-full bg-purple-200/50 blur-[100px]" />
-      </div>
-      <TopNav
-        previewMode={previewMode}
-        setPreviewMode={setPreviewMode}
-        layoutMode={layoutMode}
-        setLayoutMode={setLayoutMode}
-        styleTheme={styleTheme}
-        setStyleTheme={setStyleTheme}
-        wechatTheme={wechatTheme}
-        setWechatTheme={setWechatTheme}
-        xhsTheme={xhsTheme}
-        setXHSTheme={setXHSTheme}
-        xhsFont={xhsFont}
-        setXHSFont={setXHSFont}
-        onCopy={handleCopy}
-        copyStatus={copyStatus}
-        previewRef={previewRef}
-        markdown={markdown}
-        onExportXHS={handleExportXHS}
-        isExportingXHS={isExportingXHS}
-        exportProgress={exportProgress}
-        xhsMode={xhsMode}
-        setXHSMode={setXHSMode}
-        showWordCount={showWordCount}
-        setShowWordCount={setShowWordCount}
-      />
+    <div ref={containerRef} className="min-h-screen bg-[#fcfcfc] text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white">
+      <Nav />
 
-      {layoutMode !== "preview" && (
-        <div className="sticky top-0 z-30 shadow-sm">
-          <MarkdownToolbar
-            onWrapText={handleWrapText}
-            onInsertText={handleInsertText}
-            onInsertAtLineStart={handleInsertAtLineStart}
-            onApplyPangu={applyPangu}
-            onInsertTable={handleInsertTable}
-            onHeading={(level: 1 | 2) => {
-              if (styleTheme === "xhs") {
-                if (level === 1)
-                  handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
-                else handleInsertText("\n📍 ");
-              } else {
-                handleInsertAtLineStart(level === 1 ? "# " : "## ");
-              }
-            }}
-            onBold={() => {
-              if (styleTheme === "xhs") handleWrapText("「", "」");
-              else handleWrapText("**");
-            }}
-            onSeparator={() => {
-              if (styleTheme === "xhs")
-                handleInsertText("\n" + "━".repeat(15) + "\n");
-              else handleInsertText("\n\n---\n\n");
-            }}
-            onQuote={() => {
-              if (styleTheme === "xhs") handleInsertText("\n✅ ");
-              else handleInsertAtLineStart("> ");
-            }}
-            onInsertImage={() => {
-              const input = document.createElement("input");
-              input.type = "file";
-              input.accept = "image/*";
-              input.onchange = (e) => {
-                const file = (e.target as HTMLInputElement).files?.[0];
-                if (file) handleImageFile(file);
-              };
-              input.click();
-            }}
-            onImportMarkdown={() => {
-              const input = document.getElementById(
-                "md-import-input",
-              ) as HTMLInputElement;
-              input?.click();
-            }}
-            activePopup={activePopup}
-            setActivePopup={setActivePopup}
-          />
+      {/* Hero: Editorial Style */}
+      <section className="relative pt-[200px] pb-[100px] px-10 overflow-hidden">
+        <div className="mx-auto max-w-screen-2xl">
+          <EditorialLine />
+
+          <div className="mt-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
+            <div className="lg:col-span-8">
+              <motion.span
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="font-mono text-[11px] uppercase tracking-[0.4em] text-zinc-400 mb-8 block"
+              >
+                次世代排版引擎 // 版本 2.0.4
+              </motion.span>
+              <motion.h1
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+                className="text-8xl md:text-[160px] font-display font-black leading-[0.8] tracking-tighter uppercase"
+              >
+                设计 <br />
+                <span className="text-zinc-300">无谓</span> <br />
+                界限<span className="text-indigo-600">.</span>
+              </motion.h1>
+            </div>
+            <div className="lg:col-span-4 pb-4">
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="text-xl leading-relaxed italic font-serif text-zinc-500 max-w-sm"
+              >
+                “排版是文字的灵魂。ChicPage 为你的表达提供应有的舞台。”
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
+                className="mt-10 flex gap-4 font-mono text-[10px] uppercase tracking-widest"
+              >
+                <div className="px-3 py-1 bg-zinc-100 border border-zinc-200">微信公众号</div>
+                <div className="px-3 py-1 bg-zinc-100 border border-zinc-200">小红书</div>
+                <div className="px-3 py-1 bg-zinc-900 text-white">智能贴图</div>
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="mt-24 relative lg:h-[800px] overflow-hidden group">
+            <motion.div
+              style={{ scale: useTransform(scrollYProgress, [0, 0.5], [1, 1.1]) }}
+              className="w-full h-full bg-zinc-100 relative overflow-hidden"
+            >
+              <img
+                src="/hero_mockup_editor.png"
+                alt="预览"
+                className="w-full h-full object-cover object-top filter grayscale group-hover:grayscale-0 transition-all duration-1000"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#fcfcfc]" />
+            </motion.div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                className="size-[300px] border border-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"
+              >
+                <span className="text-white font-mono text-[10px] uppercase tracking-[0.5em] animate-pulse">沉浸式创作体验</span>
+              </motion.div>
+            </div>
+          </div>
         </div>
-      )}
+      </section>
 
-      <main className="flex flex-1 overflow-hidden relative p-4 gap-4">
-        <AnimatePresence mode="popLayout" initial={false}>
-          <EditorSection
-            key="editor"
-            layoutMode={layoutMode}
-            markdown={markdown}
-            setMarkdown={setMarkdown}
-            editorRef={editorRef}
-            onPaste={handlePaste}
-            onFileUpload={handleFileUpload}
-            onImageFile={handleImageFile}
-            isUploading={isUploading}
-            styleTheme={styleTheme}
-          />
+      {/* Feature Section: Swiss Grid Asymmetry */}
+      <section id="vision" className="py-40 px-10 relative bg-zinc-900 text-white">
+        <div className="mx-auto max-w-screen-2xl">
+          <div className="flex flex-col lg:flex-row gap-20 items-start">
+            <div className="w-full lg:w-1/3 sticky top-40">
+              <h2 className="text-8xl font-display font-black leading-none uppercase mb-10">
+                塑就 <br />
+                未来 <br />
+                表达<span className="text-indigo-500">_</span>
+              </h2>
+              <p className="text-zinc-500 text-lg leading-relaxed mb-12">
+                我们相信优秀的内容不仅在于言辞，更在于其在屏幕上呈现的视觉张力。
+              </p>
+              <div className="flex flex-col gap-4">
+                {["智能分页算法", "动态排版方案", "多端同步", "矢量导出"].map((t, idx) => (
+                  <div key={t} className="flex items-center gap-4 group cursor-pointer">
+                    <span className="text-zinc-700 font-mono text-sm">0{idx + 1}</span>
+                    <span className="text-zinc-300 font-sans font-bold hover:translate-x-2 transition-transform">{t}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <PreviewSection
-            key="preview"
-            layoutMode={layoutMode}
-            previewMode={previewMode}
-            styleTheme={styleTheme}
-            html={html}
-            activeThemeCss={activeTheme.css}
-            activeXHSTheme={activeXHSTheme}
-            xhsFont={xhsFont}
-            xhsShowHeader={xhsShowHeader}
-            xhsShowFooter={xhsShowFooter}
-            imgRadius={imgRadius}
-            isUploading={isUploading}
-            previewRef={previewRef}
-            xhsSlideRef={xhsSlideRef}
-          />
-        </AnimatePresence>
-      </main>
+            <div className="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-px bg-zinc-800 border border-zinc-800">
+              <div className="bg-zinc-900 p-16 aspect-square flex flex-col justify-between border-r border-zinc-800">
+                <div className="size-12 bg-white flex items-center justify-center">
+                  <BookOpen className="size-6 text-zinc-900" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold mb-4">大师级微信主题</h3>
+                  <p className="text-zinc-500 leading-relaxed">
+                    行业级的排版控制。每一个字符、每一处间距，都经过精确的数学计算。
+                  </p>
+                </div>
+              </div>
+              <div className="bg-zinc-900 p-16 aspect-square flex flex-col justify-between">
+                <div className="size-12 bg-white flex items-center justify-center">
+                  <Layout className="size-6 text-zinc-900" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold mb-4">小红书卡片引擎</h3>
+                  <p className="text-zinc-500 leading-relaxed">
+                    全球首创的 AI 驱动一键切图算法。将文字无缝转化为精美卡片。
+                  </p>
+                </div>
+              </div>
+              <div className="bg-zinc-900 p-16 aspect-square flex flex-col justify-between border-r border-zinc-800">
+                <div className="size-12 bg-white flex items-center justify-center">
+                  <ImageIcon className="size-6 text-zinc-900" />
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold mb-4">Bento 智能拼贴</h3>
+                  <p className="text-zinc-500 leading-relaxed">
+                    在实验室级别的界面中自由拼贴海报。高保真渲染输出。
+                  </p>
+                </div>
+              </div>
+              <div className="bg-zinc-900 p-16 aspect-square flex flex-col justify-center items-center">
+                <div className="text-center group cursor-pointer">
+                  <div className="size-16 rounded-full border border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-white transition-all duration-500">
+                    <ArrowRight className="size-6 text-zinc-500 group-hover:text-zinc-900" />
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">查看开发文档</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <AnimatePresence>
-        <ContextMenu
-          key="context-menu"
-          onUndo={undo}
-          onRedo={redo}
-          onCopy={handleCopy}
-          onCut={() => document.execCommand("cut")}
-          onPaste={() => {}}
-          onInsertLink={() => {}}
-          onInsertImage={() => {
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = "image/*";
-            input.onchange = (e) => {
-              const file = (e.target as HTMLInputElement).files?.[0];
-              if (file) handleImageFile(file);
-            };
-            input.click();
-          }}
-          onInsertHeading={() => {
-            if (styleTheme === "xhs") {
-              handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
-            } else {
-              handleInsertAtLineStart("# ");
-            }
-          }}
-          onInsertSeparator={() => {
-            if (styleTheme === "xhs") {
-              handleInsertText("\n" + "━".repeat(15) + "\n");
-            } else {
-              handleInsertText("\n\n---\n\n");
-            }
-          }}
-          onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
-        />
-      </AnimatePresence>
+      {/* Lab Quote Section */}
+      <section className="py-60 px-10 text-center">
+        <motion.h2
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          className="text-5xl md:text-9xl font-display font-black uppercase leading-[0.9] tracking-tighter"
+        >
+          为数字 <br />
+          时代的 <br />
+          <span className="italic font-serif normal-case font-thin text-zinc-300">文艺复兴</span> 而生
+        </motion.h2>
+        <div className="mt-20 flex justify-center">
+          <Link href="/workspace">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="size-40 rounded-full bg-indigo-600 flex items-center justify-center text-white font-mono text-[10px] uppercase tracking-[0.3em] font-black cursor-pointer shadow-2xl"
+            >
+              立刻开始
+            </motion.div>
+          </Link>
+        </div>
+      </section>
 
-      <ExportPreviewDialog
-        isOpen={showExportPreview}
-        onClose={() => setShowExportPreview(false)}
-        onConfirm={handleConfirmExport}
-        slides={previewSlides}
-        themeBackground={activeXHSTheme.background}
-        themeCSS={getXHSContentCSS(
-          activeXHSTheme.css,
-          XHS_FONTS.find((f) => f.id === xhsFont)?.value || XHS_FONTS[0].value,
-        )}
-      />
+      {/* Footer: Tech Minimalist */}
+      <footer className="py-12 px-10 border-t border-zinc-900/5 bg-[#fcfcfc]">
+        <div className="flex flex-col lg:flex-row justify-between items-start gap-12">
+          <div className="space-y-6">
+            <div className="flex items-center gap-3">
+              <img src="/wmremove-transformed.png" alt="Logo" className="h-7 w-auto object-contain [image-rendering:--webkit-optimize-contrast]" />
+              <span className="font-display font-black uppercase text-xl">ChicPage</span>
+            </div>
+            <p className="text-zinc-400 font-mono text-[10px] uppercase tracking-widest">
+              设计系统 // 2024 发布
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-20">
+            {[
+              { title: "实验室", links: ["排版主题", "卡片切图", "智能拼贴"] },
+              { title: "资源", links: ["Github", "文档", "Twitter"] },
+              { title: "法律", links: ["隐私政策", "服务条款"] },
+              { title: "动态", links: ["版本更新", "社区社区"] },
+            ].map((group) => (
+              <div key={group.title} className="space-y-6">
+                <h4 className="font-mono text-[11px] uppercase tracking-[0.3em] text-zinc-900 font-black">{group.title}</h4>
+                <ul className="space-y-3 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
+                  {group.links.map(l => (
+                    <li key={l}><a href="#" className="hover:text-zinc-900 transition-colors">{l}</a></li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          <div className="lg:w-[300px] font-mono text-[9px] uppercase tracking-widest text-zinc-300 leading-loose">
+            ChicPage 是一个专注于排版、算法设计和社交媒体叙事交叉领域的科研项目。版权所有。
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
