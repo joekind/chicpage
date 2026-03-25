@@ -233,6 +233,57 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Join Community: Connect Style */}
+      <section id="source" className="py-40 px-10 bg-zinc-50 border-t border-zinc-900/5">
+        <div className="mx-auto max-w-screen-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div>
+              <motion.span 
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                className="font-mono text-[11px] uppercase tracking-[0.4em] text-zinc-400 mb-8 block"
+              >
+                开源社区 // 交流与支持
+              </motion.span>
+              <h2 className="text-6xl font-display font-black uppercase leading-tight mb-8">
+                与创作者 <br />
+                同行<span className="text-indigo-600">.</span>
+              </h2>
+              <p className="text-zinc-500 text-lg leading-relaxed max-w-md mb-10">
+                加入我们的开源社区，获取最新的排版主题、技术文档以及来自全球创作者的设计灵感。
+              </p>
+              <div className="flex gap-6">
+                <Button variant="outline" className="h-14 px-8 rounded-none border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white transition-all font-mono text-xs uppercase tracking-widest">
+                  <Github className="mr-3 size-4" />
+                  Star on Github
+                </Button>
+              </div>
+            </div>
+            <div className="relative group">
+              <div className="absolute -inset-4 bg-indigo-500/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                className="relative bg-white p-8 shadow-2xl shadow-zinc-200/50 border border-zinc-900/5"
+              >
+                <img 
+                  src="/扫码_搜索联合传播样式-标准色版.png" 
+                  alt="微信公众号" 
+                  className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700"
+                />
+                <div className="mt-6 pt-6 border-t border-zinc-100 flex justify-between items-center">
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-400">扫描上方二维码关注公众号</span>
+                  <div className="flex gap-2">
+                    <div className="size-2 rounded-full bg-indigo-500 animate-pulse" />
+                    <div className="size-2 rounded-full bg-zinc-200" />
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer: Tech Minimalist */}
       <footer className="py-12 px-10 border-t border-zinc-900/5 bg-[#fcfcfc]">
         <div className="flex flex-col lg:flex-row justify-between items-start gap-12">
