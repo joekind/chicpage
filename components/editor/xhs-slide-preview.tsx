@@ -189,7 +189,14 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
     #xhs-content > *:last-child {
       margin-bottom: 0;
     }
-    #xhs-content h1, #xhs-content h2, #xhs-content h3 {
+    #xhs-content h1 {
+      margin-top: 0.6em !important;
+      padding-top: 0.4em !important;
+      padding-bottom: 0.4em !important;
+    }
+    #xhs-content h1,
+    #xhs-content h2,
+    #xhs-content h3 {
       margin-top: 0.5em;
       margin-bottom: 0.5em;
       line-height: 1.4;
@@ -261,10 +268,13 @@ function shouldKeepTogether(nodes: Node[]): boolean {
       const secondTag = (second as Element).tagName.toLowerCase();
 
       // 标题后面跟着段落/列表，应该保持在一起
-      if (["h1", "h2", "h3", "h4", "h5", "h6"].includes(firstTag)) {
-        if (["p", "ul", "ol", "blockquote"].includes(secondTag)) {
-          return true;
-        }
+      // 标题后面跟着段落/列表，或者前置元信息跟着标题，应该保持在一起
+      if (
+        (["h1", "h2", "h3", "h4", "h5", "h6"].includes(firstTag) &&
+          ["p", "ul", "ol", "blockquote", "img"].includes(secondTag)) ||
+        (firstTag === "p" && ["h1", "h2"].includes(secondTag))
+      ) {
+        return true;
       }
     }
   }
@@ -322,7 +332,7 @@ async function splitIntoSlides(
     return probe.scrollHeight;
   };
 
-  const BUFFER = 40;
+  const BUFFER = 100; // 增大容差，允许封面等大块内容撑满页面
   const MAX_HEIGHT = XHS_CONTENT_H + BUFFER;
 
   const slides: string[] = [];
@@ -475,7 +485,9 @@ export const XHSSlidePreview = forwardRef<
     }, [html, theme.css, font]);
 
     const go = (dir: 1 | -1) => {
-      setCurrent((p) => Math.max(0, Math.min(slides.length - 1, p + dir)));
+      setCurrent((p) =>
+        Math.max(0, Math.min(displaySlides.length - 1, p + dir)),
+      );
     };
 
     const onMouseDown = (e: React.MouseEvent) => {
@@ -510,7 +522,14 @@ export const XHSSlidePreview = forwardRef<
     };
 
     const displaySlides = slides.length > 0 ? slides : [html];
-    const translateX = dragOffset - current * XHS_CARD_W;
+    // 计算位移，并在边缘滑动时增加阻尼感
+    const translateX = (() => {
+      const base = -current * XHS_CARD_W;
+      if (current === 0 && dragOffset > 0) return base + dragOffset * 0.35;
+      if (current === displaySlides.length - 1 && dragOffset < 0)
+        return base + dragOffset * 0.35;
+      return base + dragOffset;
+    })();
 
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -604,7 +623,9 @@ export const XHSSlidePreview = forwardRef<
               width: `${displaySlides.length * XHS_CARD_W}px`,
               height: "100%",
               transform: `translateX(${translateX}px)`,
-              transition: isDragging ? "none" : "transform 0.3s ease",
+              transition: isDragging
+                ? "none"
+                : "transform 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
             }}
           >
             {displaySlides.map((slideHtml, i) => (

@@ -22,7 +22,13 @@ interface MarkdownToolbarProps {
   onInsertTable: (rows: number, cols: number) => void;
   onInsertImage?: () => void;
   onImportMarkdown?: () => void;
-  isXHSTheme?: boolean;
+  
+  // High-level theme-aware handlers
+  onHeading: (level: 1 | 2) => void;
+  onBold: () => void;
+  onSeparator: () => void;
+  onQuote: () => void;
+  
   activePopup: string | null;
   setActivePopup: (popup: string | null) => void;
   toolbarRef?: React.RefObject<HTMLDivElement | null>;
@@ -45,7 +51,10 @@ export const MarkdownToolbar = ({
   onInsertTable,
   onInsertImage,
   onImportMarkdown,
-  isXHSTheme,
+  onHeading,
+  onBold,
+  onSeparator,
+  onQuote,
   activePopup,
   setActivePopup,
   toolbarRef,
@@ -78,12 +87,12 @@ export const MarkdownToolbar = ({
   };
 
   const groupHeadings = [
-    btn(<Heading1 className="size-4" />, "H1 / 主标题", () => isXHSTheme ? onInsertText('\n✨ 在这输入标题 ✨\n━━━━━━━\n') : onInsertAtLineStart('# '), isXHSTheme ? "hover:bg-pink-50 text-pink-600" : ""),
-    btn(<Heading2 className="size-4" />, "H2 / 小标题", () => isXHSTheme ? onInsertText('\n📍 ') : onInsertAtLineStart('## '), isXHSTheme ? "hover:bg-pink-50 text-pink-600" : ""),
+    btn(<Heading1 className="size-4" />, "H1 / 主标题", () => onHeading(1)),
+    btn(<Heading2 className="size-4" />, "H2 / 小标题", () => onHeading(2)),
   ];
 
   const groupInline = [
-    btn(<Bold className="size-4" />,         isXHSTheme ? "强调" : "加粗",  () => isXHSTheme ? onWrapText('「', '」') : onWrapText('**')),
+    btn(<Bold className="size-4" />,          "加粗",       () => onBold()),
     btn(<Italic className="size-4" />,        "斜体",       () => onWrapText('*')),
     btn(<Strikethrough className="size-4" />, "删除线",     () => onWrapText('~~')),
     btn(<Code className="size-4" />,          "行内代码",   () => onWrapText('`'), "hover:bg-violet-50 text-violet-600"),
@@ -105,12 +114,12 @@ export const MarkdownToolbar = ({
   ];
 
   const groupBlock = [
-    btn(isXHSTheme ? <List className="size-4" /> : <Quote className="size-4" />, isXHSTheme ? "项目符号" : "引用", () => onInsertText(isXHSTheme ? '\n✅ ' : '\n> ')),
-    btn(<List className="size-4" />,          "无序列表",  () => onInsertText('\n- ')),
-    btn(<ListOrdered className="size-4" />,   "有序列表",  () => onInsertText('\n1. ')),
-    btn(<CheckSquare className="size-4" />,   "任务清单",  () => onInsertAtLineStart('\n- [ ] '), "hover:bg-green-50 text-green-600"),
-    btn(<Minus className="size-4" />,         "分割线",    () => onInsertText(isXHSTheme ? '\n' + '━'.repeat(15) + '\n' : '\n\n---\n\n')),
-    btn(<Code2 className="size-4" />,         "代码块",    () => onInsertText('\n```js\n\n```\n'), "hover:bg-violet-50 text-violet-600"),
+    btn(<Quote className="size-4" />,         "引用",       () => onQuote()),
+    btn(<List className="size-4" />,          "无序列表",    () => onInsertAtLineStart('- ')),
+    btn(<ListOrdered className="size-4" />,   "有序列表",    () => onInsertAtLineStart('1. ')),
+    btn(<CheckSquare className="size-4" />,   "任务清单",    () => onInsertAtLineStart('- [ ] '), "hover:bg-green-50 text-green-600"),
+    btn(<Minus className="size-4" />,         "分割线",      () => onSeparator()),
+    btn(<Code2 className="size-4" />,         "代码块",      () => onInsertText('\n```js\n\n```\n'), "hover:bg-violet-50 text-violet-600"),
   ];
 
   const groupMedia = [
@@ -134,8 +143,8 @@ export const MarkdownToolbar = ({
   const groups = [groupHeadings, groupInline, groupBlock, groupMedia, groupCallouts];
 
   return (
-    <div ref={toolbarRef} className="toolbar-root sticky top-0 z-20 flex flex-col border-b border-zinc-100 bg-white/95 backdrop-blur-md overflow-visible">
-      <div className="flex items-center justify-between px-3 py-1.5 flex-wrap gap-y-1 relative">
+    <div ref={toolbarRef} className="toolbar-root w-full flex flex-col border-b border-zinc-100 bg-white/95 backdrop-blur-md overflow-visible relative">
+      <div className="flex items-center justify-between px-6 py-1.5 flex-wrap gap-y-1 relative">
         <div className="flex items-center flex-wrap gap-y-1">
           {groups.map((group, i) => (
             <React.Fragment key={i}>

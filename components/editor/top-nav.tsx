@@ -19,6 +19,7 @@ import {
   Zap,
   CheckCircle2,
   BookOpen,
+  Image as ImageIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -204,8 +205,8 @@ export const TopNav = ({
               setPreviewMode("xhs");
             }}
           >
-            <BookOpen className="size-4" />
-            小红书
+            <ImageIcon className="size-4" />
+            贴图
           </Button>
         </div>
 

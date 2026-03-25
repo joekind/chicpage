@@ -3,7 +3,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { MarkdownToolbar } from "./markdown-toolbar";
 import dynamic from "next/dynamic";
 import { Type, Layers, Loader2 } from "lucide-react";
 import type { EditorMethods } from "./mdx-editor";
@@ -15,21 +14,9 @@ interface EditorSectionProps {
   markdown: string;
   setMarkdown: (md: string) => void;
   editorRef: React.RefObject<EditorMethods | null>;
-  // Handlers
-  onWrapText: (before: string, after?: string) => void;
-  onInsertText: (text: string) => void;
-  onInsertAtLineStart: (prefix: string) => void;
-  onApplyPangu: () => void;
-  onInsertTable: (r: number, c: number) => void;
-  onInsertImage: () => void;
-  onImportMarkdown: () => void;
   onPaste: (e: React.ClipboardEvent | ClipboardEvent) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onImageFile: (file: File) => void;
-  
-  // State
-  activePopup: string | null;
-  setActivePopup: (popup: string | null) => void;
   isUploading: boolean;
   styleTheme: string;
 }
@@ -39,26 +26,16 @@ export const EditorSection = ({
   markdown,
   setMarkdown,
   editorRef,
-  onWrapText,
-  onInsertText,
-  onInsertAtLineStart,
-  onApplyPangu,
-  onInsertTable,
-  onInsertImage,
-  onImportMarkdown,
   onPaste,
   onFileUpload,
   onImageFile,
-  activePopup,
-  setActivePopup,
   isUploading,
   styleTheme,
 }: EditorSectionProps) => {
   return (
     <motion.section
-      layout
       className={cn(
-        "flex flex-col bg-white/80 backdrop-blur-xl rounded-3xl floating-shadow border border-zinc-200/50 transition-all duration-500 overflow-hidden relative",
+        "flex flex-col bg-white/80 backdrop-blur-xl rounded-3xl floating-shadow border border-zinc-200/50 transition-all duration-500 ease-[cubic-bezier(0.2,0,0,1)] overflow-hidden relative",
         layoutMode === "split"
           ? "flex-1"
           : layoutMode === "edit"
@@ -66,18 +43,7 @@ export const EditorSection = ({
           : "w-0 opacity-0 pointer-events-none p-0"
       )}
     >
-      <MarkdownToolbar
-        onWrapText={onWrapText}
-        onInsertText={onInsertText}
-        onInsertAtLineStart={onInsertAtLineStart}
-        onApplyPangu={onApplyPangu}
-        onInsertTable={onInsertTable}
-        onInsertImage={onInsertImage}
-        onImportMarkdown={onImportMarkdown}
-        isXHSTheme={styleTheme === "xhs"}
-        activePopup={activePopup}
-        setActivePopup={setActivePopup}
-      />
+      {/* Toolbar has been moved to top-level page for sharing */}
       <div
         className="flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-12 pb-20"
         onDrop={(e) => {

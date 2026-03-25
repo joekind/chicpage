@@ -19,6 +19,7 @@ import type { EditorMethods } from "@/components/editor/mdx-editor";
 import { TopNav } from "@/components/editor/top-nav";
 import { ContextMenu } from "@/components/editor/context-menu";
 import { XHSSlidePreviewMethods } from "@/components/editor/xhs-slide-preview";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   XHS_CARD_W,
   XHS_CARD_H,
@@ -28,6 +29,7 @@ import {
   getXHSContentCSS,
 } from "@/components/editor/xhs-slide-preview";
 import { EditorSection } from "@/components/editor/editor-section";
+import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
 import { PreviewSection } from "@/components/editor/preview-section";
 import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
 
@@ -371,17 +373,101 @@ export default function ChicEditor() {
         setShowWordCount={setShowWordCount}
       />
 
+      {layoutMode !== "preview" && (
+        <div className="sticky top-0 z-30 shadow-sm">
+          <MarkdownToolbar
+            onWrapText={handleWrapText}
+            onInsertText={handleInsertText}
+            onInsertAtLineStart={handleInsertAtLineStart}
+            onApplyPangu={applyPangu}
+            onInsertTable={handleInsertTable}
+            onHeading={(level: 1 | 2) => {
+              if (styleTheme === "xhs") {
+                if (level === 1)
+                  handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
+                else handleInsertText("\n📍 ");
+              } else {
+                handleInsertAtLineStart(level === 1 ? "# " : "## ");
+              }
+            }}
+            onBold={() => {
+              if (styleTheme === "xhs") handleWrapText("「", "」");
+              else handleWrapText("**");
+            }}
+            onSeparator={() => {
+              if (styleTheme === "xhs")
+                handleInsertText("\n" + "━".repeat(15) + "\n");
+              else handleInsertText("\n\n---\n\n");
+            }}
+            onQuote={() => {
+              if (styleTheme === "xhs") handleInsertText("\n✅ ");
+              else handleInsertAtLineStart("> ");
+            }}
+            onInsertImage={() => {
+              const input = document.createElement("input");
+              input.type = "file";
+              input.accept = "image/*";
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) handleImageFile(file);
+              };
+              input.click();
+            }}
+            onImportMarkdown={() => {
+              const input = document.getElementById(
+                "md-import-input",
+              ) as HTMLInputElement;
+              input?.click();
+            }}
+            activePopup={activePopup}
+            setActivePopup={setActivePopup}
+          />
+        </div>
+      )}
+
       <main className="flex flex-1 overflow-hidden relative p-4 gap-4">
-        <EditorSection
-          layoutMode={layoutMode}
-          markdown={markdown}
-          setMarkdown={setMarkdown}
-          editorRef={editorRef}
-          onWrapText={handleWrapText}
-          onInsertText={handleInsertText}
-          onInsertAtLineStart={handleInsertAtLineStart}
-          onApplyPangu={applyPangu}
-          onInsertTable={handleInsertTable}
+        <AnimatePresence mode="popLayout" initial={false}>
+          <EditorSection
+            key="editor"
+            layoutMode={layoutMode}
+            markdown={markdown}
+            setMarkdown={setMarkdown}
+            editorRef={editorRef}
+            onPaste={handlePaste}
+            onFileUpload={handleFileUpload}
+            onImageFile={handleImageFile}
+            isUploading={isUploading}
+            styleTheme={styleTheme}
+          />
+
+          <PreviewSection
+            key="preview"
+            layoutMode={layoutMode}
+            previewMode={previewMode}
+            styleTheme={styleTheme}
+            html={html}
+            activeThemeCss={activeTheme.css}
+            activeXHSTheme={activeXHSTheme}
+            xhsFont={xhsFont}
+            xhsShowHeader={xhsShowHeader}
+            xhsShowFooter={xhsShowFooter}
+            imgRadius={imgRadius}
+            isUploading={isUploading}
+            previewRef={previewRef}
+            xhsSlideRef={xhsSlideRef}
+          />
+        </AnimatePresence>
+      </main>
+
+      <AnimatePresence>
+        <ContextMenu
+          key="context-menu"
+          onUndo={undo}
+          onRedo={redo}
+          onCopy={handleCopy}
+          onCut={() => document.execCommand("cut")}
+          onPaste={() => {}}
+          onInsertLink={() => {}}
           onInsertImage={() => {
             const input = document.createElement("input");
             input.type = "file";
@@ -392,59 +478,23 @@ export default function ChicEditor() {
             };
             input.click();
           }}
-          onImportMarkdown={() => {
-            const input = document.getElementById(
-              "md-import-input",
-            ) as HTMLInputElement;
-            input?.click();
+          onInsertHeading={() => {
+            if (styleTheme === "xhs") {
+              handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
+            } else {
+              handleInsertAtLineStart("# ");
+            }
           }}
-          onPaste={handlePaste}
-          onFileUpload={handleFileUpload}
-          onImageFile={handleImageFile}
-          activePopup={activePopup}
-          setActivePopup={setActivePopup}
-          isUploading={isUploading}
-          styleTheme={styleTheme}
+          onInsertSeparator={() => {
+            if (styleTheme === "xhs") {
+              handleInsertText("\n" + "━".repeat(15) + "\n");
+            } else {
+              handleInsertText("\n\n---\n\n");
+            }
+          }}
+          onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
         />
-
-        <PreviewSection
-          layoutMode={layoutMode}
-          previewMode={previewMode}
-          styleTheme={styleTheme}
-          html={html}
-          activeThemeCss={activeTheme.css}
-          activeXHSTheme={activeXHSTheme}
-          xhsFont={xhsFont}
-          xhsShowHeader={xhsShowHeader}
-          xhsShowFooter={xhsShowFooter}
-          imgRadius={imgRadius}
-          isUploading={isUploading}
-          previewRef={previewRef}
-          xhsSlideRef={xhsSlideRef}
-        />
-      </main>
-
-      <ContextMenu
-        onUndo={undo}
-        onRedo={redo}
-        onCopy={handleCopy}
-        onCut={() => document.execCommand("cut")}
-        onPaste={() => {}}
-        onInsertLink={() => {}}
-        onInsertImage={() => {
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = "image/*";
-          input.onchange = (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) handleImageFile(file);
-          };
-          input.click();
-        }}
-        onInsertHeading={() => editorRef.current?.insertMarkdown("\n# ")}
-        onInsertSeparator={() => editorRef.current?.insertMarkdown("\n---\n")}
-        onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
-      />
+      </AnimatePresence>
 
       <ExportPreviewDialog
         isOpen={showExportPreview}

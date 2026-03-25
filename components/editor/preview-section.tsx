@@ -44,9 +44,11 @@ export const PreviewSection = ({
 
   return (
     <motion.section
+      layout
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
+      exit={{ opacity: 0, x: 20, scale: 0.95 }}
+      transition={{ duration: 0.4, ease: [0.2, 0, 0, 1] }}
       className={cn(
         "flex-1 overflow-y-auto bg-white/20 backdrop-blur-sm rounded-3xl border border-white/40 flex flex-col items-center justify-center p-8 no-scrollbar relative",
         layoutMode === "preview" ? "w-full" : "",
