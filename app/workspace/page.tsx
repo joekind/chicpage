@@ -369,64 +369,6 @@ export default function ChicEditor() {
         setShowWordCount={setShowWordCount}
       />
 
-      {layoutMode !== "preview" && (
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="z-30 px-10 mt-6"
-        >
-          <div className="max-w-screen-2xl mx-auto overflow-hidden rounded-none border border-zinc-900/10 bg-white shadow-xl shadow-zinc-100 flex items-center justify-center p-1">
-            <MarkdownToolbar
-              onWrapText={handleWrapText}
-              onInsertText={handleInsertText}
-              onInsertAtLineStart={handleInsertAtLineStart}
-              onApplyPangu={applyPangu}
-              onInsertTable={handleInsertTable}
-              onHeading={(level: 1 | 2) => {
-                if (styleTheme === "xhs") {
-                  if (level === 1)
-                    handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
-                  else handleInsertText("\n📍 ");
-                } else {
-                  handleInsertAtLineStart(level === 1 ? "# " : "## ");
-                }
-              }}
-              onBold={() => {
-                if (styleTheme === "xhs") handleWrapText("「", "」");
-                else handleWrapText("**");
-              }}
-              onSeparator={() => {
-                if (styleTheme === "xhs")
-                  handleInsertText("\n" + "━".repeat(15) + "\n");
-                else handleInsertText("\n\n---\n\n");
-              }}
-              onQuote={() => {
-                if (styleTheme === "xhs") handleInsertText("\n✅ ");
-                else handleInsertAtLineStart("> ");
-              }}
-              onInsertImage={() => {
-                const input = document.createElement("input");
-                input.type = "file";
-                input.accept = "image/*";
-                input.onchange = (e) => {
-                  const file = (e.target as HTMLInputElement).files?.[0];
-                  if (file) handleImageFile(file);
-                };
-                input.click();
-              }}
-              onImportMarkdown={() => {
-                const input = document.getElementById(
-                  "md-import-input",
-                ) as HTMLInputElement;
-                input?.click();
-              }}
-              activePopup={activePopup}
-              setActivePopup={setActivePopup}
-            />
-          </div>
-        </motion.div>
-      )}
-
       <main className="flex flex-1 overflow-hidden relative p-10 pt-6 gap-10">
         <AnimatePresence mode="popLayout" initial={false}>
           <EditorSection
@@ -440,6 +382,57 @@ export default function ChicEditor() {
             onImageFile={handleImageFile}
             isUploading={isUploading}
             styleTheme={styleTheme}
+            toolbar={
+              layoutMode !== "preview" && (
+                <MarkdownToolbar
+                  onWrapText={handleWrapText}
+                  onInsertText={handleInsertText}
+                  onInsertAtLineStart={handleInsertAtLineStart}
+                  onApplyPangu={applyPangu}
+                  onInsertTable={handleInsertTable}
+                  onHeading={(level: 1 | 2) => {
+                    if (styleTheme === "xhs") {
+                      if (level === 1)
+                        handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
+                      else handleInsertText("\n📍 ");
+                    } else {
+                      handleInsertAtLineStart(level === 1 ? "# " : "## ");
+                    }
+                  }}
+                  onBold={() => {
+                    if (styleTheme === "xhs") handleWrapText("「", "」");
+                    else handleWrapText("**");
+                  }}
+                  onSeparator={() => {
+                    if (styleTheme === "xhs")
+                      handleInsertText("\n" + "━".repeat(15) + "\n");
+                    else handleInsertText("\n\n---\n\n");
+                  }}
+                  onQuote={() => {
+                    if (styleTheme === "xhs") handleInsertText("\n✅ ");
+                    else handleInsertAtLineStart("> ");
+                  }}
+                  onInsertImage={() => {
+                    const input = document.createElement("input");
+                    input.type = "file";
+                    input.accept = "image/*";
+                    input.onchange = (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
+                      if (file) handleImageFile(file);
+                    };
+                    input.click();
+                  }}
+                  onImportMarkdown={() => {
+                    const input = document.getElementById(
+                      "md-import-input",
+                    ) as HTMLInputElement;
+                    input?.click();
+                  }}
+                  activePopup={activePopup}
+                  setActivePopup={setActivePopup}
+                />
+              )
+            }
           />
 
           <PreviewSection

@@ -10,6 +10,8 @@ export interface WechatTheme {
   css: string;
   /** 复制时包裹容器的 inline style */
   containerStyle: string;
+  /** 预览色块的颜色/渐变 */
+  preview: string;
 }
 
 // 所有主题共用的基础结构样式（标签选择器，挂在 #chicpage 下）
@@ -75,6 +77,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage pre { background: #f8f9fa; border: 1px solid #eee; }
       #chicpage pre code { padding: 1.2em; }
     `,
+    preview: '#ffffff',
   },
   {
     id: 'elegant',
@@ -133,6 +136,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage pre code { background: #1e1e1e; color: #d4d4d4; }
       #chicpage kbd { background: #f5ead6; border-color: #c8a96e; color: #5a4a2a; }
     `,
+    preview: '#fdfaf6',
   },
   {
     id: 'magazine',
@@ -209,6 +213,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage code { background: #f4f4f4; color: #1a1a1a; border: 1px solid #e8e8e8; font-size: 85%; }
       #chicpage pre code { background: #1e1e1e; color: #d4d4d4; border: none; }
     `,
+    preview: '#ffffff',
   }
 ];
 

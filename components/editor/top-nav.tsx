@@ -127,15 +127,16 @@ export const TopNav = ({
           </h1>
         </Link>
 
-        <div className="ml-8 flex items-center p-0.5 border border-zinc-900/10 rounded-none bg-zinc-50">
+        <div className="ml-8 flex items-center p-1 border border-zinc-900/10 rounded-2xl bg-zinc-50 shadow-inner">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setLayoutMode("edit")}
+            title="纯编辑模式"
             className={cn(
-              "size-9 rounded-none transition-all",
+              "size-8 rounded-xl transition-all",
               layoutMode === "edit"
-                ? "bg-zinc-900 text-white shadow-lg"
+                ? "bg-white text-indigo-500 shadow-md ring-1 ring-zinc-200/50"
                 : "text-zinc-400 hover:text-zinc-900",
             )}
           >
@@ -145,11 +146,12 @@ export const TopNav = ({
             variant="ghost"
             size="icon"
             onClick={() => setLayoutMode("split")}
+            title="分屏模式"
             className={cn(
-              "size-8 rounded-lg transition-all",
+              "size-8 rounded-xl transition-all",
               layoutMode === "split"
                 ? "bg-white text-indigo-500 shadow-md ring-1 ring-zinc-200/50"
-                : "text-zinc-500 hover:text-zinc-900",
+                : "text-zinc-400 hover:text-zinc-900",
             )}
           >
             <Columns className="size-4" />
@@ -158,11 +160,12 @@ export const TopNav = ({
             variant="ghost"
             size="icon"
             onClick={() => setLayoutMode("preview")}
+            title="纯预览模式"
             className={cn(
-              "size-8 rounded-lg transition-all",
+              "size-8 rounded-xl transition-all",
               layoutMode === "preview"
                 ? "bg-white text-indigo-500 shadow-md ring-1 ring-zinc-200/50"
-                : "text-zinc-500 hover:text-zinc-900",
+                : "text-zinc-400 hover:text-zinc-900",
             )}
           >
             <Sidebar className="size-4" />
