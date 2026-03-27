@@ -32,6 +32,8 @@ import { EditorSection } from "@/components/editor/editor-section";
 import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
 import { PreviewSection } from "@/components/editor/preview-section";
 import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
+import { FloatingToolbar } from "@/components/editor/floating-toolbar";
+import type { SelectionInfo } from "@/components/editor/mdx-editor";
 
 export default function ChicEditor() {
   const {
@@ -80,6 +82,8 @@ export default function ChicEditor() {
   const [previewSlides, setPreviewSlides] = useState<
     { html: string; index: number }[]
   >([]);
+  const [selection, setSelection] = useState<SelectionInfo | null>(null);
+  const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; height: number } | null>(null);
 
   const handlePaste = async (e: React.ClipboardEvent | ClipboardEvent) => {
     const clipboardData =
@@ -190,6 +194,18 @@ export default function ChicEditor() {
     }, 300);
     return () => clearTimeout(timer);
   }, [markdown, styleTheme, showWordCount, setHtml]);
+
+  const handleSelectionChange = (info: SelectionInfo) => {
+    setSelection(info);
+    if (!info.empty) {
+      setTimeout(() => {
+        const coords = editorRef.current?.getSelectionCoords();
+        if (coords) setSelectionCoords(coords);
+      }, 0);
+    } else {
+      setSelectionCoords(null);
+    }
+  };
 
   const handleCopy = async () => {
     try {
@@ -382,6 +398,17 @@ export default function ChicEditor() {
             onImageFile={handleImageFile}
             isUploading={isUploading}
             styleTheme={styleTheme}
+            floatingToolbar={
+              <FloatingToolbar
+                isVisible={!!selection && !selection.empty}
+                coords={selectionCoords}
+                onWrapText={handleWrapText}
+                onBold={() => {
+                  if (styleTheme === "xhs") handleWrapText("「", "」");
+                  else handleWrapText("**");
+                }}
+              />
+            }
             toolbar={
               layoutMode !== "preview" && (
                 <MarkdownToolbar
@@ -433,6 +460,7 @@ export default function ChicEditor() {
                 />
               )
             }
+            onSelectionChange={handleSelectionChange}
           />
 
           <PreviewSection

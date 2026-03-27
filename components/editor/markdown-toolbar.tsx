@@ -9,7 +9,7 @@ import {
   Heading1, Heading2, Minus,
   Highlighter, Info, AlertCircle, AlertTriangle,
   Code, Code2, Image, Eraser,
-  Superscript, Subscript, CheckSquare, Keyboard, FolderUp
+  CheckSquare, Keyboard, FolderUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -81,6 +81,12 @@ export const MarkdownToolbar = ({
     </Button>;
 
   const applyHighlight = (color: string) => {
+    if (color === 'transparent') {
+      // Logic for removing highlight (requires selection logic, for now we wrap with nothing or a span with no style)
+      // Standard markdown doesn't have "remove highlight" easily, but we can wrap with nothing if we knew the selection
+      // For now, let's just use it as a 'clear' button that might insert an empty tag or we can just skip
+      return;
+    }
     onWrapText(`<mark style="background:${color}">`, '</mark>');
     setActivePopup(null);
     setCustomColor('');
@@ -92,25 +98,8 @@ export const MarkdownToolbar = ({
   ];
 
   const groupInline = [
-    btn(<Bold className="size-4" />,          "加粗",       () => onBold()),
-    btn(<Italic className="size-4" />,        "斜体",       () => onWrapText('*')),
-    btn(<Strikethrough className="size-4" />, "删除线",     () => onWrapText('~~')),
-    btn(<Code className="size-4" />,          "行内代码",   () => onWrapText('`'), "hover:bg-violet-50 text-violet-600"),
     btn(<Keyboard className="size-4" />,      "键盘按键",   () => onWrapText('<kbd>', '</kbd>')),
-    btn(<Superscript className="size-4" />,   "上标",       () => onWrapText('<sup>', '</sup>'), "hover:bg-sky-50 text-sky-600"),
-    btn(<Subscript className="size-4" />,     "下标",       () => onWrapText('<sub>', '</sub>'), "hover:bg-sky-50 text-sky-600"),
-    <button
-      key="highlight"
-      ref={highlightBtnRef}
-      title="荧光笔"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={() => setActivePopup(activePopup === 'highlight' ? null : 'highlight')}
-      className={cn(
-        "size-8 rounded-lg transition-all flex items-center justify-center",
-        activePopup === 'highlight' ? "bg-amber-100 text-amber-600" : "hover:bg-amber-50 text-amber-500"
-      )}>
-      <Highlighter className="size-4" />
-    </button>,
+
   ];
 
   const groupBlock = [
@@ -123,13 +112,14 @@ export const MarkdownToolbar = ({
   ];
 
   const groupMedia = [
-    btn(<LinkIcon className="size-4" />, "超链接",  () => onWrapText('[', '](url)'), "hover:bg-indigo-50 text-indigo-600"),
     btn(<Image className="size-4" />,    "插入图片", () => onInsertImage?.(), "hover:bg-indigo-50 text-indigo-600"),
     btn(<FolderUp className="size-4" />, "导入 Markdown", () => onImportMarkdown?.(), "hover:bg-indigo-50 text-indigo-600"),
     <Button key="table" variant="ghost" size="icon" title="插入表格"
-      className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-indigo-50 text-indigo-600" : "hover:bg-zinc-100 text-zinc-600")}
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={() => setActivePopup(activePopup === 'table' ? null : 'table')}>
+      className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "hover:bg-zinc-100 text-zinc-600")}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        setActivePopup(activePopup === 'table' ? null : 'table');
+      }}>
       <Table className="size-4" />
     </Button>,
   ];
@@ -158,61 +148,7 @@ export const MarkdownToolbar = ({
 
         {/* 荧光笔气泡 — 绝对定位，从按钮下方弹出 */}
         <AnimatePresence>
-          {activePopup === 'highlight' && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: -4 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: -4 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
-              style={{ left: Math.max(0, bubbleLeft - 8) }}
-              className="absolute top-full mt-1 z-50 bg-white border border-zinc-200 rounded-2xl shadow-xl px-4 py-3 min-w-max"
-            >
-              {/* 小三角 */}
-              <div className="absolute -top-1.5 left-6 size-3 bg-white border-l border-t border-zinc-200 rotate-45" />
-              <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex gap-2">
-                  {HIGHLIGHT_COLORS.map(c => (
-                    <button key={c.value} title={c.label}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => applyHighlight(c.value)}
-                      className="size-7 rounded-full border-2 border-white shadow-sm hover:scale-110 active:scale-95 transition-transform ring-1 ring-zinc-200"
-                      style={{ backgroundColor: c.value }} />
-                  ))}
-                </div>
-                <div className="w-px h-5 bg-zinc-100" />
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-zinc-400 font-mono">#</span>
-                  <input
-                    type="text"
-                    placeholder="自定义"
-                    maxLength={6}
-                    value={customColor.replace('#', '')}
-                    onChange={(e) => setCustomColor(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const color = `#${customColor.replace('#', '')}`;
-                        if (/^#[0-9a-fA-F]{3,6}$/.test(color)) applyHighlight(color);
-                      }
-                    }}
-                    className="w-20 h-7 px-2 text-[12px] border border-zinc-200 rounded-lg bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-amber-300 font-mono"
-                  />
-                  {customColor.length >= 3 && (
-                    <div className="size-5 rounded-full border border-zinc-200 flex-shrink-0"
-                      style={{ backgroundColor: `#${customColor.replace('#', '')}` }} />
-                  )}
-                  <button
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      const color = `#${customColor.replace('#', '')}`;
-                      if (/^#[0-9a-fA-F]{3,6}$/.test(color)) applyHighlight(color);
-                    }}
-                    className="h-7 px-3 text-[11px] font-bold bg-amber-400 text-white rounded-lg hover:bg-amber-500 active:scale-95 transition-all">
-                    应用
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
+
         </AnimatePresence>
       </div>
 
@@ -229,19 +165,20 @@ export const MarkdownToolbar = ({
             <div className="flex items-center gap-6">
               <div className="grid grid-cols-10 gap-1 bg-white p-2 rounded-xl border border-zinc-100 shadow-sm"
                 onMouseLeave={() => setHoverGrid({ r: 0, c: 0 })}>
-                {[1,2,3,4,5].map(r => (
-                  <div key={r} className="flex gap-1">
-                    {[1,2,3,4,5,6,7,8,9,10].map(c => (
-                      <div key={c}
-                        onMouseEnter={() => setHoverGrid({ r, c })}
-                        onClick={() => onInsertTable(r, c)}
-                        className={cn(
-                          "size-4 cursor-pointer rounded-sm border transition-all duration-200",
-                          r <= hoverGrid.r && c <= hoverGrid.c ? "bg-indigo-500 border-indigo-600" : "border-zinc-200"
-                        )} />
-                    ))}
-                  </div>
-                ))}
+                {Array.from({ length: 50 }).map((_, i) => {
+                  const r = Math.floor(i / 10) + 1;
+                  const c = (i % 10) + 1;
+                  return (
+                    <div key={i}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onMouseEnter={() => setHoverGrid({ r, c })}
+                      onClick={() => onInsertTable(r, c)}
+                      className={cn(
+                        "size-4 cursor-pointer rounded-sm border transition-all duration-200",
+                        r <= hoverGrid.r && c <= hoverGrid.c ? "bg-indigo-500 border-indigo-600" : "border-zinc-200"
+                      )} />
+                  );
+                })}
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">表格规模</span>

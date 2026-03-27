@@ -34,7 +34,7 @@ interface AppState {
   pushHistory: () => void;
 }
 
-const INITIAL_MARKDOWN = `# ChicPage：极简排版工具
+const INITIAL_MARKDOWN = `# ChicPage：让每一篇文章都值得被看见
 
 ![ChicPage Banner](/4.png)
 

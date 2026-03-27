@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import { Type, Layers, Loader2 } from "lucide-react";
-import type { EditorMethods } from "./mdx-editor";
+import type { EditorMethods, SelectionInfo } from "./mdx-editor";
 import { getReadInfo } from "@/lib/utils-content";
 
 const MDXEditor = dynamic(() => import("./mdx-editor"), { ssr: false });
@@ -21,6 +21,8 @@ interface EditorSectionProps {
   isUploading: boolean;
   styleTheme: string;
   toolbar?: React.ReactNode;
+  floatingToolbar?: React.ReactNode;
+  onSelectionChange?: (info: SelectionInfo) => void;
 }
 
 export const EditorSection = ({
@@ -34,6 +36,8 @@ export const EditorSection = ({
   isUploading,
   styleTheme,
   toolbar,
+  floatingToolbar,
+  onSelectionChange,
 }: EditorSectionProps) => {
   const { wordCount, readTime } = getReadInfo(markdown);
 
@@ -72,7 +76,9 @@ export const EditorSection = ({
           markdown={markdown}
           onChange={setMarkdown}
           onPaste={onPaste}
+          onSelectionChange={onSelectionChange}
         />
+        {floatingToolbar}
       </div>
 
       <div className="flex items-center justify-between px-8 py-4 bg-zinc-50 border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">

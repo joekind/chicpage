@@ -15,12 +15,21 @@ export interface EditorMethods {
   insertMarkdown: (text: string) => void;
   insertAtLineStart: (prefix: string) => void;
   wrapSelection: (before: string, after: string) => void;
+  getSelectionCoords: () => { top: number; left: number; width: number; height: number; } | null;
+}
+
+export interface SelectionInfo {
+  from: number;
+  to: number;
+  text: string;
+  empty: boolean;
 }
 
 interface EditorProps {
   markdown: string;
   onChange: (markdown: string) => void;
   onPaste?: (e: ClipboardEvent) => void;
+  onSelectionChange?: (info: SelectionInfo) => void;
   className?: string;
   isXHSTheme?: boolean;
 }
@@ -82,7 +91,7 @@ const chicpageTheme = EditorView.theme({
 });
 
 const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
-  ({ markdown: initialMarkdown, onChange, onPaste, className }, ref) => {
+  ({ markdown: initialMarkdown, onChange, onPaste, onSelectionChange, className }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const onChangeRef = useRef(onChange);
@@ -114,8 +123,9 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         const view = viewRef.current;
         if (!view) return;
         const { from } = view.state.selection.main;
+        const line = view.state.doc.lineAt(from);
         view.dispatch({
-          changes: { from, to: from, insert: prefix },
+          changes: { from: line.from, to: line.from, insert: prefix },
           selection: { anchor: from + prefix.length },
         });
         view.focus();
@@ -132,6 +142,27 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         });
         view.focus();
       },
+      getSelectionCoords: () => {
+        const view = viewRef.current;
+        if (!view || !containerRef.current) return null;
+        const sel = view.state.selection.main;
+        if (sel.empty) return null;
+        
+        try {
+          const startCoords = view.coordsAtPos(sel.from);
+          if (!startCoords) return null;
+          
+          const parentRect = containerRef.current.getBoundingClientRect();
+          return {
+            top: startCoords.top - parentRect.top,
+            left: startCoords.left - parentRect.left,
+            width: 0, // Not strictly needed for bubble
+            height: (startCoords.bottom - startCoords.top) || 20
+          };
+        } catch (e) {
+          return null;
+        }
+      }
     }));
 
     // 初始化 CodeMirror
@@ -158,6 +189,15 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
               onChangeRef.current(update.state.doc.toString());
+            }
+            if (update.selectionSet || update.docChanged) {
+              const sel = update.state.selection.main;
+              onSelectionChange?.({
+                from: sel.from,
+                to: sel.to,
+                text: update.state.doc.sliceString(sel.from, sel.to),
+                empty: sel.empty
+              });
             }
           }),
           EditorView.domEventHandlers({
