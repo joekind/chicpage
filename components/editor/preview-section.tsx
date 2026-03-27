@@ -50,7 +50,7 @@ export const PreviewSection = ({
       exit={{ opacity: 0, x: 20, scale: 0.95 }}
       transition={{ duration: 0.4, ease: [0.2, 0, 0, 1] }}
       className={cn(
-        "flex-1 overflow-y-auto bg-white/20 backdrop-blur-sm rounded-3xl border border-white/40 flex flex-col items-center justify-center p-8 no-scrollbar relative",
+        "flex-1 overflow-y-auto bg-white/20 backdrop-blur-sm rounded-3xl border border-white/40 flex flex-col items-center justify-center p-4 no-scrollbar relative",
         layoutMode === "preview" ? "w-full" : "",
       )}
     >
@@ -68,7 +68,7 @@ export const PreviewSection = ({
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="w-full max-w-5xl mx-auto h-full flex flex-col pt-8">
+      <div className="w-full max-w-5xl mx-auto h-full flex flex-col pt-4">
         <div className="flex-1 flex items-center justify-center overflow-visible">
           <div
             className="origin-top transition-transform duration-500 ease-out"

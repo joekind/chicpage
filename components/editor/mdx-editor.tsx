@@ -34,7 +34,7 @@ const chicpageTheme = EditorView.theme({
     backgroundColor: "transparent",
   },
   ".cm-content": {
-    padding: "24px 48px 80px",
+    padding: "24px 32px 80px",
     caretColor: "#6366f1",
     lineHeight: "1.75",
   },

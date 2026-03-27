@@ -369,7 +369,7 @@ export default function ChicEditor() {
         setShowWordCount={setShowWordCount}
       />
 
-      <main className="flex flex-1 overflow-hidden relative p-10 pt-6 gap-10">
+      <main className="flex flex-1 overflow-hidden relative p-6 pt-4 gap-6">
         <AnimatePresence mode="popLayout" initial={false}>
           <EditorSection
             key="editor"

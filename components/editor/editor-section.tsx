@@ -53,7 +53,7 @@ export const EditorSection = ({
       {toolbar}
 
       <div
-        className="flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-16 py-12"
+        className="flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-10 py-10"
         onDrop={(e) => {
           e.preventDefault();
           Array.from(e.dataTransfer.files).forEach(onImageFile);

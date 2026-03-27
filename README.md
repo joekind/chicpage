@@ -62,14 +62,14 @@ npm run dev
 
 | 落地页 (Landing Page) | 编辑器 (Editor Workspace) |
 | :---: | :---: |
-| ![Landing Page Preview](./public/hero_mockup_editor.png) | 内置双模式实时预览 |
+| ![Landing Page Preview](./public/mockup/6.png) | ![Editor Workspace Preview](./public/mockup/3.png) |
 
 ## 🤝 加入社区 & 交流支持 (Community)
 
 扫描下方二维码，关注我们的**官方微信公众号**。获取最新的主题更新、排版教程以及开源动态。
 
 <p align="center">
-  <img src="./public/扫码_搜索联合传播样式-标准色版.png" width="500" alt="Wechat Official Account" />
+  <img src="./public/6.png" width="500" alt="Wechat Official Account" />
 </p>
 
 ---

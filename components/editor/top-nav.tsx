@@ -118,7 +118,7 @@ export const TopNav = ({
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 flex h-20 items-center justify-between border-b border-zinc-900/10 bg-white px-10">
+    <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-zinc-900/10 bg-white px-6">
       <div className="flex items-center gap-3">
         <Link href="/" className="flex items-center gap-4 hover:translate-x-1 transition-transform">
            <img src="/wmremove-transformed.png" alt="Logo" className="h-7 w-auto object-contain [image-rendering:--webkit-optimize-contrast]" />

@@ -36,7 +36,7 @@ interface AppState {
 
 const INITIAL_MARKDOWN = `# ChicPage：让每一篇文章都值得被看见
 
-![ChicPage Banner](https://pub-165e4a840b054521b838c89222b94062.r2.dev/uploads/1e695e0dc865fc06e5b872e59d95ce35.gif)
+![ChicPage Banner](/4.png)
 
 在这内容爆炸的时代，好的文字值得好的排版。**ChicPage** 是一款专为公众号创作者设计的 Markdown 编辑器，让你专注写作，一键生成精美排版。
 
@@ -58,7 +58,7 @@ const INITIAL_MARKDOWN = `# ChicPage：让每一篇文章都值得被看见
 
 ## 适合谁用？
 
-![冬季小屋小镇](https://pub-165e4a840b054521b838c89222b94062.r2.dev/uploads/%E3%80%90%E5%93%B2%E9%A3%8E%E5%A3%81%E7%BA%B8%E3%80%91%E5%86%AC%E5%AD%A3-%E5%B0%8F%E5%B1%8B-%E5%B0%8F%E9%95%87.png)
+![ChicPage Demo](/1.png)
 
 1. 公众号作者，想要更高效的创作流程
 2. 技术博主，需要代码高亮 and 规范排版
