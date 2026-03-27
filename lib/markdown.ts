@@ -11,15 +11,33 @@ import type { Node, Parent } from 'unist';
 import type { Element, Root } from 'hast';
 import { getLocalImage } from './image_service';
 
+interface ImageNode extends Node {
+  type: "image";
+  url?: string;
+}
+
+interface DirectiveData {
+  hName?: string;
+  hProperties?: Record<string, unknown>;
+}
+
+interface DirectiveNode extends Node {
+  type: "textDirective" | "leafDirective" | "containerDirective" | string;
+  data?: DirectiveData;
+  name?: string;
+  attributes?: Record<string, unknown>;
+}
+
 /**
  * remark plugin: Resolves local images using 'img://' protocol from IndexedDB
  */
 function remarkLocalImageResolver() {
   return async (tree: Node) => {
-    const images: any[] = [];
-    visit(tree, 'image', (node: any) => {
-      if (node.url && node.url.startsWith('img://')) {
-        images.push(node);
+    const images: ImageNode[] = [];
+    visit(tree, 'image', (node) => {
+      const imageNode = node as ImageNode;
+      if (imageNode.url && imageNode.url.startsWith('img://')) {
+        images.push(imageNode);
       }
     });
 
@@ -27,7 +45,7 @@ function remarkLocalImageResolver() {
 
     // 并行获取所有本地图片数据
     await Promise.all(images.map(async (node) => {
-      const data = await getLocalImage(node.url);
+      const data = await getLocalImage(node.url ?? "");
       if (data) {
         node.url = data;
       }
@@ -46,13 +64,14 @@ function remarkDirectivePlugin() {
 
   return (tree: Node) => {
     visit(tree, (node) => {
+      const directiveNode = node as DirectiveNode;
       if (
-        node.type === 'textDirective' ||
-        node.type === 'leafDirective' ||
-        node.type === 'containerDirective'
+        directiveNode.type === 'textDirective' ||
+        directiveNode.type === 'leafDirective' ||
+        directiveNode.type === 'containerDirective'
       ) {
-        const data: any = node.data || ((node as any).data = {});
-        const name = (node as any).name as string;
+        const data = directiveNode.data || (directiveNode.data = {});
+        const name = directiveNode.name as string;
         const s = STYLES[name];
         if (s) {
           data.hName = 'div';
@@ -60,8 +79,8 @@ function remarkDirectivePlugin() {
             style: `display:block;margin:1.2em 0;padding:12px 16px;background:${s.bg};border-left:4px solid ${s.border};border-radius:0 6px 6px 0;color:${s.color};font-size:14px;`,
           };
         } else {
-          data.hName = (node as any).name;
-          data.hProperties = (node as any).attributes || {};
+          data.hName = directiveNode.name;
+          data.hProperties = directiveNode.attributes || {};
         }
       }
     });

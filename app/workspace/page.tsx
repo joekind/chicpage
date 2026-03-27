@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import TurndownService from "turndown";
-import { cn } from "@/lib/utils";
 import { markdownToHtml } from "@/lib/markdown";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
 import { useStore } from "@/store/use-store";
@@ -14,18 +13,12 @@ import { exportToImage } from "@/lib/export-image";
 import { injectReadInfo, getCleanText } from "@/lib/utils-content";
 import JSZip from "jszip";
 
-import dynamic from "next/dynamic";
 import type { EditorMethods } from "@/components/editor/mdx-editor";
 import { TopNav } from "@/components/editor/top-nav";
 import { ContextMenu } from "@/components/editor/context-menu";
 import { XHSSlidePreviewMethods } from "@/components/editor/xhs-slide-preview";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import {
-  XHS_CARD_W,
-  XHS_CARD_H,
-  XHS_STATUS_H,
-  XHS_FOOTER_H,
-  XHS_CONTENT_H,
   getXHSContentCSS,
 } from "@/components/editor/xhs-slide-preview";
 import { EditorSection } from "@/components/editor/editor-section";
@@ -76,11 +69,10 @@ export default function ChicEditor() {
   const [exportProgress, setExportProgress] = useState<
     { current: number; total: number } | undefined
   >(undefined);
-  const [xhsMode, setXHSMode] = useState<"long" | "slide">("slide");
   const [activePopup, setActivePopup] = useState<string | null>(null);
   const [showExportPreview, setShowExportPreview] = useState(false);
   const [previewSlides, setPreviewSlides] = useState<
-    { html: string; index: number }[]
+    { html: string; index: number; totalInGroup: number; pageInGroup: number }[]
   >([]);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; height: number } | null>(null);
@@ -142,6 +134,10 @@ export default function ChicEditor() {
 
   const handleInsertText = (text: string) => {
     editorRef.current?.insertMarkdown(text);
+  };
+
+  const handleInsertPageBreak = () => {
+    handleInsertText("\n\n---\n\n");
   };
 
   const handleInsertAtLineStart = (prefix: string) => {
@@ -245,24 +241,16 @@ export default function ChicEditor() {
   const handleExportXHS = async () => {
     if (!xhsSlideRef.current) return;
 
-    // 收集所有页面用于预览
-    const totalSlides = xhsSlideRef.current.getSlidesCount();
-    const slides: { html: string; index: number }[] = [];
+    // 直接从幻灯片组件获取带分页信息的列表
+    const allSlides = xhsSlideRef.current.getSlides();
+    const slidesForPreview = allSlides.map((s, i) => ({
+      html: s.html,
+      index: i,
+      totalInGroup: s.totalInGroup,
+      pageInGroup: s.pageInGroup
+    }));
 
-    for (let i = 0; i < totalSlides; i++) {
-      xhsSlideRef.current.goToSlide(i);
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      const slidePages = document.querySelectorAll(".xhs-slide-page");
-      const slidePage = slidePages[i];
-      if (slidePage) {
-        const content = slidePage.querySelector("#xhs-content");
-        if (content) {
-          slides.push({ html: content.innerHTML, index: i });
-        }
-      }
-    }
-
-    setPreviewSlides(slides);
+    setPreviewSlides(slidesForPreview);
     setShowExportPreview(true);
   };
 
@@ -272,34 +260,28 @@ export default function ChicEditor() {
     setExportProgress(undefined);
     try {
       const totalSlides = xhsSlideRef.current.getSlidesCount();
-      const originalSlide = xhsSlideRef.current.getCurrentSlide();
       const timestamp = new Date()
         .toISOString()
         .replace(/[:.]/g, "-")
         .slice(0, -5);
 
-      // 并行处理所有页面的导出
+      const slidePages = Array.from(
+        document.querySelectorAll(".xhs-slide-page"),
+      ) as HTMLElement[];
+
+      if (slidePages.length < totalSlides) {
+        throw new Error(
+          `导出失败：页面节点不足（${slidePages.length}/${totalSlides}）`,
+        );
+      }
+
+      // 并行处理所有页面的导出，不再切换当前页，避免竞态
       console.log("开始并行处理导出...");
       const exportPromises = [];
 
       for (let i = 0; i < totalSlides; i++) {
-        const exportPromise = (async (slideIndex) => {
-          // 跳转到对应页面
-          xhsSlideRef.current?.goToSlide(slideIndex);
-          // 等待页面渲染（进一步减少等待时间）
-          await new Promise((resolve) =>
-            setTimeout(resolve, slideIndex === 0 ? 300 : 100),
-          );
-
-          // 找到页面元素
-          const slidePages = document.querySelectorAll(".xhs-slide-page");
-          const slidePage = slidePages[slideIndex];
-          if (!slidePage) {
-            console.warn(`第 ${slideIndex + 1} 页：找不到 slidePage`);
-            return null;
-          }
-
-          // 导出为图片（优化速度）
+        const slidePage = slidePages[i];
+        const exportPromise = (async (slideIndex: number) => {
           const dataUrl = (await exportToImage(slidePage as HTMLElement, {
             filename: `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}`,
             format: "png",
@@ -345,7 +327,6 @@ export default function ChicEditor() {
       URL.revokeObjectURL(zipUrl);
 
       console.log("ZIP 文件下载完成！");
-      xhsSlideRef.current.goToSlide(originalSlide);
     } catch (error) {
       console.error("Export failed:", error);
     } finally {
@@ -379,8 +360,6 @@ export default function ChicEditor() {
         onExportXHS={handleExportXHS}
         isExportingXHS={isExportingXHS}
         exportProgress={exportProgress}
-        xhsMode={xhsMode}
-        setXHSMode={setXHSMode}
         showWordCount={showWordCount}
         setShowWordCount={setShowWordCount}
       />
@@ -435,6 +414,7 @@ export default function ChicEditor() {
                       handleInsertText("\n" + "━".repeat(15) + "\n");
                     else handleInsertText("\n\n---\n\n");
                   }}
+                  onInsertPageBreak={handleInsertPageBreak}
                   onQuote={() => {
                     if (styleTheme === "xhs") handleInsertText("\n✅ ");
                     else handleInsertAtLineStart("> ");
@@ -461,6 +441,7 @@ export default function ChicEditor() {
               )
             }
             onSelectionChange={handleSelectionChange}
+            onInsertPageBreak={handleInsertPageBreak}
           />
 
           <PreviewSection
@@ -515,6 +496,9 @@ export default function ChicEditor() {
               handleInsertText("\n\n---\n\n");
             }
           }}
+          onInsertPageBreak={handleInsertPageBreak}
+          separatorLabel={styleTheme === "xhs" ? "插入装饰分隔线" : "插入分隔线"}
+          pageBreakLabel="插入强制分页符（---）"
           onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
         />
       </AnimatePresence>

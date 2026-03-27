@@ -159,7 +159,7 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
             width: 0, // Not strictly needed for bubble
             height: (startCoords.bottom - startCoords.top) || 20
           };
-        } catch (e) {
+        } catch {
           return null;
         }
       }

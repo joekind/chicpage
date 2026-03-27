@@ -40,5 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 *.agent
-
+*.trae
 /lib/generated/prisma

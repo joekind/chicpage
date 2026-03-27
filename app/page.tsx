@@ -8,7 +8,6 @@ import {
   Zap,
   Layout,
   BookOpen,
-  Image as ImageIcon,
   Sparkles,
   Github,
   Command,
@@ -191,7 +190,7 @@ export default function LandingPage() {
                   { label: "动态排版", icon: Sparkles },
                   { label: "多端预览", icon: Layout },
                   { label: "矢量输出", icon: Download }
-                ].map((item, idx) => (
+                ].map((item) => (
                   <div key={item.label} className="group">
                     <div className="size-10 rounded-xl bg-zinc-800 flex items-center justify-center mb-4 group-hover:bg-indigo-600 transition-colors duration-500">
                       <item.icon className="size-5 text-zinc-400 group-hover:text-white" />

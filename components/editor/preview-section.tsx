@@ -8,6 +8,7 @@ import { IPhoneMockup } from "./mockups/iphone-mockup";
 import { DesktopMockup } from "./mockups/desktop-mockup";
 import { XHSSlidePreview, XHSSlidePreviewMethods } from "./xhs-slide-preview";
 import { PreviewContent } from "./preview-content";
+import type { XHSTheme } from "@/lib/xhs-themes";
 
 interface PreviewSectionProps {
   layoutMode: string;
@@ -15,7 +16,7 @@ interface PreviewSectionProps {
   styleTheme: string;
   html: string;
   activeThemeCss: string;
-  activeXHSTheme: any;
+  activeXHSTheme: XHSTheme;
   xhsFont: string;
   xhsShowHeader: boolean;
   xhsShowFooter: boolean;

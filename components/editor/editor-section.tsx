@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
-import { Type, Layers, Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import type { EditorMethods, SelectionInfo } from "./mdx-editor";
 import { getReadInfo } from "@/lib/utils-content";
 
@@ -23,6 +23,7 @@ interface EditorSectionProps {
   toolbar?: React.ReactNode;
   floatingToolbar?: React.ReactNode;
   onSelectionChange?: (info: SelectionInfo) => void;
+  onInsertPageBreak?: () => void;
 }
 
 export const EditorSection = ({
@@ -38,8 +39,20 @@ export const EditorSection = ({
   toolbar,
   floatingToolbar,
   onSelectionChange,
+  onInsertPageBreak,
 }: EditorSectionProps) => {
   const { wordCount, readTime } = getReadInfo(markdown);
+  const [showPageBreakTip, setShowPageBreakTip] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem("chicpage-hide-pagebreak-tip") !== "1";
+  });
+
+  const handleCloseTip = () => {
+    setShowPageBreakTip(false);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("chicpage-hide-pagebreak-tip", "1");
+    }
+  };
 
   return (
     <motion.section
@@ -64,6 +77,32 @@ export const EditorSection = ({
         }}
         onPaste={onPaste}
       >
+        {styleTheme === "xhs" && showPageBreakTip && (
+          <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+            <div className="flex items-center justify-between gap-3">
+              <p className="leading-6">
+                输入 <code className="rounded bg-white px-1.5 py-0.5 text-zinc-900">---</code> 可强制分页。
+              </p>
+              <button
+                type="button"
+                onClick={() => onInsertPageBreak?.()}
+                className="shrink-0 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-zinc-700 transition-colors"
+              >
+                插入分页符
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseTip}
+                className="shrink-0 rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors"
+                aria-label="关闭提示"
+                title="关闭并不再显示"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         <input
           id="md-import-input"
           type="file"

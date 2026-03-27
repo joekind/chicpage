@@ -36,8 +36,9 @@ export async function POST(request: NextRequest) {
     const publicUrl = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`;
 
     return NextResponse.json({ url: publicUrl });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("R2 Upload Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Upload failed";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

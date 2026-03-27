@@ -25,7 +25,10 @@ interface ContextMenuProps {
   onInsertImage: () => void;
   onInsertHeading: () => void;
   onInsertSeparator: () => void;
+  onInsertPageBreak: () => void;
   onDeleteLine: () => void;
+  separatorLabel?: string;
+  pageBreakLabel?: string;
 }
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -38,7 +41,10 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onInsertImage,
   onInsertHeading,
   onInsertSeparator,
-  onDeleteLine
+  onInsertPageBreak,
+  onDeleteLine,
+  separatorLabel = "插入分隔线",
+  pageBreakLabel = "插入分页符"
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -68,6 +74,18 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   if (!isVisible) return null;
 
+  const viewportW = typeof window !== "undefined" ? window.innerWidth : 1200;
+  const viewportH = typeof window !== "undefined" ? window.innerHeight : 800;
+  const padding = 10;
+  const estimatedMenuWidth = 220;
+
+  const clampedX = Math.min(
+    Math.max(position.x, padding),
+    viewportW - estimatedMenuWidth - padding,
+  );
+  const clampedY = Math.min(Math.max(position.y, padding), viewportH - 180);
+  const maxMenuHeight = Math.max(180, viewportH - clampedY - padding);
+
   const menuItems = [
     { label: "撤销", icon: Undo, action: onUndo, shortcut: "Ctrl+Z" },
     { label: "重做", icon: Redo, action: onRedo, shortcut: "Ctrl+Y" },
@@ -79,7 +97,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     { label: "插入链接", icon: Link, action: onInsertLink, shortcut: "Ctrl+K" },
     { label: "插入图片", icon: Image, action: onInsertImage },
     { label: "插入标题", icon: Type, action: onInsertHeading },
-    { label: "插入分隔线", icon: SeparatorHorizontal, action: onInsertSeparator },
+    { label: separatorLabel, icon: SeparatorHorizontal, action: onInsertSeparator },
+    { label: pageBreakLabel, icon: SeparatorHorizontal, action: onInsertPageBreak },
     { separator: true },
     { label: "删除行", icon: Trash2, action: onDeleteLine, danger: true }
   ];
@@ -88,12 +107,13 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     <div
       ref={menuRef}
       className={cn(
-        "fixed z-[9999] min-w-[180px] bg-white rounded-lg shadow-xl border border-zinc-200 py-1 overflow-hidden",
+        "fixed z-[9999] min-w-[180px] bg-white rounded-lg shadow-xl border border-zinc-200 py-1 overflow-y-auto",
         "animate-in fade-in-0 zoom-in-95"
       )}
       style={{
-        left: Math.min(position.x, window.innerWidth - 200),
-        top: Math.min(position.y, window.innerHeight - 300)
+        left: clampedX,
+        top: clampedY,
+        maxHeight: maxMenuHeight
       }}
     >
       {menuItems.map((item, index) => {

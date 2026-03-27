@@ -3,7 +3,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Highlighter, Eraser, Bold, Italic, Link as LinkIcon, Strikethrough, Code, Superscript, Subscript } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const HIGHLIGHT_COLORS = [
   { label: '黄色', value: '#fef08a' },

@@ -3,13 +3,17 @@
 import React from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 interface ExportPreviewDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  slides: { html: string; index: number }[];
+  slides: { 
+    html: string; 
+    index: number; 
+    totalInGroup: number; 
+    pageInGroup: number 
+  }[];
   themeBackground: string;
   themeCSS: string;
 }
@@ -53,31 +57,42 @@ export function ExportPreviewDialog({
             {slides.map((slide) => (
               <div
                 key={slide.index}
-                className="relative group rounded-lg overflow-hidden border-2 border-zinc-200 hover:border-indigo-400 transition-all"
+                className="relative group rounded-lg overflow-hidden border-2 border-zinc-200 hover:border-indigo-400 transition-all shadow-sm"
               >
-                <div className="absolute top-2 left-2 z-10 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded">
+                <div className="absolute top-2 left-2 z-10 bg-black/60 text-white text-[10px] font-bold px-1.5 py-0.5 rounded backdrop-blur-sm">
                   第 {slide.index + 1} 页
                 </div>
                 <div
                   className="w-full overflow-hidden relative"
                   style={{
                     background: themeBackground,
-                    aspectRatio: "9/16", // 672 - 40 - 48 = 584
-                    scale: 0.9,
+                    aspectRatio: "334/584",
+                    transform: "scale(1)",
+                    display: 'flex',
+                    flexDirection: 'column',
                   }}
-                >
+                  >
                   <div
-                    className="preview-content w-full h-full"
-                    dangerouslySetInnerHTML={{ __html: slide.html }}
                     style={{
-                      padding: "4.1% 6%", // 24/584 ≈ 4.1%, 20/334 ≈ 6%
-                      fontFamily:
-                        '-apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif',
-                      fontSize: "4.5%", // 15/334 ≈ 4.5%
-                      lineHeight: 1.8,
+                      width: "100%",
+                      height: "100%",
+                      padding: "32px 26px",
                       boxSizing: "border-box",
+                      overflow: "hidden",
+                      position: "relative",
                     }}
-                  />
+                  >
+                    <div
+                      className="preview-content w-full"
+                      dangerouslySetInnerHTML={{ __html: slide.html }}
+                      style={{
+                        height: "100%",
+                        fontSize: "15px",
+                        lineHeight: 1.85,
+                        overflow: "hidden",
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             ))}

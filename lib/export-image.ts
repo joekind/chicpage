@@ -28,7 +28,7 @@ const preloadImages = async (element: HTMLElement): Promise<void> => {
   
   for (const batch of batches) {
     await Promise.all(
-      batch.map((img, idx) => {
+      batch.map((img) => {
         return new Promise<void>((resolve) => {
           if (img.complete && img.naturalWidth > 0) {
             resolve();

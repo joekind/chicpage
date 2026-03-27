@@ -7,7 +7,6 @@ import {
   Columns,
   Sidebar,
   MessageCircle,
-  Sparkles,
   Copy,
   Check,
   Download,
@@ -15,12 +14,7 @@ import {
   FileText,
   ChevronDown,
   Palette,
-  Layers,
-  Zap,
-  CheckCircle2,
-  BookOpen,
   Image as ImageIcon,
-  Command,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -28,8 +22,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
-import { ThemePicker } from "@/components/editor/theme-picker";
-import { XHSThemePicker } from "@/components/editor/xhs-theme-picker";
 import { XHS_THEMES } from "@/lib/xhs-themes";
 import { WECHAT_THEMES } from "@/lib/themes";
 import { XHS_FONTS } from "@/lib/fonts";
@@ -54,8 +46,6 @@ interface TopNavProps {
   onExportXHS: () => void;
   isExportingXHS: boolean;
   exportProgress?: { current: number; total: number };
-  xhsMode?: "long" | "slide";
-  setXHSMode?: (mode: "long" | "slide") => void;
   showWordCount: boolean;
   setShowWordCount: (show: boolean) => void;
 }
@@ -80,8 +70,6 @@ export const TopNav = ({
   onExportXHS,
   isExportingXHS,
   exportProgress,
-  xhsMode = "slide",
-  setXHSMode,
   showWordCount,
   setShowWordCount,
 }: TopNavProps) => {

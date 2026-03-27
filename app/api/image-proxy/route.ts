@@ -40,10 +40,11 @@ export async function GET(request: NextRequest) {
     const dataUrl = `data:${contentType};base64,${base64}`;
 
     return NextResponse.json({ dataUrl });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Image proxy error:", error);
+    const message = error instanceof Error ? error.message : "Failed to proxy image";
     return NextResponse.json(
-      { error: error.message || "Failed to proxy image" },
+      { error: message },
       { status: 500 }
     );
   }

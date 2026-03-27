@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Bold, Italic, Strikethrough,
-  Link as LinkIcon, List, ListOrdered,
-  Quote, Table, Wand2,
+  List, ListOrdered,
+  Quote, Table,
   Heading1, Heading2, Minus,
-  Highlighter, Info, AlertCircle, AlertTriangle,
-  Code, Code2, Image, Eraser,
+  SeparatorHorizontal,
+  Info, AlertCircle, AlertTriangle,
+  Code2, Image as ImageIcon,
   CheckSquare, Keyboard, FolderUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ interface MarkdownToolbarProps {
   onHeading: (level: 1 | 2) => void;
   onBold: () => void;
   onSeparator: () => void;
+  onInsertPageBreak?: () => void;
   onQuote: () => void;
   
   activePopup: string | null;
@@ -34,44 +35,22 @@ interface MarkdownToolbarProps {
   toolbarRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-const HIGHLIGHT_COLORS = [
-  { label: '黄色', value: '#fef08a' },
-  { label: '绿色', value: '#bbf7d0' },
-  { label: '蓝色', value: '#bfdbfe' },
-  { label: '粉色', value: '#fbcfe8' },
-  { label: '橙色', value: '#fed7aa' },
-  { label: '紫色', value: '#e9d5ff' },
-];
-
 export const MarkdownToolbar = ({
   onWrapText,
   onInsertText,
   onInsertAtLineStart,
-  onApplyPangu,
   onInsertTable,
   onInsertImage,
   onImportMarkdown,
   onHeading,
-  onBold,
   onSeparator,
+  onInsertPageBreak,
   onQuote,
   activePopup,
   setActivePopup,
   toolbarRef,
 }: MarkdownToolbarProps) => {
   const [hoverGrid, setHoverGrid] = React.useState({ r: 0, c: 0 });
-  const [customColor, setCustomColor] = React.useState('');
-  const highlightBtnRef = useRef<HTMLButtonElement>(null);
-  const [bubbleLeft, setBubbleLeft] = React.useState(0);
-
-  // 计算气泡位置
-  useEffect(() => {
-    if (activePopup === 'highlight' && highlightBtnRef.current) {
-      const rect = highlightBtnRef.current.getBoundingClientRect();
-      const parentRect = highlightBtnRef.current.closest('.toolbar-root')?.getBoundingClientRect();
-      setBubbleLeft(rect.left - (parentRect?.left ?? 0));
-    }
-  }, [activePopup]);
 
   const btn = (icon: React.ReactNode, title: string, onClick: () => void, extra = "") =>
     <Button key={title} variant="ghost" size="icon" title={title}
@@ -79,18 +58,6 @@ export const MarkdownToolbar = ({
       onMouseDown={(e) => e.preventDefault()} onClick={onClick}>
       {icon}
     </Button>;
-
-  const applyHighlight = (color: string) => {
-    if (color === 'transparent') {
-      // Logic for removing highlight (requires selection logic, for now we wrap with nothing or a span with no style)
-      // Standard markdown doesn't have "remove highlight" easily, but we can wrap with nothing if we knew the selection
-      // For now, let's just use it as a 'clear' button that might insert an empty tag or we can just skip
-      return;
-    }
-    onWrapText(`<mark style="background:${color}">`, '</mark>');
-    setActivePopup(null);
-    setCustomColor('');
-  };
 
   const groupHeadings = [
     btn(<Heading1 className="size-4" />, "H1 / 主标题", () => onHeading(1)),
@@ -107,12 +74,13 @@ export const MarkdownToolbar = ({
     btn(<List className="size-4" />,          "无序列表",    () => onInsertAtLineStart('- ')),
     btn(<ListOrdered className="size-4" />,   "有序列表",    () => onInsertAtLineStart('1. ')),
     btn(<CheckSquare className="size-4" />,   "任务清单",    () => onInsertAtLineStart('- [ ] '), "hover:bg-green-50 text-green-600"),
-    btn(<Minus className="size-4" />,         "分割线",      () => onSeparator()),
+    btn(<Minus className="size-4" />,         "装饰分隔线",      () => onSeparator()),
+    btn(<SeparatorHorizontal className="size-4" />, "强制分页符（---）", () => onInsertPageBreak?.(), "hover:bg-amber-50 text-amber-600"),
     btn(<Code2 className="size-4" />,         "代码块",      () => onInsertText('\n```js\n\n```\n'), "hover:bg-violet-50 text-violet-600"),
   ];
 
   const groupMedia = [
-    btn(<Image className="size-4" />,    "插入图片", () => onInsertImage?.(), "hover:bg-indigo-50 text-indigo-600"),
+    btn(<ImageIcon className="size-4" />,    "插入图片", () => onInsertImage?.(), "hover:bg-indigo-50 text-indigo-600"),
     btn(<FolderUp className="size-4" />, "导入 Markdown", () => onImportMarkdown?.(), "hover:bg-indigo-50 text-indigo-600"),
     <Button key="table" variant="ghost" size="icon" title="插入表格"
       className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "hover:bg-zinc-100 text-zinc-600")}
@@ -146,10 +114,6 @@ export const MarkdownToolbar = ({
         <div className="flex items-center gap-2 ml-2">
         </div>
 
-        {/* 荧光笔气泡 — 绝对定位，从按钮下方弹出 */}
-        <AnimatePresence>
-
-        </AnimatePresence>
       </div>
 
       {/* 表格选择面板 — 保持原来展开方式 */}

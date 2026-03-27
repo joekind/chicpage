@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { XHSTheme } from "@/lib/xhs-themes";
 import { XHS_FONTS } from "@/lib/fonts";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // 判断颜色是否为深色
 function isColorDark(color: string): boolean {
@@ -126,6 +125,7 @@ function StatusBar({ backgroundColor }: { backgroundColor: string }) {
 
 export interface XHSSlidePreviewMethods {
   getSlidesCount: () => number;
+  getSlides: () => SlideItem[];
   goToSlide: (index: number) => void;
   getCurrentSlide: () => number;
   goPrev: () => void;
@@ -173,15 +173,17 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
     #xhs-content {
       ${fontFamilyRule}
       font-size: 14.5px;
+      line-height: 1.8;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      word-break: break-word; /* 确保长单词/链接换行 */
-      padding: 0 !important; /* 强制覆盖主题内边距，交给预览容器统一控制 */
+      word-break: break-word;
+      padding: 0 !important;
       margin: 0 !important;
-      min-height: auto !important; /* 必须：防止主题自带的 100% 高度撑开探测容器 */
+      min-height: auto !important;
       height: auto !important;
       display: block !important;
       overflow: visible !important;
+      color: inherit;
     }
     #xhs-content > * {
       margin-bottom: 0.8em;
@@ -207,6 +209,8 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       display: block;
       margin: 0.8em 0;
       border-radius: 8px;
+      max-height: ${Math.floor(XHS_CONTENT_H * 0.78)}px;
+      object-fit: contain;
     }
     #xhs-content pre {
       overflow-x: auto;
@@ -214,6 +218,7 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       border-radius: 6px;
       margin: 0.8em 0;
       font-size: 13px;
+      max-height: ${Math.floor(XHS_CONTENT_H * 0.7)}px;
     }
     #xhs-content blockquote {
       margin: 0.8em 0;
@@ -221,223 +226,215 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       border-left: 3px solid currentColor;
       opacity: 0.8;
     }
-    #xhs-content ul, #xhs-content ol {
-      padding-left: 1.4em;
+    #xhs-content h1, 
+    #xhs-content h2, 
+    #xhs-content h3, 
+    #xhs-content blockquote, 
+    #xhs-content pre, 
+    #xhs-content img,
+    #xhs-content ul,
+    #xhs-content ol,
+    #xhs-content table {
+      break-inside: avoid;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
     }
+    #xhs-content p,
     #xhs-content li {
-      margin-bottom: 0.4em;
+      break-inside: auto;
     }
   `;
 }
 
-// 判断节点是否为不可分割元素
-function isNonSplittable(node: Node): boolean {
-  if (node.nodeType !== Node.ELEMENT_NODE) return false;
-  const tagName = (node as Element).tagName.toLowerCase();
-  // 标题、代码块、引用块、表格、图片等不可分割
-  return [
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "pre",
-    "blockquote",
-    "table",
-    "img",
-    "figure",
-  ].includes(tagName);
-}
+/**
+ * ==========================================================
+ * 🚀 CHICPAGE "SEMANTIC BLOCK" PAGING ENGINE
+ * 核心逻辑：
+ * 1. 手动分页：支持 Markdown 中的 --- 强制换页（<hr>）。
+ * 2. 自动分页：将每个章节按语义块（h/p/ul/img/pre...）逐块装箱到页面高度预算。
+ * 3. 超高块处理：单块超高时单独成页（并依赖样式约束避免图片/代码无限撑高）。
+ * ==========================================================
+ */
 
-// 判断节点组是否包含紧密关联的元素（如标题+段落）
-function shouldKeepTogether(nodes: Node[]): boolean {
-  if (nodes.length < 2) return false;
-
-  // 检查最后两个节点：如果是标题+内容，应该保持在一起
-  const lastTwo = nodes.slice(-2);
-  if (lastTwo.length === 2) {
-    const first = lastTwo[0];
-    const second = lastTwo[1];
-
-    if (
-      first.nodeType === Node.ELEMENT_NODE &&
-      second.nodeType === Node.ELEMENT_NODE
-    ) {
-      const firstTag = (first as Element).tagName.toLowerCase();
-      const secondTag = (second as Element).tagName.toLowerCase();
-
-      // 标题后面跟着段落/列表，应该保持在一起
-      // 标题后面跟着段落/列表，或者前置元信息跟着标题，应该保持在一起
-      if (
-        (["h1", "h2", "h3", "h4", "h5", "h6"].includes(firstTag) &&
-          ["p", "ul", "ol", "blockquote", "img"].includes(secondTag)) ||
-        (firstTag === "p" && ["h1", "h2"].includes(secondTag))
-      ) {
-        return true;
-      }
-    }
-  }
-
-  return false;
+interface SlideItem {
+  html: string;      // 归属章节的 HTML
+  sectionId: number; // 章节索引
+  pageInGroup: number; // 在该章节中的页码
+  totalInGroup: number; // 该章节总页数
 }
 
 /**
- * 离屏探针，用于精确计算内容高度
+ * 分页计算函数：按语义块测量高度并分页
  */
-async function splitIntoSlides(
+async function calculateSlides(
   html: string,
   themeCSS: string,
   fontValue?: string,
-): Promise<string[]> {
+): Promise<SlideItem[]> {
+  // 1. 按 <hr>（即 ---）拆分章节，每个章节由顶层语义块组成
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
-  const initialNodes = Array.from(doc.body.childNodes).filter(
-    (n) =>
-      n.nodeType === Node.ELEMENT_NODE ||
-      (n.nodeType === Node.TEXT_NODE && n.textContent?.trim()),
-  );
-  if (initialNodes.length === 0) return [html];
 
+  const sections: Node[][] = [];
+  let currentSection: Node[] = [];
+
+  Array.from(doc.body.childNodes).forEach((node) => {
+    if (
+      node.nodeType === Node.ELEMENT_NODE &&
+      (node as Element).tagName.toLowerCase() === "hr"
+    ) {
+      if (currentSection.length > 0) {
+        sections.push(currentSection);
+        currentSection = [];
+      }
+      return;
+    }
+
+    if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) {
+      return;
+    }
+
+    currentSection.push(node.cloneNode(true));
+  });
+
+  if (currentSection.length > 0) {
+    sections.push(currentSection);
+  }
+
+  if (sections.length === 0) return [];
+
+  // 2. 用隐藏探针测量“当前页 + 新块”是否溢出
   const styleEl = document.createElement("style");
   styleEl.textContent = getXHSContentCSS(themeCSS, fontValue);
 
   const probe = document.createElement("div");
-  probe.id = "xhs-content";
+  const contentW = XHS_CARD_W - PADDING_X * 2;
+  const contentH = XHS_CONTENT_H;
   probe.style.cssText = `
     position: fixed; top: -9999px; left: -9999px;
-    width: ${XHS_CARD_W - PADDING_X * 2}px; visibility: hidden; pointer-events: none;
-    box-sizing: border-box; overflow: hidden;
+    width: ${contentW}px;
+    visibility: hidden; pointer-events: none;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 0;
   `;
+  const probeContent = document.createElement("div");
+  probeContent.id = "xhs-content";
+  probe.appendChild(probeContent);
 
   document.head.appendChild(styleEl);
   document.body.appendChild(probe);
 
-  // 预加载所有图片，确保高度计算准确
-  const images = Array.from(doc.querySelectorAll("img"));
-  await Promise.all(
-    images.map((img) => {
-      return new Promise((resolve) => {
-        const i = new Image();
-        i.onload = () => resolve(null);
-        i.onerror = () => resolve(null);
-        i.src = (img as HTMLImageElement).src;
-      });
-    }),
-  );
+  const finalSlides: SlideItem[] = [];
+  const sourceImages = Array.from(doc.querySelectorAll("img"))
+    .map((img) => img.getAttribute("src"))
+    .filter((src): src is string => Boolean(src));
 
-  const getH = (nodesArr: Node[]) => {
-    probe.innerHTML = "";
-    nodesArr.forEach((n) => probe.appendChild(n.cloneNode(true)));
-    return probe.scrollHeight;
+  const preloadImage = (src: string) =>
+    new Promise<void>((resolve) => {
+      const image = new Image();
+      image.onload = () => resolve();
+      image.onerror = () => resolve();
+      image.src = src;
+      if (image.complete) resolve();
+      setTimeout(resolve, 2500);
+    });
+
+  await Promise.all(sourceImages.map(preloadImage));
+
+  const nodesToHtml = (nodes: Node[]) => {
+    const wrapper = document.createElement("div");
+    nodes.forEach((n) => wrapper.appendChild(n.cloneNode(true)));
+    return wrapper.innerHTML;
   };
 
-  const BUFFER = 100; // 增大容差，允许封面等大块内容撑满页面
-  const MAX_HEIGHT = XHS_CONTENT_H + BUFFER;
+  const hasImage = (node: Node) =>
+    node.nodeType === Node.ELEMENT_NODE &&
+    ((node as Element).tagName.toLowerCase() === "img" ||
+      Boolean((node as Element).querySelector("img")));
 
-  const slides: string[] = [];
-  let bucket: Node[] = [];
-  const queue: Node[] = [...initialNodes];
-
-  while (queue.length > 0) {
-    const node = queue.shift()!;
-    const tempBucket = [...bucket, node];
-    const tempH = getH(tempBucket);
-
-    if (tempH > MAX_HEIGHT) {
-      if (bucket.length > 0) {
-        // 当前页已有内容，检查是否需要保持在一起（如标题+下一段）
-        if (shouldKeepTogether(tempBucket)) {
-          const lastOne = bucket.pop()!; // 将相关联的第一个元素（如标题）移出
-          if (bucket.length > 0) {
-            // 如果桶里还有别的内容，正常输出当前页
-            const tmp = document.createElement("div");
-            bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
-            slides.push(tmp.innerHTML);
-            bucket = [lastOne]; // 让这个标题去下一页
-          } else {
-            // 如果桶里原本就只有这个标题，那躲不掉了，只能在当前页强行输出
-            bucket = [lastOne];
-          }
-          queue.unshift(node);
-        } else {
-          // 正常换页
-          const tmp = document.createElement("div");
-          bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
-          slides.push(tmp.innerHTML);
-          bucket = [];
-          queue.unshift(node);
-        }
-      } else {
-        // 当前页为空但该节点仍超重，尝试对容器（列表/div）进行拆分
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const el = node as Element;
-          const tagName = el.tagName.toLowerCase();
-
-          if (tagName === "ul" || tagName === "ol" || tagName === "div") {
-            const children = Array.from(el.childNodes).filter(
-              (n) =>
-                n.nodeType === Node.ELEMENT_NODE ||
-                (n.nodeType === Node.TEXT_NODE && n.textContent?.trim()),
-            );
-
-            if (children.length > 1) {
-              // 寻找拆分点
-              let splitIndex = 1;
-              for (let i = 1; i <= children.length; i++) {
-                const testWrapper = el.cloneNode(false) as Element;
-                for (let j = 0; j < i; j++)
-                  testWrapper.appendChild(children[j].cloneNode(true));
-                if (getH([testWrapper]) > MAX_HEIGHT) {
-                  splitIndex = Math.max(1, i - 1);
-                  break;
-                }
-                splitIndex = i;
-              }
-
-              const firstPart = el.cloneNode(false) as Element;
-              const secondPart = el.cloneNode(false) as Element;
-
-              for (let i = 0; i < splitIndex; i++)
-                firstPart.appendChild(children[i].cloneNode(true));
-              for (let i = splitIndex; i < children.length; i++)
-                secondPart.appendChild(children[i].cloneNode(true));
-
-              // 有序列表特殊处理：保持序列连续性
-              if (tagName === "ol") {
-                const startAttr = el.getAttribute("start");
-                const start = startAttr ? parseInt(startAttr) : 1;
-                secondPart.setAttribute(
-                  "start",
-                  (start + splitIndex).toString(),
-                );
-              }
-
-              queue.unshift(secondPart);
-              queue.unshift(firstPart);
-              continue; // 重新处理拆分后的第一部分
+  const waitImagesInElement = (element: HTMLElement) => {
+    const images = Array.from(element.querySelectorAll("img"));
+    if (images.length === 0) return Promise.resolve();
+    return Promise.all(
+      images.map(
+        (img) =>
+          new Promise<void>((resolve) => {
+            if (img.complete && img.naturalWidth > 0) {
+              resolve();
+              return;
             }
-          }
-        }
-        // 如果不可拆分或只有一个子节点也放不下，则强制放入（会产生溢出，但已是最小颗粒）
-        bucket.push(node);
-      }
-    } else {
-      bucket.push(node);
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+            setTimeout(resolve, 2000);
+          }),
+      ),
+    ).then(() => undefined);
+  };
+
+  const measureHeight = async (nodes: Node[], waitForImage = false) => {
+    probeContent.innerHTML = "";
+    nodes.forEach((n) => probeContent.appendChild(n.cloneNode(true)));
+    if (waitForImage) {
+      await waitImagesInElement(probeContent);
     }
+    return probeContent.scrollHeight;
+  };
+
+  try {
+    for (let sectionId = 0; sectionId < sections.length; sectionId++) {
+      const sectionBlocks = sections[sectionId];
+      const pagesInSection: string[] = [];
+      let currentPageBlocks: Node[] = [];
+
+      for (const block of sectionBlocks) {
+        const candidate = [...currentPageBlocks, block];
+        const candidateHeight = await measureHeight(candidate, hasImage(block));
+
+        if (candidateHeight <= contentH) {
+          currentPageBlocks = candidate;
+          continue;
+        }
+
+        if (currentPageBlocks.length > 0) {
+          pagesInSection.push(nodesToHtml(currentPageBlocks));
+          currentPageBlocks = [];
+        }
+
+        const blockHeight = await measureHeight([block], hasImage(block));
+        if (blockHeight <= contentH) {
+          currentPageBlocks = [block];
+        } else {
+          // 超高块单独成页：避免把一个大块硬塞到上一页导致裁切
+          pagesInSection.push(nodesToHtml([block]));
+        }
+      }
+
+      if (currentPageBlocks.length > 0) {
+        pagesInSection.push(nodesToHtml(currentPageBlocks));
+      }
+
+      const totalInGroup = pagesInSection.length || 1;
+      pagesInSection.forEach((pageHtml, pageInGroup) => {
+        finalSlides.push({
+          html: pageHtml,
+          sectionId,
+          pageInGroup,
+          totalInGroup,
+        });
+      });
+    }
+  } finally {
+    document.body.removeChild(probe);
+    document.head.removeChild(styleEl);
   }
 
-  if (bucket.length > 0) {
-    const tmp = document.createElement("div");
-    bucket.forEach((n) => tmp.appendChild(n.cloneNode(true)));
-    slides.push(tmp.innerHTML);
-  }
-
-  document.body.removeChild(probe);
-  document.head.removeChild(styleEl);
-
-  return slides.length > 0 ? slides : [html];
+  return finalSlides;
 }
+
+// 供外部引用的占位符，不再使用旧的 splitIntoSlides 名称以防冲突
+export const splitIntoSlides = calculateSlides;
+
 
 export const XHSSlidePreview = forwardRef<
   XHSSlidePreviewMethods,
@@ -447,17 +444,13 @@ export const XHSSlidePreview = forwardRef<
     {
       html,
       theme,
-      authorName = "ChicPage 创作助手",
-      authorAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=Chic",
-      tags = ["自媒体干货", "高效排版", "ChicPage"],
-      showHeader = false,
       showFooter = true,
       hideMockUI = false,
       font = "system",
     },
     ref,
   ) => {
-    const [slides, setSlides] = useState<string[]>([]);
+    const [slides, setSlides] = useState<SlideItem[]>([]);
     const [current, setCurrent] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
@@ -521,12 +514,18 @@ export const XHSSlidePreview = forwardRef<
       setDragOffset(0);
     };
 
-    const displaySlides = slides.length > 0 ? slides : [html];
+    // 安全回退：如果尚未完成分页计算，至少展示原始 HTML 为一页
+    const displaySlides = slides.length > 0 
+      ? slides 
+      : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
+
+    const slideCount = displaySlides.length;
+
     // 计算位移，并在边缘滑动时增加阻尼感
     const translateX = (() => {
       const base = -current * XHS_CARD_W;
       if (current === 0 && dragOffset > 0) return base + dragOffset * 0.35;
-      if (current === displaySlides.length - 1 && dragOffset < 0)
+      if (current === slideCount - 1 && dragOffset < 0)
         return base + dragOffset * 0.35;
       return base + dragOffset;
     })();
@@ -534,13 +533,14 @@ export const XHSSlidePreview = forwardRef<
     const containerRef = useRef<HTMLDivElement>(null);
 
     useImperativeHandle(ref, () => ({
-      getSlidesCount: () => displaySlides.length,
+      getSlidesCount: () => slideCount,
+      getSlides: () => displaySlides,
       goToSlide: (index: number) =>
-        setCurrent(Math.max(0, Math.min(displaySlides.length - 1, index))),
+        setCurrent(Math.max(0, Math.min(slideCount - 1, index))),
       getCurrentSlide: () => current,
       goPrev: () => setCurrent((prev) => Math.max(0, prev - 1)),
       goNext: () =>
-        setCurrent((prev) => Math.min(displaySlides.length - 1, prev + 1)),
+        setCurrent((prev) => Math.min(slideCount - 1, prev + 1)),
     }));
 
     return (
@@ -628,30 +628,43 @@ export const XHSSlidePreview = forwardRef<
                 : "transform 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
             }}
           >
-            {displaySlides.map((slideHtml, i) => (
+            {displaySlides.map((slide, i) => (
               <div
-                key={i}
+                key={`${slide.sectionId}-${slide.pageInGroup}-${i}`}
                 className="xhs-slide-page"
                 style={{
                   width: `${XHS_CARD_W}px`,
                   flexShrink: 0,
                   height: "100%",
-                  overflow: "hidden",
-                  boxSizing: "border-box",
                   padding: `${PADDING_Y}px ${PADDING_X}px`,
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "flex-start",
+                  boxSizing: "border-box",
+                  overflow: "hidden",
                 }}
               >
-                <div
-                  id="xhs-content"
-                  dangerouslySetInnerHTML={{ __html: slideHtml }}
+                <div 
+                  className="xhs-slide-content-viewport"
                   style={{
-                    width: "100%",
-                    overflow: "hidden",
+                    flex: 1,
+                    width: '100%',
+                    position: 'relative',
+                    overflow: 'hidden',
                   }}
-                />
+                >
+                  <div
+                    id="xhs-content"
+                    className="xhs-content-wrapper"
+                    dangerouslySetInnerHTML={{ __html: slide.html }}
+                    style={{
+                      width: `${XHS_CARD_W - PADDING_X * 2}px`,
+                      maxWidth: `${XHS_CARD_W - PADDING_X * 2}px`,
+                      height: `${XHS_CONTENT_H}px`,
+                      overflow: "hidden",
+                      display: "block",
+                    }}
+                  />
+                </div>
               </div>
             ))}
           </div>
@@ -669,7 +682,7 @@ export const XHSSlidePreview = forwardRef<
             zIndex: 10,
           }}
         >
-          {displaySlides.map((_, i) => (
+          {Array.from({ length: slideCount }).map((_, i) => (
             <div
               key={i}
               style={{
