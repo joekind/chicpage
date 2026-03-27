@@ -47,7 +47,7 @@ ChicPage 采用了前沿的 Web 技术架构，确保极致的流畅性与可维
 
 ### 1. 克隆并安装
 ```bash
-git clone https://github.com/your-username/chicpage.git
+git clone https://github.com/joekind/chicpage.git
 cd chicpage
 npm install
 ```
