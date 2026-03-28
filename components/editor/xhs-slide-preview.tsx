@@ -250,9 +250,9 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
  * ==========================================================
  * 🚀 CHICPAGE "SEMANTIC BLOCK" PAGING ENGINE
  * 核心逻辑：
- * 1. 手动分页：支持 Markdown 中的 --- 强制换页（<hr>）。
+ * 1. 手动分页：支持 <!--pagebreak--> 强制换页（<hr data-pagebreak="true">）。
  * 2. 自动分页：将每个章节按语义块（h/p/ul/img/pre...）逐块装箱到页面高度预算。
- * 3. 超高块处理：单块超高时单独成页（并依赖样式约束避免图片/代码无限撑高）。
+ * 3. 超高块处理：文本块尝试自动切分，避免出现“单块挤爆单页”。
  * ==========================================================
  */
 
@@ -271,7 +271,7 @@ async function calculateSlides(
   themeCSS: string,
   fontValue?: string,
 ): Promise<SlideItem[]> {
-  // 1. 按 <hr>（即 ---）拆分章节，每个章节由顶层语义块组成
+  // 1. 按 <hr data-pagebreak="true"> 拆分章节
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
@@ -281,7 +281,8 @@ async function calculateSlides(
   Array.from(doc.body.childNodes).forEach((node) => {
     if (
       node.nodeType === Node.ELEMENT_NODE &&
-      (node as Element).tagName.toLowerCase() === "hr"
+      (node as Element).tagName.toLowerCase() === "hr" &&
+      (node as Element).hasAttribute("data-pagebreak")
     ) {
       if (currentSection.length > 0) {
         sections.push(currentSection);
@@ -381,13 +382,93 @@ async function calculateSlides(
     return probeContent.scrollHeight;
   };
 
+  const findNaturalBreakIndex = (text: string, preferred: number) => {
+    const min = Math.max(0, Math.floor(preferred * 0.55));
+    const range = text.slice(min, preferred);
+    const matches = Array.from(range.matchAll(/[。！？.!?；;，,\n]/g));
+    if (matches.length === 0) return preferred;
+    const last = matches[matches.length - 1];
+    return min + (last.index ?? 0) + 1;
+  };
+
+  const splitOversizedTextBlock = async (block: Node): Promise<Node[]> => {
+    if (block.nodeType !== Node.ELEMENT_NODE) return [block];
+    const element = block as Element;
+    const tag = element.tagName.toLowerCase();
+    const isSimpleTextBlock = ["p", "li", "blockquote"].includes(tag);
+    const isSimplePre =
+      tag === "pre" &&
+      element.childElementCount === 1 &&
+      element.firstElementChild?.tagName.toLowerCase() === "code" &&
+      element.firstElementChild.childElementCount === 0;
+
+    if (!isSimpleTextBlock && !isSimplePre) return [block];
+    if (!isSimplePre && element.childElementCount > 0) return [block];
+
+    const sourceText = (element.textContent || "").trim();
+    if (!sourceText || sourceText.length < 10) return [block];
+
+    const createNodeFromText = (text: string): Node => {
+      if (isSimplePre) {
+        const pre = element.cloneNode(false) as HTMLElement;
+        const code = element.firstElementChild!.cloneNode(false) as HTMLElement;
+        code.textContent = text;
+        pre.appendChild(code);
+        return pre;
+      }
+      const clone = element.cloneNode(false) as HTMLElement;
+      clone.textContent = text;
+      return clone;
+    };
+
+    const splitNodes: Node[] = [];
+    let remaining = sourceText;
+
+    while (remaining.length > 0) {
+      let low = 1;
+      let high = remaining.length;
+      let best = 0;
+
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        const candidate = createNodeFromText(remaining.slice(0, mid));
+        const height = await measureHeight([candidate], false);
+        if (height <= contentH) {
+          best = mid;
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
+      }
+
+      if (best <= 0) break;
+      let splitAt = best;
+      if (best < remaining.length) {
+        splitAt = findNaturalBreakIndex(remaining, best);
+      }
+
+      const current = remaining.slice(0, splitAt).trim();
+      if (!current) break;
+
+      splitNodes.push(createNodeFromText(current));
+      remaining = remaining.slice(splitAt).trim();
+    }
+
+    if (remaining.length > 0) {
+      splitNodes.push(createNodeFromText(remaining));
+    }
+
+    return splitNodes.length > 1 ? splitNodes : [block];
+  };
+
   try {
     for (let sectionId = 0; sectionId < sections.length; sectionId++) {
-      const sectionBlocks = sections[sectionId];
+      const blockQueue = [...sections[sectionId]];
       const pagesInSection: string[] = [];
       let currentPageBlocks: Node[] = [];
 
-      for (const block of sectionBlocks) {
+      while (blockQueue.length > 0) {
+        const block = blockQueue.shift()!;
         const candidate = [...currentPageBlocks, block];
         const candidateHeight = await measureHeight(candidate, hasImage(block));
 
@@ -405,8 +486,16 @@ async function calculateSlides(
         if (blockHeight <= contentH) {
           currentPageBlocks = [block];
         } else {
-          // 超高块单独成页：避免把一个大块硬塞到上一页导致裁切
-          pagesInSection.push(nodesToHtml([block]));
+          const splitBlocks = await splitOversizedTextBlock(block);
+          if (splitBlocks.length > 1) {
+            const [first, ...rest] = splitBlocks;
+            currentPageBlocks = [first];
+            if (rest.length > 0) {
+              blockQueue.unshift(...rest);
+            }
+          } else {
+            pagesInSection.push(nodesToHtml([block]));
+          }
         }
       }
 

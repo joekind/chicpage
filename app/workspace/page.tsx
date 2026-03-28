@@ -75,7 +75,7 @@ export default function ChicEditor() {
     { html: string; index: number; totalInGroup: number; pageInGroup: number }[]
   >([]);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
-  const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; height: number } | null>(null);
+  const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
 
   const handlePaste = async (e: React.ClipboardEvent | ClipboardEvent) => {
     const clipboardData =
@@ -137,7 +137,7 @@ export default function ChicEditor() {
   };
 
   const handleInsertPageBreak = () => {
-    handleInsertText("\n\n---\n\n");
+    handleInsertText("\n\n<!--pagebreak-->\n\n");
   };
 
   const handleInsertAtLineStart = (prefix: string) => {
@@ -257,9 +257,10 @@ export default function ChicEditor() {
   const handleConfirmExport = async () => {
     if (!xhsSlideRef.current) return;
     setIsExportingXHS(true);
-    setExportProgress(undefined);
+    setExportProgress({ current: 0, total: 0 });
     try {
       const totalSlides = xhsSlideRef.current.getSlidesCount();
+      setExportProgress({ current: 0, total: totalSlides });
       const timestamp = new Date()
         .toISOString()
         .replace(/[:.]/g, "-")
@@ -275,47 +276,29 @@ export default function ChicEditor() {
         );
       }
 
-      // 并行处理所有页面的导出，不再切换当前页，避免竞态
-      console.log("开始并行处理导出...");
-      const exportPromises = [];
-
+      const validResults: { filename: string; dataUrl: string; base64Data: string }[] = [];
       for (let i = 0; i < totalSlides; i++) {
         const slidePage = slidePages[i];
-        const exportPromise = (async (slideIndex: number) => {
-          const dataUrl = (await exportToImage(slidePage as HTMLElement, {
-            filename: `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}`,
-            format: "png",
-            scale: 8,
-            backgroundColor: activeXHSTheme.background,
-            returnDataUrl: true,
-          })) as string;
+        const dataUrl = (await exportToImage(slidePage as HTMLElement, {
+          filename: `xhs-${timestamp}-${i + 1}-of-${totalSlides}`,
+          format: "png",
+          scale: 8,
+          backgroundColor: activeXHSTheme.background,
+          returnDataUrl: true,
+        })) as string;
 
-          if (dataUrl) {
-            const filename = `xhs-${timestamp}-${slideIndex + 1}-of-${totalSlides}.png`;
-            return { filename, dataUrl, base64Data: dataUrl.split(",")[1] };
-          }
-          return null;
-        })(i);
-
-        exportPromises.push(exportPromise);
+        if (dataUrl) {
+          const filename = `xhs-${timestamp}-${i + 1}-of-${totalSlides}.png`;
+          validResults.push({ filename, dataUrl, base64Data: dataUrl.split(",")[1] });
+        }
+        setExportProgress({ current: i + 1, total: totalSlides });
       }
 
-      // 执行所有导出任务
-      console.log("执行导出任务...");
-      const results = await Promise.all(exportPromises);
-      const validResults = results.filter((result) => result !== null);
-
-      // 创建 ZIP 文件
-      console.log("创建 ZIP 文件...");
       const zip = new JSZip();
       validResults.forEach((result) => {
-        if (result) {
-          zip.file(result.filename, result.base64Data, { base64: true });
-        }
+        zip.file(result.filename, result.base64Data, { base64: true });
       });
 
-      // 生成并下载 ZIP
-      console.log("生成 ZIP 文件...");
       const zipBlob = await zip.generateAsync({ type: "blob" });
       const zipUrl = URL.createObjectURL(zipBlob);
       const link = document.createElement("a");
@@ -325,8 +308,6 @@ export default function ChicEditor() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(zipUrl);
-
-      console.log("ZIP 文件下载完成！");
     } catch (error) {
       console.error("Export failed:", error);
     } finally {
@@ -498,7 +479,8 @@ export default function ChicEditor() {
           }}
           onInsertPageBreak={handleInsertPageBreak}
           separatorLabel={styleTheme === "xhs" ? "插入装饰分隔线" : "插入分隔线"}
-          pageBreakLabel="插入强制分页符（---）"
+          pageBreakLabel="插入强制分页符（<!--pagebreak-->）"
+          targetSelector=".mdx-editor-container"
           onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
         />
       </AnimatePresence>

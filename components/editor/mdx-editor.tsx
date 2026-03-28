@@ -150,14 +150,21 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         
         try {
           const startCoords = view.coordsAtPos(sel.from);
+          const endCoords = view.coordsAtPos(sel.to);
           if (!startCoords) return null;
           
           const parentRect = containerRef.current.getBoundingClientRect();
+          const right = endCoords?.right ?? startCoords.right;
+          const left = Math.min(startCoords.left, endCoords?.left ?? startCoords.left);
+          const top = Math.min(startCoords.top, endCoords?.top ?? startCoords.top);
+          const bottom = Math.max(startCoords.bottom, endCoords?.bottom ?? startCoords.bottom);
+          const width = Math.max(0, right - left);
+
           return {
-            top: startCoords.top - parentRect.top,
-            left: startCoords.left - parentRect.left,
-            width: 0, // Not strictly needed for bubble
-            height: (startCoords.bottom - startCoords.top) || 20
+            top: top - parentRect.top,
+            left: left - parentRect.left,
+            width,
+            height: (bottom - top) || 20
           };
         } catch {
           return null;

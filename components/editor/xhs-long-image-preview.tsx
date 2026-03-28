@@ -1,6 +1,7 @@
 "use client";
 
 import React, { forwardRef } from "react";
+import Image from "next/image";
 import { XHSTheme } from "@/lib/xhs-themes";
 
 interface XHSLongImagePreviewProps {
@@ -108,7 +109,13 @@ export const XHSLongImagePreview = forwardRef<HTMLDivElement, XHSLongImagePrevie
         {showHeader && (
           <div className="xhs-header">
             <div className="xhs-header-avatar">
-              <img src={authorAvatar} alt={authorName} />
+              <Image
+                src={authorAvatar}
+                alt={authorName}
+                width={40}
+                height={40}
+                unoptimized
+              />
             </div>
             <div className="xhs-header-info">
               <div className="xhs-header-name">{authorName}</div>

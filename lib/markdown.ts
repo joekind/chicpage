@@ -142,6 +142,12 @@ function rehypeInlineHighlight() {
 }
 
 export async function markdownToHtml(markdown: string): Promise<string> {
+  // 专用分页标记：将 <!--pagebreak--> 转成可识别的分页节点
+  const normalizedMarkdown = markdown.replace(
+    /<!--\s*pagebreak\s*-->/gi,
+    "\n<hr data-pagebreak=\"true\" />\n",
+  );
+
   const result = await unified()
     .use(remarkParse)
     .use(remarkGfm)
@@ -152,7 +158,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(rehypeRaw)
     .use(rehypeInlineHighlight)
     .use(rehypeStringify)
-    .process(markdown);
+    .process(normalizedMarkdown);
 
   return result.toString();
 }

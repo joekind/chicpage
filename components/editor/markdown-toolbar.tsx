@@ -75,7 +75,7 @@ export const MarkdownToolbar = ({
     btn(<ListOrdered className="size-4" />,   "有序列表",    () => onInsertAtLineStart('1. ')),
     btn(<CheckSquare className="size-4" />,   "任务清单",    () => onInsertAtLineStart('- [ ] '), "hover:bg-green-50 text-green-600"),
     btn(<Minus className="size-4" />,         "装饰分隔线",      () => onSeparator()),
-    btn(<SeparatorHorizontal className="size-4" />, "强制分页符（---）", () => onInsertPageBreak?.(), "hover:bg-amber-50 text-amber-600"),
+    btn(<SeparatorHorizontal className="size-4" />, "强制分页符（<!--pagebreak-->）", () => onInsertPageBreak?.(), "hover:bg-amber-50 text-amber-600"),
     btn(<Code2 className="size-4" />,         "代码块",      () => onInsertText('\n```js\n\n```\n'), "hover:bg-violet-50 text-violet-600"),
   ];
 

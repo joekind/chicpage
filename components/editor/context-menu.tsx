@@ -29,6 +29,7 @@ interface ContextMenuProps {
   onDeleteLine: () => void;
   separatorLabel?: string;
   pageBreakLabel?: string;
+  targetSelector?: string;
 }
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
@@ -44,7 +45,8 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   onInsertPageBreak,
   onDeleteLine,
   separatorLabel = "插入分隔线",
-  pageBreakLabel = "插入分页符"
+  pageBreakLabel = "插入分页符",
+  targetSelector = ".mdx-editor-container",
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -52,6 +54,13 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
 
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
+      const target = e.target instanceof Element ? e.target : null;
+      const isInScope = Boolean(target?.closest(targetSelector));
+      if (!isInScope) {
+        setIsVisible(false);
+        return;
+      }
+
       e.preventDefault();
       setIsVisible(true);
       setPosition({ x: e.clientX, y: e.clientY });
@@ -70,7 +79,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
       document.removeEventListener("contextmenu", handleContextMenu);
       document.removeEventListener("click", handleClickOutside);
     };
-  }, []);
+  }, [targetSelector]);
 
   if (!isVisible) return null;
 

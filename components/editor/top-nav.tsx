@@ -14,10 +14,11 @@ import {
   FileText,
   ChevronDown,
   Palette,
-  Image as ImageIcon,
+  Image as ImageIconLucide,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -108,11 +109,18 @@ export const TopNav = ({
   return (
     <nav className="sticky top-0 z-50 flex h-16 items-center justify-between border-b border-zinc-900/10 bg-white px-6">
       <div className="flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-4 hover:translate-x-1 transition-transform">
-           <img src="/wmremove-transformed.png" alt="Logo" className="h-7 w-auto object-contain [image-rendering:--webkit-optimize-contrast]" />
-          <h1 className="text-2xl font-display font-black tracking-tighter text-zinc-900 uppercase">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Image
+            src="/wmremove-transformed.png"
+            alt="Logo"
+            width={32}
+            height={32}
+            className="size-8 object-contain grayscale"
+            priority
+          />
+          <span className="text-xl font-display font-black tracking-tighter text-zinc-900 uppercase">
             ChicPage
-          </h1>
+          </span>
         </Link>
 
         <div className="ml-8 flex items-center p-1 border border-zinc-900/10 rounded-2xl bg-zinc-50 shadow-inner">
@@ -194,7 +202,7 @@ export const TopNav = ({
               setPreviewMode("xhs");
             }}
           >
-            <ImageIcon className="size-4" />
+            <ImageIconLucide className="size-4" />
             贴图
           </Button>
         </div>

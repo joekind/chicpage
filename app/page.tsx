@@ -1,31 +1,12 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  ArrowRight,
-  Zap,
-  Layout,
-  BookOpen,
-  Sparkles,
-  Github,
-  Command,
-  Download,
-} from "lucide-react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { ArrowRight, Smartphone, Monitor, Palette, Type, Download, Share2, Clipboard, FileJson, FileText, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-// --- Components ---
-
-const EditorialLine = ({ delay = 0 }: { delay?: number }) => (
-  <motion.div
-    initial={{ scaleX: 0 }}
-    whileInView={{ scaleX: 1 }}
-    transition={{ duration: 1.5, delay, ease: [0.19, 1, 0.22, 1] }}
-    className="h-px w-full bg-zinc-900/10 origin-left"
-  />
-);
 
 const Nav = () => {
   const [scrolled, setScrolled] = React.useState(false);
@@ -38,376 +19,318 @@ const Nav = () => {
 
   return (
     <nav className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6",
-      scrolled ? "pt-4" : "pt-0"
+      "fixed top-0 left-0 right-0 z-50 px-6 transition-all duration-500",
+      scrolled ? "bg-white/80 backdrop-blur-xl border-b border-zinc-200/50 py-3" : "bg-transparent py-5"
     )}>
-      <div className={cn(
-        "mx-auto max-w-screen-2xl h-[64px] flex items-center justify-between transition-all duration-500 px-8",
-        scrolled ? "bg-white/80 backdrop-blur-xl border border-zinc-200/50 rounded-full shadow-lg" : "bg-transparent border-b border-transparent"
-      )}>
-        <div className="flex items-center gap-12">
-          <Link href="/" className="flex items-center gap-4 group">
-            <img
-              src="/wmremove-transformed.png"
-              alt="ChicPage Logo"
-              className="h-7 w-auto object-contain transition-transform group-hover:scale-110"
-            />
-            <span className="text-2xl font-black font-display tracking-tighter text-zinc-900 uppercase">
-              ChicPage
-            </span>
-          </Link>
-          <div className="hidden lg:flex items-center gap-8 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
-            <a href="#vision" className="hover:text-zinc-900 transition-colors uppercase">Vision</a>
-            <a href="#lab" className="hover:text-zinc-900 transition-colors uppercase">Lab</a>
-            <a href="#source" className="hover:text-zinc-900 transition-colors uppercase">Source</a>
-          </div>
-        </div>
-        <Link href="/workspace">
-          <Button className="h-10 bg-zinc-900 hover:bg-indigo-600 text-white font-mono text-[10px] uppercase tracking-[0.2em] px-6 rounded-full transition-all duration-500 shadow-md">
-            Workspace
-            <ArrowRight className="ml-2 size-3.5" />
-          </Button>
+      <div className="mx-auto max-w-screen-xl flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-3 group">
+          <Image
+            src="/logo.svg"
+            alt="Logo"
+            width={32}
+            height={32}
+            className="size-8 object-contain"
+            priority
+          />
+          <span className="text-xl font-display font-black tracking-tighter text-zinc-900 uppercase">ChicPage</span>
         </Link>
+        
+        <div className="flex items-center gap-6">
+          <Link href="/workspace">
+            <Button variant="ghost" className="text-sm font-bold tracking-tight hover:bg-zinc-100 rounded-full px-6 transition-all duration-300">
+              工作台
+            </Button>
+          </Link>
+          <a
+            href="https://github.com/joekind/chicpage"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-zinc-400 hover:text-zinc-900 transition-colors"
+          >
+            <Github className="size-5" />
+          </a>
+          <Link href="/workspace">
+            <Button className="bg-zinc-900 text-white hover:bg-zinc-800 rounded-full px-6 h-10 text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-xl">
+              开始创作
+            </Button>
+          </Link>
+        </div>
       </div>
     </nav>
   );
 };
 
 export default function LandingPage() {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  const features = [
+    {
+      title: "全平台优雅排版",
+      desc: "深度适配微信公众号、掘金、知乎、Twitter 等主流平台。",
+      icon: <Smartphone className="size-5" />,
+      preview: (
+        <div className="flex items-center justify-center gap-4 h-full pt-4">
+           <div className="flex flex-col gap-2">
+              <div className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white text-[10px] font-bold">微信公众号</div>
+              <div className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-bold">掘金 Juejin</div>
+              <div className="px-3 py-1.5 rounded-lg bg-zinc-100 text-zinc-500 text-[10px] font-bold">Twitter (X)</div>
+           </div>
+        </div>
+      )
+    },
+    {
+      title: "全方位贴图引擎",
+      desc: "专为小红书、抖音、推特设计的语义级切图逻辑。",
+      icon: <Share2 className="size-5" />,
+      preview: (
+        <div className="relative h-full py-4 flex items-center justify-center scroll-fade">
+            <div className="absolute left-6 w-24 h-32 bg-white border border-zinc-100 rounded-xl shadow-lg rotate-[-10deg]" />
+            <div className="z-10 w-24 h-32 bg-zinc-900 rounded-xl shadow-2xl flex items-center justify-center">
+               <div className="size-4 bg-emerald-500 rounded-full animate-pulse" />
+            </div>
+            <div className="absolute right-6 w-24 h-32 bg-white border border-zinc-100 rounded-xl shadow-lg rotate-[10deg]" />
+        </div>
+      )
+    },
+    {
+      title: "一键 MD 导入",
+      desc: "支持本地 Markdown 文件直接导入，瞬间转化样式。",
+      icon: <Download className="size-5" />,
+      preview: (
+        <div className="flex flex-col items-center justify-center gap-4 h-full">
+           <div className="size-16 rounded-full bg-zinc-100 border-2 border-dashed border-zinc-200 flex items-center justify-center">
+              <ArrowRight className="size-6 text-zinc-300 rotate-90" />
+           </div>
+           <p className="text-[10px] font-black text-zinc-300">DROP FILE HERE</p>
+        </div>
+      )
+    },
+    {
+      title: "超多中文字体",
+      desc: "书法、黑体、宋体，释放文字张力。",
+      icon: <Type className="size-5" />,
+      preview: (
+        <div className="flex flex-col gap-3 py-4">
+          <div className="text-xl font-serif italic text-zinc-400">思源宋体</div>
+          <div className="text-xl font-black tracking-tighter text-zinc-900">站酷酷黑</div>
+          <div className="text-xl font-sans font-medium text-zinc-300">系统默认</div>
+        </div>
+      )
+    },
+    {
+      title: "多元导出能力",
+      desc: "支持 HTML、MD 或图片压缩包。",
+      icon: <Download className="size-5" />,
+      preview: (
+        <div className="flex flex-col gap-2 py-4">
+           {[
+             { label: "导出 HTML", icon: <FileJson className="size-4" />, color: "bg-emerald-50 text-emerald-600" },
+             { label: "导出 Markdown", icon: <FileText className="size-4" />, color: "bg-indigo-50 text-indigo-600" },
+             { label: "渲染为图片", icon: <Download className="size-4" />, color: "bg-zinc-50 text-zinc-600" }
+           ].map((item) => (
+             <div key={item.label} className={cn("flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-zinc-200 transition-all cursor-default font-bold text-xs uppercase tracking-tight", item.color)}>
+                 {item.icon}
+                 {item.label}
+             </div>
+           ))}
+        </div>
+      )
+    },
+    {
+      title: "纯净编辑空间",
+      desc: "沉浸式体验，让你专注于文字。",
+      icon: <Monitor className="size-5" />,
+      preview: (
+        <div className="h-full py-4 font-mono text-xs text-zinc-400 leading-6 border-l-2 border-indigo-500/30 pl-4">
+          <div># ChicPage</div>
+          <div>专注于内容本身</div>
+          <div>--</div>
+          <div className="bg-indigo-50 text-indigo-600 w-fit px-1">让排版从此优雅</div>
+          <div className="flex items-center gap-1">
+             <div className="size-1.5 rounded-full bg-zinc-300" />
+             <div className="h-1 w-8 bg-zinc-200 rounded" />
+          </div>
+        </div>
+      )
+    }
+  ];
 
   return (
-    <div ref={containerRef} className="min-h-screen mesh-bg text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white">
+    <div className="min-h-screen bg-[#fafafa] text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white overflow-x-hidden">
       <Nav />
 
-      {/* Hero: Editorial Style */}
-      <section className="relative pt-[140px] pb-[100px] px-6 overflow-hidden">
-        <div className="mx-auto max-w-screen-2xl">
-          <EditorialLine />
-
-          <div className="mt-20 grid grid-cols-1 lg:grid-cols-12 gap-16 items-end">
-            <div className="lg:col-span-8">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-3 mb-10"
-              >
-                <div className="h-[1px] w-12 bg-indigo-500" />
-                <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-indigo-500/80 font-bold">
-                  次世代排版引擎 // 版本 2.0.4
-                </span>
-              </motion.div>
-              <motion.h1
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                className="text-6xl md:text-[100px] lg:text-[140px] xl:text-[160px] font-display font-black leading-[0.85] tracking-tighter uppercase"
-              >
-                让表达 <br />
-                <span className="text-shimmer italic font-serif normal-case font-thin">无谓</span> <br />
-                界限<span className="text-gradient">.</span>
-              </motion.h1>
-            </div>
-            <div className="lg:col-span-4 pb-6">
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-2xl leading-relaxed italic font-serif text-zinc-500 max-w-sm mb-12"
-              >
-                “排版是文字的灵魂。ChicPage 为你的表达提供应有的舞台。”
-              </motion.p>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.8 }}
-              >
-                <Link href="/workspace">
-                  <Button className="h-16 px-10 bg-zinc-900 text-white hover:bg-indigo-600 transition-all duration-500 text-sm font-bold tracking-widest uppercase group rounded-full floating-shadow">
-                    立即开启创作
-                    <ArrowRight className="ml-3 size-5 group-hover:translate-x-2 transition-transform" />
-                  </Button>
-                </Link>
-              </motion.div>
-            </div>
-          </div>
-
+      {/* Hero Section */}
+      <section className="relative pt-[180px] pb-[80px] px-6 text-center">
+        <div className="mx-auto max-w-4xl space-y-8">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1, duration: 1 }}
-            className="mt-32 relative rounded-[32px] overflow-hidden floating-shadow group border border-white/50"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 text-[10px] font-bold uppercase tracking-widest text-zinc-500 border border-zinc-200"
           >
-            <motion.div
-              style={{ scale: useTransform(scrollYProgress, [0, 0.5], [1, 1.05]) }}
-              className="w-full relative aspect-[16/9] lg:aspect-auto lg:h-[900px] overflow-hidden"
-            >
-              <img
-                src="/mockup/6.png"
-                alt="ChicPage Editor Preview"
-                className="w-full h-full object-cover object-top transition-all duration-1000"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-zinc-900/10 pointer-events-none" />
-            </motion.div>
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="size-[400px] bg-indigo-500/10 blur-[120px] rounded-full" />
+            ChicPage v2.4.0 <ArrowRight className="size-3" />
+          </motion.div>
+          
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] uppercase"
+          >
+            可以让排版， <br />
+            <span className="text-zinc-400">更加</span>优雅。
+          </motion.h1>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-col items-center gap-8"
+          >
+            <p className="text-xl md:text-2xl text-zinc-400 font-medium max-w-2xl leading-relaxed">
+              专注于内容本身，<br />
+              其他的繁复琐碎，交给 ChicPage 处理。
+            </p>
+            <div className="flex items-center gap-6">
+              <Link href="/workspace">
+                <Button className="h-14 px-10 bg-zinc-900 text-white hover:bg-zinc-800 rounded-full text-lg font-bold transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                  进入工作台
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>
-      </section>
 
-      {/* Feature Section: Swiss Grid Asymmetry */}
-      <section id="vision" className="py-32 px-6 relative bg-zinc-900 text-white overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-500/5 blur-[120px] -rotate-12 translate-x-1/2 pointer-events-none" />
-
-        <div className="mx-auto max-w-screen-2xl relative">
-          <div className="flex flex-col lg:flex-row gap-24 items-start">
-            <div className="w-full lg:w-2/5 sticky top-32">
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                className="inline-block px-4 py-1.5 rounded-full border border-zinc-800 font-mono text-[10px] tracking-[0.3em] uppercase text-zinc-500 mb-8"
-              >
-                我们的愿景 // 01
-              </motion.div>
-              <h2 className="text-6xl lg:text-8xl font-display font-black leading-none uppercase mb-12">
-                重塑 <br />
-                数字 <br />
-                <span className="text-indigo-500">表达.</span>
-              </h2>
-              <p className="text-zinc-500 text-xl leading-relaxed mb-16 max-w-md">
-                我们相信优秀的内容不仅在于言辞，更在于其在屏幕上呈现的视觉张力。ChicPage 将复杂的排版技术化繁为简。
-              </p>
-              <div className="grid grid-cols-2 gap-8">
-                {[
-                  { label: "智能分页", icon: Zap },
-                  { label: "动态排版", icon: Sparkles },
-                  { label: "多端预览", icon: Layout },
-                  { label: "矢量输出", icon: Download }
-                ].map((item) => (
-                  <div key={item.label} className="group">
-                    <div className="size-10 rounded-xl bg-zinc-800 flex items-center justify-center mb-4 group-hover:bg-indigo-600 transition-colors duration-500">
-                      <item.icon className="size-5 text-zinc-400 group-hover:text-white" />
-                    </div>
-                    <span className="text-zinc-300 font-bold">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="w-full lg:w-3/5 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                {
-                  title: "大师级微信主题",
-                  desc: "行业级的排版控制。每一个字符、每一处间距，都经过精确的数学计算。",
-                  icon: BookOpen,
-                  color: "bg-emerald-500",
-                  img: "/mockup/1.png"
-                },
-                {
-                  title: "小红书海报引擎",
-                  desc: "AI 驱动的一键切图算法。将文字自动转化为具有社交影响力的精美卡片。",
-                  icon: Layout,
-                  color: "bg-rose-500",
-                  img: "/mockup/2.png"
-                },
-                {
-                  title: "沉浸式写作空间",
-                  desc: "不仅是编辑器，更是一个激发灵感的实验室。让你专注于每一行文字的温度。",
-                  icon: Command,
-                  color: "bg-indigo-500",
-                  img: "/mockup/3.png"
-                },
-                {
-                  title: "Bento 智能拼贴",
-                  desc: "由实验室级别渲染引擎支持。自由拼贴、实时输出，探索排版的无限可能。",
-                  icon: Sparkles,
-                  color: "bg-amber-500",
-                  img: "/mockup/4.png"
-                }
-              ].map((feature, i) => (
-                <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="group bg-zinc-800/40 backdrop-blur-xl border border-zinc-800 p-10 rounded-[32px] hover:border-zinc-700 transition-all duration-500 flex flex-col justify-between aspect-[4/5] overflow-hidden relative"
-                >
-                  <div className="relative z-10">
-                    <div className={cn("size-12 rounded-2xl flex items-center justify-center mb-8", feature.color)}>
-                      <feature.icon className="size-6 text-white" />
-                    </div>
-                    <h3 className="text-3xl font-bold mb-4">{feature.title}</h3>
-                    <p className="text-zinc-500 leading-relaxed text-sm">
-                      {feature.desc}
-                    </p>
-                  </div>
-
-                  <div className="mt-12 -mx-10 -mb-10 opacity-40 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
-                    <img src={feature.img} alt={feature.title} className="w-full h-auto grayscale group-hover:grayscale-0" />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Lab Quote Section */}
-      <section className="py-40 px-6 text-center relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
-
-        <motion.h2
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          className="relative text-5xl md:text-8xl lg:text-[140px] font-display font-black uppercase leading-[0.85] tracking-tighter"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="mt-24 mx-auto max-w-5xl rounded-[32px] overflow-hidden shadow-2xl border border-white"
         >
-          为数字 <br />
-          时代的 <br />
-          <span className="text-gradient italic font-serif normal-case font-thin">文艺复兴</span> 而生
-        </motion.h2>
-
-        <div className="mt-24 flex justify-center">
-          <Link href="/workspace">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="size-48 rounded-full bg-zinc-900 flex items-center justify-center text-white font-mono text-[11px] uppercase tracking-[0.4em] font-black cursor-pointer shadow-2xl relative group overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-indigo-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-              <span className="relative z-10">立刻开始创作</span>
-            </motion.div>
-          </Link>
-        </div>
+          <Image
+            src="/mockup/hero-pc-mockup.png"
+            alt="Hero Mockup"
+            width={1600}
+            height={900}
+            className="w-full h-auto"
+            priority
+          />
+        </motion.div>
       </section>
 
-      {/* Join Community: Connect Style */}
-      <section id="source" className="py-32 px-6 bg-white border-t border-zinc-100">
-        <div className="mx-auto max-w-screen-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-32 items-center">
-            <div>
+      {/* Main Feature Bento Grid */}
+      <section className="py-32 px-6">
+        <div className="mx-auto max-w-screen-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, i) => (
               <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                className="flex items-center gap-3 mb-8"
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative bg-white border border-zinc-100 rounded-[32px] p-8 hover:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.05)] transition-all duration-500 overflow-hidden"
               >
-                <div className="size-2 rounded-full bg-indigo-500" />
-                <span className="font-mono text-[11px] uppercase tracking-[0.4em] text-zinc-400">
-                  开源社区 // 交流与支持
-                </span>
-              </motion.div>
-              <h2 className="text-5xl lg:text-7xl font-display font-black uppercase leading-tight mb-10">
-                与全球 <br />
-                创作者同行<span className="text-indigo-600">.</span>
-              </h2>
-              <p className="text-zinc-500 text-xl leading-relaxed max-w-md mb-12">
-                加入我们的开源社区，获取最新的排版主题、技术文档以及来自全球创作者的设计灵感。
-              </p>
-              <div className="flex flex-wrap gap-6">
-                <Button variant="outline" className="h-16 px-10 rounded-full border-zinc-200 text-zinc-900 hover:bg-zinc-900 hover:text-white transition-all font-mono text-xs uppercase tracking-widest shadow-sm">
-                  <Github className="mr-3 size-5" />
-                  Star on Github
-                </Button>
-                <div className="flex -space-x-3 items-center">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="size-10 rounded-full border-2 border-white bg-zinc-200 overflow-hidden">
-                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`} alt="user" />
+                <div className="relative z-10 flex flex-col h-full gap-5">
+                  <div className="flex items-center gap-3">
+                    <div className="size-10 rounded-2xl bg-zinc-50 flex items-center justify-center text-zinc-400 group-hover:bg-zinc-900 group-hover:text-white transition-colors duration-500">
+                      {feature.icon}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute -inset-10 bg-indigo-600/5 blur-[100px] rounded-full pointer-events-none" />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                className="relative bg-white p-12 rounded-[48px] shadow-premium border border-zinc-100"
-              >
-                <div className="flex justify-between items-center mb-10">
-                  <div className="flex gap-1.5">
-                    <div className="size-2.5 rounded-full bg-zinc-200" />
-                    <div className="size-2.5 rounded-full bg-zinc-200" />
-                    <div className="size-2.5 rounded-full bg-zinc-200" />
+                    <h3 className="text-xl font-black tracking-tight">{feature.title}</h3>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-400 tracking-widest uppercase">WeChat Official Account</span>
-                </div>
-
-                <div className="relative group overflow-hidden rounded-2xl mb-10">
-                  <img
-                    src="/6.png"
-                    alt="微信公众号"
-                    className="w-full h-auto transition-transform duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                </div>
-
-                <div className="text-center">
-                  <p className="text-zinc-900 font-bold mb-2">扫描二维码</p>
-                  <p className="text-zinc-500 text-sm">获取排版灵感与更新动态</p>
+                  <p className="text-zinc-400 font-medium text-xs leading-normal">
+                    {feature.desc}
+                  </p>
+                  
+                  <div className="mt-2 flex-1 min-h-[160px]">
+                    {feature.preview}
+                  </div>
                 </div>
               </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Experience Section - Unified White Theme */}
+      <section className="py-40 px-6 bg-white text-zinc-900 border-t border-zinc-100">
+        <div className="mx-auto max-w-screen-xl">
+          <div className="flex flex-col lg:flex-row items-center gap-24">
+            <div className="lg:w-1/2 space-y-10">
+              <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-none uppercase">
+                现在，<br />
+                开始重新 <br />
+                定义你的<br />
+                <span className="text-zinc-400">表达方式.</span>
+              </h2>
+              <div className="flex flex-col gap-6">
+                 {[
+                  "无需注册，开箱即用",
+                  "完全私有化，内容不留存",
+                  "极致优化，秒级响应"
+                 ].map((text, i) => (
+                   <div key={i} className="flex items-center gap-4 text-zinc-500 font-bold">
+                     <div className="size-2 rounded-full bg-zinc-200" />
+                     {text}
+                   </div>
+                 ))}
+              </div>
+              <Link href="/workspace" className="inline-block">
+                <Button className="h-16 px-12 bg-zinc-900 text-white hover:bg-zinc-800 rounded-full text-lg font-black transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                  立即免费开始
+                </Button>
+              </Link>
+            </div>
+            <div className="lg:w-1/2 relative">
+               <motion.div
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 whileInView={{ opacity: 1, scale: 1 }}
+                 className="relative z-10 rounded-[40px] overflow-hidden shadow-2xl border border-zinc-100"
+               >
+                 <Image
+                    src="/mockup/hero-mobile-mockup.png"
+                    alt="Mobile Mockup"
+                    width={800}
+                    height={1200}
+                    className="w-full h-auto"
+                  />
+               </motion.div>
+               <div className="absolute -inset-20 bg-zinc-100 blur-[120px] rounded-full pointer-events-none" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer: Tech Minimalist */}
-      <footer className="py-20 px-6 border-t border-zinc-100 bg-white">
-        <div className="mx-auto max-w-screen-2xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-            <div className="lg:col-span-4 space-y-10">
-              <div className="flex items-center gap-4">
-                <img src="/wmremove-transformed.png" alt="Logo" className="h-8 w-auto object-contain" />
-                <span className="font-display font-black uppercase text-2xl tracking-tighter">ChicPage</span>
-              </div>
-              <p className="text-zinc-400 text-sm leading-relaxed max-w-xs">
-                致力于探索数字排版的无限可能。为每一个值得被看见的表达，提供应有的视觉庄重感。
-              </p>
-              <div className="flex gap-4">
-                {/* Social icons would go here */}
-                <div className="size-10 rounded-full border border-zinc-100 flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors pointer-events-auto cursor-pointer">
-                  <Github className="size-5" />
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-6 grid grid-cols-2 md:grid-cols-4 gap-12">
-              {[
-                { title: "实验室", links: ["排版主题", "卡片切图", "智能拼贴"] },
-                { title: "资源", links: ["社区组件", "技术文档", "API 参考"] },
-                { title: "公司", links: ["关于我们", "愿景计划", "加入设计室"] },
-                { title: "法律", links: ["隐私权", "服务条款"] },
-              ].map((group) => (
-                <div key={group.title} className="space-y-6">
-                  <h4 className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-900 font-black">{group.title}</h4>
-                  <ul className="space-y-4">
-                    {group.links.map(l => (
-                      <li key={l}>
-                        <a href="#" className="text-sm text-zinc-400 hover:text-indigo-600 transition-colors">{l}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            <div className="lg:col-span-2">
-              <div className="p-6 rounded-2xl bg-zinc-50 border border-zinc-100">
-                <p className="text-[10px] font-mono text-zinc-400 uppercase tracking-widest leading-loose">
-                  © 2024 ChicPage Labs. <br />
-                  All rights reserved. <br />
-                  Designed with passion.
-                </p>
-              </div>
-            </div>
+      {/* Final Ultra-Minimalist Footer */}
+      <footer className="py-24 px-6 bg-[#fafafa] border-t border-zinc-100">
+        <div className="mx-auto max-w-screen-xl flex flex-col md:flex-row justify-between items-center gap-16">
+          
+          <div className="space-y-8 max-w-sm">
+             <Link href="/" className="flex items-center gap-3">
+               <Image
+                  src="/logo.svg"
+                  alt="Logo"
+                  width={24}
+                  height={24}
+                  className="size-6 object-contain"
+                />
+               <span className="text-lg font-display font-black tracking-tighter uppercase">ChicPage</span>
+             </Link>
+             <div className="flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+                <Link href="/workspace" className="hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-200">工作台</Link>
+                <a href="https://github.com/joekind/chicpage" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-200">GitHub 仓库</a>
+             </div>
+             <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.4em]">
+                © 2024 • DESIGNED IN BEIJING
+             </p>
           </div>
+
+          <div className="w-80 h-auto flex justify-center items-center">
+             <Image
+                src="/6.png"
+                alt="Scan to Learn More"
+                width={320}
+                height={224}
+                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-500"
+              />
+          </div>
+
         </div>
       </footer>
     </div>

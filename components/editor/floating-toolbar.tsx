@@ -14,7 +14,7 @@ const HIGHLIGHT_COLORS = [
 ];
 
 interface FloatingToolbarProps {
-  coords: { top: number; left: number; height: number } | null;
+  coords: { top: number; left: number; width: number; height: number } | null;
   onWrapText: (before: string, after?: string) => void;
   onBold: () => void;
   isVisible: boolean;
@@ -25,6 +25,17 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
 
   if (!coords) return null;
 
+  const ESTIMATED_TOOLBAR_W = showColors ? 340 : 420;
+  const TOOLBAR_H = 44;
+  const GAP = 8;
+  const centerX = coords.left + coords.width / 2;
+  const preferredTop = coords.top - TOOLBAR_H - GAP;
+  const placeBelow = preferredTop < 10;
+  const top = placeBelow ? coords.top + coords.height + GAP : preferredTop;
+  const minLeft = ESTIMATED_TOOLBAR_W / 2 + 8;
+  const maxLeft = window.innerWidth - ESTIMATED_TOOLBAR_W / 2 - 8;
+  const clampedCenterX = Math.min(Math.max(centerX, minLeft), maxLeft);
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -34,9 +45,10 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
           exit={{ opacity: 0, scale: 0.9, y: 10 }}
           style={{
             position: 'absolute',
-            top: coords.top - 50,
-            left: coords.left,
-            zIndex: 100,
+            top,
+            left: clampedCenterX,
+            transform: "translateX(-50%)",
+            zIndex: 120,
           }}
           className="flex items-center gap-1 bg-zinc-900 text-white rounded-full p-1.5 shadow-2xl border border-white/10 backdrop-blur-md"
         >

@@ -63,6 +63,8 @@ const getOptions = (element: HTMLElement, scale: number, backgroundColor: string
   backgroundColor,
   width: element.offsetWidth,
   height: element.offsetHeight,
+  // 避免 html-to-image 读取跨域远程 CSS（常见于字体 @import）时报错
+  skipFonts: true,
   style: {
     transform: 'none',
     transformOrigin: 'top left',

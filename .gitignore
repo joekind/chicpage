@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+*.trae
 
 # testing
 /coverage
@@ -40,5 +41,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 *.agent
-*.trae
 /lib/generated/prisma

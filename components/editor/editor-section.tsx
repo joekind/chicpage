@@ -81,7 +81,7 @@ export const EditorSection = ({
           <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
             <div className="flex items-center justify-between gap-3">
               <p className="leading-6">
-                输入 <code className="rounded bg-white px-1.5 py-0.5 text-zinc-900">---</code> 可强制分页。
+                输入 <code className="rounded bg-white px-1.5 py-0.5 text-zinc-900">&lt;!--pagebreak--&gt;</code> 可强制分页。
               </p>
               <button
                 type="button"
