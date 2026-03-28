@@ -115,7 +115,7 @@ export const TopNav = ({
             alt="Logo"
             width={32}
             height={32}
-            className="size-8 object-contain grayscale"
+            className="size-8 object-contain"
             priority
           />
           <span className="text-xl font-display font-black tracking-tighter text-zinc-900 uppercase">

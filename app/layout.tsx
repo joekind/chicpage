@@ -12,10 +12,6 @@ export const metadata: Metadata = {
   keywords: ["ChicPage", "Markdown 排版", "公众号排版工具", "小红书切图", "Markdown 编辑器", "优雅排版", "掘金排版", "知乎排版", "社交媒体工具"],
   authors: [{ name: "ChicPage Labs" }],
   metadataBase: new URL("http://chicpage.quickext.com/"),
-  icons: {
-    icon: "/logo.svg",
-    apple: "/logo.svg",
-  },
   openGraph: {
     type: "website",
     locale: "zh_CN",

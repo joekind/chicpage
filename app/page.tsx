@@ -25,7 +25,7 @@ const Nav = () => {
       <div className="mx-auto max-w-screen-xl flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <Image
-            src="/logo.svg"
+            src="/wmremove-transformed.png"
             alt="Logo"
             width={32}
             height={32}
@@ -34,7 +34,7 @@ const Nav = () => {
           />
           <span className="text-xl font-display font-black tracking-tighter text-zinc-900 uppercase">ChicPage</span>
         </Link>
-        
+
         <div className="flex items-center gap-6">
           <Link href="/workspace">
             <Button variant="ghost" className="text-sm font-bold tracking-tight hover:bg-zinc-100 rounded-full px-6 transition-all duration-300">
@@ -68,11 +68,11 @@ export default function LandingPage() {
       icon: <Smartphone className="size-5" />,
       preview: (
         <div className="flex items-center justify-center gap-4 h-full pt-4">
-           <div className="flex flex-col gap-2">
-              <div className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white text-[10px] font-bold">微信公众号</div>
-              <div className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-bold">掘金 Juejin</div>
-              <div className="px-3 py-1.5 rounded-lg bg-zinc-100 text-zinc-500 text-[10px] font-bold">Twitter (X)</div>
-           </div>
+          <div className="flex flex-col gap-2">
+            <div className="px-3 py-1.5 rounded-lg bg-zinc-900 text-white text-[10px] font-bold">微信公众号</div>
+            <div className="px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-600 text-[10px] font-bold">掘金 Juejin</div>
+            <div className="px-3 py-1.5 rounded-lg bg-zinc-100 text-zinc-500 text-[10px] font-bold">Twitter (X)</div>
+          </div>
         </div>
       )
     },
@@ -82,11 +82,11 @@ export default function LandingPage() {
       icon: <Share2 className="size-5" />,
       preview: (
         <div className="relative h-full py-4 flex items-center justify-center scroll-fade">
-            <div className="absolute left-6 w-24 h-32 bg-white border border-zinc-100 rounded-xl shadow-lg rotate-[-10deg]" />
-            <div className="z-10 w-24 h-32 bg-zinc-900 rounded-xl shadow-2xl flex items-center justify-center">
-               <div className="size-4 bg-emerald-500 rounded-full animate-pulse" />
-            </div>
-            <div className="absolute right-6 w-24 h-32 bg-white border border-zinc-100 rounded-xl shadow-lg rotate-[10deg]" />
+          <div className="absolute left-6 w-24 h-32 bg-white border border-zinc-100 rounded-xl shadow-lg rotate-[-10deg]" />
+          <div className="z-10 w-24 h-32 bg-zinc-900 rounded-xl shadow-2xl flex items-center justify-center">
+            <div className="size-4 bg-emerald-500 rounded-full animate-pulse" />
+          </div>
+          <div className="absolute right-6 w-24 h-32 bg-white border border-zinc-100 rounded-xl shadow-lg rotate-[10deg]" />
         </div>
       )
     },
@@ -96,10 +96,10 @@ export default function LandingPage() {
       icon: <Download className="size-5" />,
       preview: (
         <div className="flex flex-col items-center justify-center gap-4 h-full">
-           <div className="size-16 rounded-full bg-zinc-100 border-2 border-dashed border-zinc-200 flex items-center justify-center">
-              <ArrowRight className="size-6 text-zinc-300 rotate-90" />
-           </div>
-           <p className="text-[10px] font-black text-zinc-300">DROP FILE HERE</p>
+          <div className="size-16 rounded-full bg-zinc-100 border-2 border-dashed border-zinc-200 flex items-center justify-center">
+            <ArrowRight className="size-6 text-zinc-300 rotate-90" />
+          </div>
+          <p className="text-[10px] font-black text-zinc-300">DROP FILE HERE</p>
         </div>
       )
     },
@@ -121,16 +121,16 @@ export default function LandingPage() {
       icon: <Download className="size-5" />,
       preview: (
         <div className="flex flex-col gap-2 py-4">
-           {[
-             { label: "导出 HTML", icon: <FileJson className="size-4" />, color: "bg-emerald-50 text-emerald-600" },
-             { label: "导出 Markdown", icon: <FileText className="size-4" />, color: "bg-indigo-50 text-indigo-600" },
-             { label: "渲染为图片", icon: <Download className="size-4" />, color: "bg-zinc-50 text-zinc-600" }
-           ].map((item) => (
-             <div key={item.label} className={cn("flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-zinc-200 transition-all cursor-default font-bold text-xs uppercase tracking-tight", item.color)}>
-                 {item.icon}
-                 {item.label}
-             </div>
-           ))}
+          {[
+            { label: "导出 HTML", icon: <FileJson className="size-4" />, color: "bg-emerald-50 text-emerald-600" },
+            { label: "导出 Markdown", icon: <FileText className="size-4" />, color: "bg-indigo-50 text-indigo-600" },
+            { label: "渲染为图片", icon: <Download className="size-4" />, color: "bg-zinc-50 text-zinc-600" }
+          ].map((item) => (
+            <div key={item.label} className={cn("flex items-center gap-3 p-3 rounded-xl border border-transparent hover:border-zinc-200 transition-all cursor-default font-bold text-xs uppercase tracking-tight", item.color)}>
+              {item.icon}
+              {item.label}
+            </div>
+          ))}
         </div>
       )
     },
@@ -145,8 +145,8 @@ export default function LandingPage() {
           <div>--</div>
           <div className="bg-indigo-50 text-indigo-600 w-fit px-1">让排版从此优雅</div>
           <div className="flex items-center gap-1">
-             <div className="size-1.5 rounded-full bg-zinc-300" />
-             <div className="h-1 w-8 bg-zinc-200 rounded" />
+            <div className="size-1.5 rounded-full bg-zinc-300" />
+            <div className="h-1 w-8 bg-zinc-200 rounded" />
           </div>
         </div>
       )
@@ -167,7 +167,7 @@ export default function LandingPage() {
           >
             ChicPage v2.4.0 <ArrowRight className="size-3" />
           </motion.div>
-          
+
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -177,7 +177,7 @@ export default function LandingPage() {
             可以让排版， <br />
             <span className="text-zinc-400">更加</span>优雅。
           </motion.h1>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -237,7 +237,7 @@ export default function LandingPage() {
                   <p className="text-zinc-400 font-medium text-xs leading-normal">
                     {feature.desc}
                   </p>
-                  
+
                   <div className="mt-2 flex-1 min-h-[160px]">
                     {feature.preview}
                   </div>
@@ -260,16 +260,16 @@ export default function LandingPage() {
                 <span className="text-zinc-400">表达方式.</span>
               </h2>
               <div className="flex flex-col gap-6">
-                 {[
+                {[
                   "无需注册，开箱即用",
                   "完全私有化，内容不留存",
                   "极致优化，秒级响应"
-                 ].map((text, i) => (
-                   <div key={i} className="flex items-center gap-4 text-zinc-500 font-bold">
-                     <div className="size-2 rounded-full bg-zinc-200" />
-                     {text}
-                   </div>
-                 ))}
+                ].map((text, i) => (
+                  <div key={i} className="flex items-center gap-4 text-zinc-500 font-bold">
+                    <div className="size-2 rounded-full bg-zinc-200" />
+                    {text}
+                  </div>
+                ))}
               </div>
               <Link href="/workspace" className="inline-block">
                 <Button className="h-16 px-12 bg-zinc-900 text-white hover:bg-zinc-800 rounded-full text-lg font-black transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
@@ -278,20 +278,20 @@ export default function LandingPage() {
               </Link>
             </div>
             <div className="lg:w-1/2 relative">
-               <motion.div
-                 initial={{ opacity: 0, scale: 0.95 }}
-                 whileInView={{ opacity: 1, scale: 1 }}
-                 className="relative z-10 rounded-[40px] overflow-hidden shadow-2xl border border-zinc-100"
-               >
-                 <Image
-                    src="/mockup/hero-mobile-mockup.png"
-                    alt="Mobile Mockup"
-                    width={800}
-                    height={1200}
-                    className="w-full h-auto"
-                  />
-               </motion.div>
-               <div className="absolute -inset-20 bg-zinc-100 blur-[120px] rounded-full pointer-events-none" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                className="relative z-10 rounded-[40px] overflow-hidden shadow-2xl border border-zinc-100"
+              >
+                <Image
+                  src="/mockup/hero-mobile-mockup.png"
+                  alt="Mobile Mockup"
+                  width={800}
+                  height={1200}
+                  className="w-full h-auto"
+                />
+              </motion.div>
+              <div className="absolute -inset-20 bg-zinc-100 blur-[120px] rounded-full pointer-events-none" />
             </div>
           </div>
         </div>
@@ -300,35 +300,35 @@ export default function LandingPage() {
       {/* Final Ultra-Minimalist Footer */}
       <footer className="py-24 px-6 bg-[#fafafa] border-t border-zinc-100">
         <div className="mx-auto max-w-screen-xl flex flex-col md:flex-row justify-between items-center gap-16">
-          
+
           <div className="space-y-8 max-w-sm">
-             <Link href="/" className="flex items-center gap-3">
-               <Image
-                  src="/logo.svg"
-                  alt="Logo"
-                  width={24}
-                  height={24}
-                  className="size-6 object-contain"
-                />
-               <span className="text-lg font-display font-black tracking-tighter uppercase">ChicPage</span>
-             </Link>
-             <div className="flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
-                <Link href="/workspace" className="hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-200">工作台</Link>
-                <a href="https://github.com/joekind/chicpage" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-200">GitHub 仓库</a>
-             </div>
-             <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.4em]">
-                © 2024 • DESIGNED IN BEIJING
-             </p>
+            <Link href="/" className="flex items-center gap-3">
+              <Image
+                src="/wmremove-transformed.png"
+                alt="Logo"
+                width={24}
+                height={24}
+                className="size-6 object-contain"
+              />
+              <span className="text-lg font-display font-black tracking-tighter uppercase">ChicPage</span>
+            </Link>
+            <div className="flex gap-10 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+              <Link href="/workspace" className="hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-200">工作台</Link>
+              <a href="https://github.com/joekind/chicpage" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors underline underline-offset-4 decoration-zinc-200">GitHub 仓库</a>
+            </div>
+            <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.4em]">
+              © 2024 • DESIGNED IN BEIJING
+            </p>
           </div>
 
           <div className="w-80 h-auto flex justify-center items-center">
-             <Image
-                src="/6.png"
-                alt="Scan to Learn More"
-                width={320}
-                height={224}
-                className="w-full h-auto object-contain hover:scale-105 transition-transform duration-500"
-              />
+            <Image
+              src="/6.png"
+              alt="Scan to Learn More"
+              width={320}
+              height={224}
+              className="w-full h-auto object-contain hover:scale-105 transition-transform duration-500"
+            />
           </div>
 
         </div>
