@@ -1,6 +1,5 @@
 import React from "react";
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -43,15 +42,11 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="font-sans" suppressHydrationWarning>
       <head>
-        <Script
-          id="LA_COLLECT"
-          src="//sdk.51.la/js-sdk-pro.min.js"
-          strategy="beforeInteractive"
-          charSet="UTF-8"
-        />
+        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+        <script charSet="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js"></script>
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.LA && LA.init({id:"3PStZ7PjRj3F8Csb",ck:"3PStZ7PjRj3F8Csb"})`
+            __html: `LA.init({id:"3PStZ7PjRj3F8Csb",ck:"3PStZ7PjRj3F8Csb"})`
           }}
         />
       </head>
