@@ -432,6 +432,7 @@ export default function ChicEditor() {
             styleTheme={styleTheme}
             html={html}
             activeThemeCss={activeTheme.css}
+            activeTheme={activeTheme}
             activeXHSTheme={activeXHSTheme}
             xhsFont={xhsFont}
             xhsShowHeader={xhsShowHeader}

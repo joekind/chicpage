@@ -9,6 +9,7 @@ import { DesktopMockup } from "./mockups/desktop-mockup";
 import { XHSSlidePreview, XHSSlidePreviewMethods } from "./xhs-slide-preview";
 import { PreviewContent } from "./preview-content";
 import type { XHSTheme } from "@/lib/xhs-themes";
+import type { WechatTheme } from "@/lib/themes";
 
 interface PreviewSectionProps {
   layoutMode: string;
@@ -16,6 +17,7 @@ interface PreviewSectionProps {
   styleTheme: string;
   html: string;
   activeThemeCss: string;
+  activeTheme: WechatTheme;
   activeXHSTheme: XHSTheme;
   xhsFont: string;
   xhsShowHeader: boolean;
@@ -32,6 +34,7 @@ export const PreviewSection = ({
   styleTheme,
   html,
   activeThemeCss,
+  activeTheme,
   activeXHSTheme,
   xhsFont,
   xhsShowHeader,
@@ -42,6 +45,11 @@ export const PreviewSection = ({
   xhsSlideRef,
 }: PreviewSectionProps) => {
   if (layoutMode === "edit") return null;
+
+  const getWechatBackground = (theme: WechatTheme): string => {
+    const bgMatch = theme.containerStyle.match(/(?:background|background-color):\s*(#[a-fA-F0-9]{3,6}|[a-z]+)/);
+    return bgMatch ? bgMatch[1] : '#ffffff';
+  };
 
   return (
     <motion.section
@@ -202,7 +210,10 @@ export const PreviewSection = ({
                 />
               </DesktopMockup>
             ) : (
-              <IPhoneMockup mode={previewMode}>
+              <IPhoneMockup 
+                mode={previewMode}
+                screenStyle={{ background: getWechatBackground(activeTheme) }}
+              >
                 <PreviewContent
                   containerRef={previewRef}
                   html={html}

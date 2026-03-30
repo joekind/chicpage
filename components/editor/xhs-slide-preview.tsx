@@ -185,23 +185,46 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       overflow: visible !important;
       color: inherit;
     }
-    #xhs-content > * {
-      margin-bottom: 0.8em;
+    #xhs-content #chicpage {
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
     }
-    #xhs-content > *:last-child {
-      margin-bottom: 0;
+    #xhs-content #chicpage > * {
+      margin-top: 0 !important;
+      margin-bottom: 0.8em !important;
     }
-    #xhs-content h1 {
-      margin-top: 0.6em !important;
-      padding-top: 0.4em !important;
-      padding-bottom: 0.4em !important;
+    #xhs-content #chicpage > *:last-child {
+      margin-bottom: 0 !important;
     }
-    #xhs-content h1,
-    #xhs-content h2,
-    #xhs-content h3 {
-      margin-top: 0.5em;
-      margin-bottom: 0.5em;
-      line-height: 1.4;
+    #xhs-content #chicpage h1,
+    #xhs-content #chicpage h2,
+    #xhs-content #chicpage h3 {
+      margin-top: 0.4em !important;
+      margin-bottom: 0.4em !important;
+      line-height: 1.3 !important;
+      text-align: inherit !important;
+    }
+    /* Special handling for Magazine/Elegant theme borders and decorations */
+    #xhs-content #chicpage h1::before, 
+    #xhs-content #chicpage h1::after,
+    #xhs-content #chicpage h2::before,
+    #xhs-content #chicpage h2::after {
+      /* Keep them if they are part of the theme, but handle scale */
+    }
+    /* Disable drop caps in slides as they break when paragraphs are split */
+    #xhs-content #chicpage p::first-letter {
+      float: none !important;
+      font-size: inherit !important;
+      line-height: inherit !important;
+      margin: 0 !important;
+      font-weight: inherit !important;
+      color: inherit !important;
+    }
+    #xhs-content #chicpage p {
+      margin: 0.4em 0 !important;
+      line-height: 1.7 !important;
+      text-indent: 0 !important;
     }
     #xhs-content img {
       max-width: 100%;
@@ -375,11 +398,28 @@ async function calculateSlides(
 
   const measureHeight = async (nodes: Node[], waitForImage = false) => {
     probeContent.innerHTML = "";
-    nodes.forEach((n) => probeContent.appendChild(n.cloneNode(true)));
+    // Wrap in #xhs-content AND #chicpage so XHS-specific theme overrides apply during measurement
+    const themeWrap = document.createElement("div");
+    themeWrap.id = "chicpage";
+    nodes.forEach((n) => themeWrap.appendChild(n.cloneNode(true)));
+
+    const xhsWrap = document.createElement("div");
+    xhsWrap.id = "xhs-content";
+    xhsWrap.appendChild(themeWrap);
+
+    const outerWrap = document.createElement("div");
+    outerWrap.style.cssText = "display: block; width: 100%; border: 1px solid transparent; padding: 0;";
+    outerWrap.appendChild(xhsWrap);
+    
+    probeContent.appendChild(outerWrap);
+    
     if (waitForImage) {
       await waitImagesInElement(probeContent);
     }
-    return probeContent.scrollHeight;
+    // Use getBoundingClientRect to get precise sub-pixel height
+    const h = outerWrap.getBoundingClientRect().height;
+    // Remove the 2px border height
+    return h - 2;
   };
 
   const findNaturalBreakIndex = (text: string, preferred: number) => {
@@ -391,74 +431,68 @@ async function calculateSlides(
     return min + (last.index ?? 0) + 1;
   };
 
-  const splitOversizedTextBlock = async (block: Node): Promise<Node[]> => {
-    if (block.nodeType !== Node.ELEMENT_NODE) return [block];
+  /**
+   * Slice a block node into two parts: 
+   * - one that fits within targetH
+   * - the rest
+   */
+  const sliceBlock = async (block: Node, targetH: number): Promise<{ first: Node; rest: Node[] } | null> => {
+    if (block.nodeType !== Node.ELEMENT_NODE) return null;
     const element = block as Element;
     const tag = element.tagName.toLowerCase();
-    const isSimpleTextBlock = ["p", "li", "blockquote"].includes(tag);
-    const isSimplePre =
-      tag === "pre" &&
-      element.childElementCount === 1 &&
-      element.firstElementChild?.tagName.toLowerCase() === "code" &&
-      element.firstElementChild.childElementCount === 0;
+    
+    // Support splitting common block types
+    const textSplitable = ["p", "li", "blockquote"].includes(tag);
+    const listSplitable = ["ul", "ol"].includes(tag);
+    if (!textSplitable && !listSplitable) return null;
 
-    if (!isSimpleTextBlock && !isSimplePre) return [block];
-    if (!isSimplePre && element.childElementCount > 0) return [block];
+    if (listSplitable) {
+      const items = Array.from(element.children);
+      if (items.length <= 1) return null;
+      let low = 0; // Can we put 0 items? (Handled below)
+      let high = items.length;
+      let best = 0;
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        if (mid === 0) { low = 1; continue; }
+        const candidate = element.cloneNode(false) as HTMLElement;
+        for (let i = 0; i < mid; i++) candidate.appendChild(items[i].cloneNode(true));
+        const h = await measureHeight([candidate], false);
+        if (h <= targetH) { best = mid; low = mid + 1; } else { high = mid - 1; }
+      }
+      if (best === 0) return null;
+      const first = element.cloneNode(false) as HTMLElement;
+      items.slice(0, best).forEach(i => first.appendChild(i.cloneNode(true)));
+      const rest = element.cloneNode(false) as HTMLElement;
+      items.slice(best).forEach(i => rest.appendChild(i.cloneNode(true)));
+      return { first, rest: [rest] };
+    }
 
+    // Text splitting
     const sourceText = (element.textContent || "").trim();
-    if (!sourceText || sourceText.length < 10) return [block];
+    if (sourceText.length < 10) return null;
 
     const createNodeFromText = (text: string): Node => {
-      if (isSimplePre) {
-        const pre = element.cloneNode(false) as HTMLElement;
-        const code = element.firstElementChild!.cloneNode(false) as HTMLElement;
-        code.textContent = text;
-        pre.appendChild(code);
-        return pre;
-      }
       const clone = element.cloneNode(false) as HTMLElement;
       clone.textContent = text;
       return clone;
     };
 
-    const splitNodes: Node[] = [];
-    let remaining = sourceText;
-
-    while (remaining.length > 0) {
-      let low = 1;
-      let high = remaining.length;
-      let best = 0;
-
-      while (low <= high) {
-        const mid = Math.floor((low + high) / 2);
-        const candidate = createNodeFromText(remaining.slice(0, mid));
-        const height = await measureHeight([candidate], false);
-        if (height <= contentH) {
-          best = mid;
-          low = mid + 1;
-        } else {
-          high = mid - 1;
-        }
-      }
-
-      if (best <= 0) break;
-      let splitAt = best;
-      if (best < remaining.length) {
-        splitAt = findNaturalBreakIndex(remaining, best);
-      }
-
-      const current = remaining.slice(0, splitAt).trim();
-      if (!current) break;
-
-      splitNodes.push(createNodeFromText(current));
-      remaining = remaining.slice(splitAt).trim();
+    let low = 1;
+    let high = sourceText.length;
+    let best = 0;
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const cand = createNodeFromText(sourceText.slice(0, mid));
+      const h = await measureHeight([cand], false);
+      if (h <= targetH) { best = mid; low = mid + 1; } else { high = mid - 1; }
     }
-
-    if (remaining.length > 0) {
-      splitNodes.push(createNodeFromText(remaining));
-    }
-
-    return splitNodes.length > 1 ? splitNodes : [block];
+    if (best < 5) return null;
+    const splitAt = findNaturalBreakIndex(sourceText, best);
+    const firstText = sourceText.slice(0, splitAt).trim();
+    const restText = sourceText.slice(splitAt).trim();
+    if (!firstText || !restText) return null;
+    return { first: createNodeFromText(firstText), rest: [createNodeFromText(restText)] };
   };
 
   try {
@@ -469,31 +503,51 @@ async function calculateSlides(
 
       while (blockQueue.length > 0) {
         const block = blockQueue.shift()!;
-        const candidate = [...currentPageBlocks, block];
-        const candidateHeight = await measureHeight(candidate, hasImage(block));
+        
+        // Measure current cumulative height of this page
+        const beforeH = currentPageBlocks.length > 0 
+          ? await measureHeight(currentPageBlocks, false) 
+          : 0;
 
-        if (candidateHeight <= contentH) {
+        const candidate = [...currentPageBlocks, block];
+        const candH = await measureHeight(candidate, hasImage(block));
+
+        if (candH <= contentH) {
           currentPageBlocks = candidate;
           continue;
         }
 
+        // Doesn't fit. Can we slice the current block to fill the gap?
+        const remainingH = contentH - beforeH;
+        if (remainingH > 80) { // Gap worth filling
+          const sliced = await sliceBlock(block, remainingH);
+          if (sliced) {
+            currentPageBlocks.push(sliced.first);
+            pagesInSection.push(nodesToHtml(currentPageBlocks));
+            currentPageBlocks = [];
+            blockQueue.unshift(...sliced.rest);
+            continue;
+          }
+        }
+
+        // Must transition to new page
         if (currentPageBlocks.length > 0) {
           pagesInSection.push(nodesToHtml(currentPageBlocks));
           currentPageBlocks = [];
         }
 
-        const blockHeight = await measureHeight([block], hasImage(block));
-        if (blockHeight <= contentH) {
+        // Is this block alone too big for a whole page?
+        const soloH = await measureHeight([block], hasImage(block));
+        if (soloH <= contentH) {
           currentPageBlocks = [block];
         } else {
-          const splitBlocks = await splitOversizedTextBlock(block);
-          if (splitBlocks.length > 1) {
-            const [first, ...rest] = splitBlocks;
-            currentPageBlocks = [first];
-            if (rest.length > 0) {
-              blockQueue.unshift(...rest);
-            }
+          // Slice for the next full page
+          const sliced = await sliceBlock(block, contentH);
+          if (sliced) {
+            currentPageBlocks = [sliced.first];
+            blockQueue.unshift(...sliced.rest);
           } else {
+            // Unsliceable (images etc.)
             pagesInSection.push(nodesToHtml([block]));
           }
         }
@@ -604,8 +658,8 @@ export const XHSSlidePreview = forwardRef<
     };
 
     // 安全回退：如果尚未完成分页计算，至少展示原始 HTML 为一页
-    const displaySlides = slides.length > 0 
-      ? slides 
+    const displaySlides = slides.length > 0
+      ? slides
       : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
 
     const slideCount = displaySlides.length;
@@ -732,7 +786,7 @@ export const XHSSlidePreview = forwardRef<
                   overflow: "hidden",
                 }}
               >
-                <div 
+                <div
                   className="xhs-slide-content-viewport"
                   style={{
                     flex: 1,
@@ -744,7 +798,6 @@ export const XHSSlidePreview = forwardRef<
                   <div
                     id="xhs-content"
                     className="xhs-content-wrapper"
-                    dangerouslySetInnerHTML={{ __html: slide.html }}
                     style={{
                       width: `${XHS_CARD_W - PADDING_X * 2}px`,
                       maxWidth: `${XHS_CARD_W - PADDING_X * 2}px`,
@@ -752,7 +805,9 @@ export const XHSSlidePreview = forwardRef<
                       overflow: "hidden",
                       display: "block",
                     }}
-                  />
+                  >
+                    <div id="chicpage" dangerouslySetInnerHTML={{ __html: slide.html }} />
+                  </div>
                 </div>
               </div>
             ))}
