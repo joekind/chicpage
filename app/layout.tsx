@@ -46,12 +46,14 @@ export default function RootLayout({
         <Script
           id="LA_COLLECT"
           src="//sdk.51.la/js-sdk-pro.min.js"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
           charSet="UTF-8"
         />
-        <Script id="la-init" strategy="afterInteractive">
-          {`LA.init({id:"3PStZ7PjRj3F8Csb",ck:"3PStZ7PjRj3F8Csb"})`}
-        </Script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.LA && LA.init({id:"3PStZ7PjRj3F8Csb",ck:"3PStZ7PjRj3F8Csb"})`
+          }}
+        />
       </head>
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
