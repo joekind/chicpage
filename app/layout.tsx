@@ -1,5 +1,6 @@
 import React from "react";
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
@@ -41,6 +42,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className="font-sans" suppressHydrationWarning>
+      <head>
+        <Script
+          id="LA_COLLECT"
+          src="//sdk.51.la/js-sdk-pro.min.js"
+          strategy="afterInteractive"
+          charSet="UTF-8"
+        />
+        <Script id="la-init" strategy="afterInteractive">
+          {`LA.init({id:"3PStZ7PjRj3F8Csb",ck:"3PStZ7PjRj3F8Csb"})`}
+        </Script>
+      </head>
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
