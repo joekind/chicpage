@@ -88,7 +88,7 @@ export const PreviewSection = ({
               WebkitFontSmoothing: "antialiased",
             }}
           >
-            {styleTheme === "xhs" ? (
+            {styleTheme === "poster" ? (
               previewMode === "pc" ? (
                 <div
                   style={{

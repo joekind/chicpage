@@ -60,11 +60,11 @@ export const WECHAT_THEMES: WechatTheme[] = [
     description: '经典简约排版',
     containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;',
     css: BASE_CSS + `
-      #chicpage { 
-        color: #333; 
+      #chicpage {
+        color: #333;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", Arial, sans-serif;
       }
-      #chicpage h1 { color: #111; padding-bottom: 0.4em; font-size: 28px; font-weight: 700; margin: 1.2em 0 0.8em; }
+      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1.2em 0 0.8em; }
       #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 2em 0 1em; border-bottom: 1px solid #f0f0f0; padding-bottom: 0.3em; }
       #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.8em 0 0.8em; }
       #chicpage p { font-size: 16px; margin: 1em 0; line-height: 1.8; color: #374151; }
@@ -226,45 +226,417 @@ export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'crimson',
     name: '赤红',
-    description: '热情赤红风格',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#444;background:#fff;',
+    description: '东方赤红美学',
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Noto Serif SC","Source Han Serif SC",serif;color:#1a1a1a;background:#fef8f6;padding:40px 30px;',
     css: BASE_CSS + `
-      #chicpage { color: #444; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.75; }
-      #chicpage h1 { font-size: 26px; color: #222; text-align: center; border-bottom: 2px solid #e22d30; padding-bottom: 0.4em; margin: 1.5em 5% 1em; }
-      #chicpage h2 { font-size: 20px; color: #222; border-left: 4px solid #e22d30; padding-left: 14px; margin: 2em 0 1em; }
-      #chicpage h3 { font-size: 17px; color: #333; margin: 1.5em 0 0.8em; }
-      #chicpage h3::before { content: ":: "; color: #e22d30; font-weight: 900; }
-      #chicpage p { font-size: 15.5px; color: #555; margin: 1.1em 0; line-height: 1.8; }
-      #chicpage blockquote { background: #f9f9f9; border-left: 4px solid #eee; color: #666; padding: 1.2em 1.5em; margin: 2em 0; }
-      #chicpage blockquote p { margin: 0; font-size: 15px; }
-      #chicpage a { color: #e22d30; border-bottom: 1px solid #e22d30; }
-      #chicpage code { background: #fff5f5; color: #e22d30; border: 1px solid #fbdede; }
-      #chicpage strong { color: #222; font-weight: 600; shadow: inset 0 -4px 0 #fff1f0; }
-      #chicpage hr { border-top: 1px solid #eee; width: 60%; margin: 3em auto; }
+      #chicpage {
+        color: #1a1a1a;
+        font-family: "Noto Serif SC", "Source Han Serif SC", "STSong", serif;
+        line-height: 1.95;
+        background: #fef8f6;
+        /* 宣纸纹理 */
+        background-image:
+          radial-gradient(circle at 20% 30%, rgba(196, 30, 58, 0.03) 0%, transparent 50%),
+          radial-gradient(circle at 80% 70%, rgba(196, 30, 58, 0.02) 0%, transparent 50%);
+      }
+
+      /* H1: 竖排印章风格 */
+      #chicpage h1 {
+        font-size: 32px;
+        font-weight: 900;
+        color: #1a1a1a;
+        text-align: center;
+        letter-spacing: 0.5em;
+        margin: 1.5em 0 1em;
+        position: relative;
+        padding: 20px 0;
+      }
+      /* 红色边框装饰 */
+      #chicpage h1::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 100%;
+        border: 2px solid #c41e3a;
+        border-radius: 8px;
+        opacity: 0.3;
+      }
+      /* 印章装饰 */
+      #chicpage h1::after {
+        content: '赤';
+        position: absolute;
+        bottom: 10px;
+        right: calc(50% + 100px);
+        width: 36px;
+        height: 36px;
+        line-height: 36px;
+        text-align: center;
+        font-size: 16px;
+        color: #fff;
+        background: #c41e3a;
+        border-radius: 4px;
+        font-weight: 700;
+        letter-spacing: 0;
+        box-shadow: 0 2px 8px rgba(196, 30, 58, 0.4);
+        opacity: 0.8;
+      }
+
+      /* H2: 红色装饰框 */
+      #chicpage h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 2.5em 0 1.2em;
+        padding: 12px 20px;
+        position: relative;
+        background: linear-gradient(to right, rgba(196, 30, 58, 0.05), transparent);
+        border-left: 4px solid #c41e3a;
+      }
+
+      /* H3 */
+      #chicpage h3 {
+        font-size: 17px;
+        font-weight: 600;
+        color: #333;
+        margin: 1.8em 0 0.8em;
+        padding-left: 16px;
+        position: relative;
+      }
+      #chicpage h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 8px;
+        height: 8px;
+        background: #c41e3a;
+        border-radius: 50%;
+        opacity: 0.6;
+      }
+
+      /* 段落：两端对齐 */
+      #chicpage p {
+        font-size: 15px;
+        color: #3a3a3a;
+        margin: 1em 0;
+        text-align: justify;
+        text-indent: 2em;
+        line-height: 2;
+      }
+      #chicpage p:first-of-type {
+        text-indent: 0;
+      }
+
+      /* 引用：水墨风格 */
+      #chicpage blockquote {
+        margin: 2.5em 0;
+        padding: 20px 30px;
+        border: none;
+        background: linear-gradient(135deg, rgba(196, 30, 58, 0.05) 0%, transparent 100%);
+        color: #5a3a3a;
+        position: relative;
+      }
+      #chicpage blockquote::before {
+        content: '"';
+        font-size: 48px;
+        color: #c41e3a;
+        opacity: 0.2;
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        font-family: Georgia, serif;
+      }
+      #chicpage blockquote p {
+        text-indent: 0;
+        font-size: 15px;
+        line-height: 1.9;
+      }
+
+      /* 链接 */
+      #chicpage a {
+        color: #c41e3a;
+        text-decoration: none;
+        border-bottom: 1px solid #c41e3a;
+      }
+
+      /* 强调 */
+      #chicpage strong {
+        color: #c41e3a;
+        font-weight: 700;
+      }
+
+      /* 代码 */
+      #chicpage code {
+        background: rgba(196, 30, 58, 0.08);
+        color: #c41e3a;
+        padding: 0.2em 0.5em;
+        border-radius: 4px;
+        font-size: 85%;
+      }
+
+      /* 分割线：红色装饰 */
+      #chicpage hr {
+        border: none;
+        margin: 3em 0;
+        height: 2px;
+        background: linear-gradient(to right, transparent, #c41e3a, transparent);
+        opacity: 0.3;
+      }
+
+      /* 列表 */
+      #chicpage li::marker {
+        color: #c41e3a;
+      }
+
+      /* 表格 */
+      #chicpage th {
+        background: #c41e3a;
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        padding: 12px 16px;
+      }
+      #chicpage td {
+        border: 1px solid rgba(196, 30, 58, 0.1);
+        padding: 12px 16px;
+        color: #3a3a3a;
+        background: #fff;
+      }
+      #chicpage tr:nth-child(even) td {
+        background: rgba(196, 30, 58, 0.02);
+      }
     `,
-    preview: '#e22d30',
+    preview: '#fef8f6',
   },
   {
     id: 'tech',
-    name: '极客',
-    description: '深色极客主题',
-    containerStyle: 'max-width:677px;margin:0 auto;background:#1a1a2e;color:#e6e6e6;padding:24px;',
+    name: '暗黑',
+    description: '极客暗黑美学',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#0a0a0f;color:#e6e6e6;padding:32px 24px;font-family:-apple-system,"SF Pro Display",sans-serif;',
     css: BASE_CSS + `
-      #chicpage { background: #1a1a2e; color: #e6e6e6; font-family: "Fira Code", "Consolas", monospace; padding: 2em 1.5em; line-height: 1.7; }
-      #chicpage h1 { font-size: 24px; color: #4fc3f7; border-bottom: 1px solid #30363d; padding-bottom: 0.5em; font-family: monospace; }
-      #chicpage h1::before { content: "> "; opacity: 0.5; }
-      #chicpage h2 { font-size: 18px; color: #818cf8; margin-top: 2.2em; font-family: monospace; font-weight: 500; }
-      #chicpage h2::after { content: " {"; opacity: 0.4; }
-      #chicpage h3 { font-size: 16px; color: #c084fc; font-family: monospace; }
-      #chicpage p { color: #abb2bf; margin: 1.2em 0; }
-      #chicpage blockquote { background: #161b22; border-left: 4px solid #30363d; color: #8b949e; border-radius: 6px; }
-      #chicpage code { background: #2d333b; color: #f87171; border-radius: 4px; border: 1px solid #444c56; }
-      #chicpage pre { background: #0d1117; border: 1px solid #30363d; border-radius: 8px; }
-      #chicpage a { color: #58a6ff; text-decoration: underline; }
-      #chicpage strong { color: #e6edf3; }
-      #chicpage hr { border-top: 1px solid #30363d; }
+      #chicpage {
+        background: #0a0a0f;
+        color: #e6e6e6;
+        font-family: -apple-system, "SF Pro Display", "PingFang SC", sans-serif;
+        padding: 2em 1.5em;
+        line-height: 1.85;
+        /* 科技感网格背景 */
+        background-image:
+          radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
+          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+        background-size: 100% 100%, 40px 40px, 40px 40px;
+      }
+
+      /* H1: 渐变发光标题 */
+      #chicpage h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 1.5em 0 1em;
+        text-align: center;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        letter-spacing: 0.02em;
+      }
+      #chicpage h1::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        border-radius: 2px;
+      }
+
+      /* H2: 科技感卡片 */
+      #chicpage h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #e6e6e6;
+        margin: 2.2em 0 1em;
+        padding: 14px 20px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-left: 4px solid #6366f1;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+      }
+
+      /* H3: 紫色强调 */
+      #chicpage h3 {
+        font-size: 17px;
+        font-weight: 600;
+        color: #c4b5fd;
+        margin: 1.8em 0 0.8em;
+        padding-left: 16px;
+        position: relative;
+      }
+      #chicpage h3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background: linear-gradient(to bottom, #6366f1, #a855f7);
+        border-radius: 2px;
+      }
+
+      /* 段落 */
+      #chicpage p {
+        color: #a1a1aa;
+        margin: 1em 0;
+        font-size: 15px;
+        line-height: 1.9;
+      }
+
+      /* 引用：发光卡片 */
+      #chicpage blockquote {
+        margin: 2em 0;
+        padding: 20px 24px;
+        background: rgba(99, 102, 241, 0.05);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-left: 4px solid #6366f1;
+        color: #c4b5fd;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+      }
+      #chicpage blockquote::before {
+        content: '"';
+        position: absolute;
+        top: -10px;
+        left: 15px;
+        font-size: 48px;
+        color: #6366f1;
+        opacity: 0.1;
+        font-family: Georgia, serif;
+      }
+      #chicpage blockquote p {
+        color: #c4b5fd;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* 链接：渐变效果 */
+      #chicpage a {
+        color: #818cf8;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: all 0.2s;
+        background: linear-gradient(135deg, #6366f1, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      #chicpage a:hover {
+        border-bottom-color: #6366f1;
+      }
+
+      /* 强调 */
+      #chicpage strong {
+        color: #e6e6e6;
+        font-weight: 600;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.1));
+        padding: 0.1em 0.3em;
+        border-radius: 4px;
+      }
+
+      /* 代码：霓虹风格 */
+      #chicpage code {
+        background: rgba(99, 102, 241, 0.1);
+        color: #a5b4fc;
+        padding: 0.2em 0.6em;
+        border-radius: 4px;
+        font-size: 85%;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        font-family: "JetBrains Mono", "Fira Code", monospace;
+      }
+
+      /* 代码块 */
+      #chicpage pre {
+        background: #0d0d12;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        overflow-x: auto;
+        box-shadow: 0 0 40px rgba(99, 102, 241, 0.1);
+      }
+      #chicpage pre code {
+        background: transparent;
+        border: none;
+        padding: 0;
+        color: #a5b4fc;
+      }
+
+      /* 分割线：渐变光效 */
+      #chicpage hr {
+        border: none;
+        margin: 3em 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.5), transparent);
+      }
+
+      /* 列表 */
+      #chicpage li {
+        margin: 0.5em 0;
+        line-height: 1.8;
+        color: #a1a1aa;
+      }
+      #chicpage li::marker {
+        color: #6366f1;
+      }
+      #chicpage ul, #chicpage ol {
+        padding-left: 1.5em;
+      }
+
+      /* 表格：发光边框 */
+      #chicpage table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+      }
+      #chicpage th {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.1));
+        color: #e6e6e6;
+        font-weight: 600;
+        border: none;
+        padding: 14px 18px;
+        font-size: 13px;
+        letter-spacing: 0.02em;
+      }
+      #chicpage td {
+        border: none;
+        border-top: 1px solid rgba(99, 102, 241, 0.1);
+        padding: 14px 18px;
+        color: #a1a1aa;
+        background: transparent;
+      }
+      #chicpage tr:nth-child(even) td {
+        background: rgba(99, 102, 241, 0.02);
+      }
+
+      /* 图片：发光边框 */
+      #chicpage img {
+        border-radius: 12px;
+        border: 1px solid rgba(99, 102, 241, 0.1);
+        box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
+      }
     `,
-    preview: '#1a1a2e',
+    preview: '#0a0a0f',
   },
   {
     id: 'sketch',

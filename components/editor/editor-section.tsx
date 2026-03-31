@@ -79,7 +79,7 @@ export const EditorSection = ({
         }}
         onPaste={onPaste}
       >
-        {styleTheme === "xhs" && showPageBreakTip && (
+        {styleTheme === "poster" && showPageBreakTip && (
           <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
             <div className="flex items-center justify-between gap-3">
               <p className="leading-6">

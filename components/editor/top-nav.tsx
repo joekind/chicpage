@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Palette,
   Image as ImageIconLucide,
+  History,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -76,6 +77,7 @@ export const TopNav = ({
 }: TopNavProps) => {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
   const themePickerRef = useRef<HTMLDivElement>(null);
   const fontPickerRef = useRef<HTMLDivElement>(null);
   const currentWechatTheme =
@@ -123,7 +125,17 @@ export const TopNav = ({
           </span>
         </Link>
 
-        <div className="ml-8 flex items-center p-1 border border-zinc-900/10 rounded-2xl bg-zinc-50 shadow-inner">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowChangelog(true)}
+          className="ml-4 gap-2 rounded-xl px-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-all"
+        >
+          <History className="size-4" />
+          <span className="text-xs font-bold">更新日志</span>
+        </Button>
+
+        <div className="ml-4 flex items-center p-1 border border-zinc-900/10 rounded-2xl bg-zinc-50 shadow-inner">
           <Button
             variant="ghost"
             size="icon"
@@ -510,6 +522,107 @@ export const TopNav = ({
                 : "复制 HTML"}
         </Button>
       </div>
+
+      {/* 更新日志对话框 */}
+      <AnimatePresence>
+        {showChangelog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowChangelog(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+                    <History className="size-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-zinc-900">更新日志</h2>
+                    <p className="text-xs text-zinc-500">查看新功能和改进</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowChangelog(false)}
+                  className="size-8 rounded-lg hover:bg-zinc-100"
+                >
+                  <ChevronDown className="size-4 rotate-180" />
+                </Button>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 overflow-y-auto max-h-[60vh] no-scrollbar scroll-smooth">
+                <div className="relative">
+                  {/* Timeline line */}
+                  <div className="absolute left-[15px] top-2 bottom-2 w-px bg-gradient-to-b from-indigo-500 via-indigo-300 to-transparent" />
+
+                  {/* Timeline items */}
+                  <div className="space-y-6">
+                    {/* Latest update */}
+                    <div className="relative flex gap-4">
+                      <div className="size-8 rounded-full bg-indigo-500 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200 z-10">
+                        <span className="text-white text-xs font-bold">今</span>
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className="text-xs text-indigo-600 font-semibold mb-1">2026-03-31</div>
+                        <h4 className="text-sm font-bold text-zinc-900 mb-2">重大更新：贴图模式优化</h4>
+                        <ul className="space-y-1 text-xs text-zinc-600">
+                          <li>• 将"小红书"重命名为"贴图"</li>
+                          <li>• 新增 PC/移动端预览切换</li>
+                          <li>• 修复模式切换预览问题</li>
+                          <li>• 优化代码架构，提取 hooks</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* Previous update */}
+                    <div className="relative flex gap-4">
+                      <div className="size-8 rounded-full bg-zinc-200 flex items-center justify-center shrink-0 z-10">
+                        <span className="text-zinc-500 text-xs font-bold">v1</span>
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className="text-xs text-zinc-400 font-semibold mb-1">初始版本</div>
+                        <h4 className="text-sm font-bold text-zinc-900 mb-2">ChicPage 上线</h4>
+                        <ul className="space-y-1 text-xs text-zinc-600">
+                          <li>• 微信公众号排版编辑</li>
+                          <li>• 贴图模式一键导出</li>
+                          <li>• 实时预览与主题切换</li>
+                          <li>• Markdown 语法支持</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-zinc-200 bg-zinc-50">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-zinc-500">版本 1.0.0</span>
+                  <Button
+                    onClick={() => setShowChangelog(false)}
+                    className="h-8 px-4 text-xs font-bold rounded-xl bg-zinc-900 text-white hover:bg-zinc-800"
+                  >
+                    知道了
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

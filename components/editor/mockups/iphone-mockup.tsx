@@ -150,7 +150,7 @@ export const IPhoneMockup = ({
             <div className={cn(
               "overflow-y-auto no-scrollbar relative",
               !hideStatusBar ? "h-[calc(100%-42px)]" : "h-full"
-            )} style={{ padding: (hideStatusBar || mode === 'xhs') ? '0' : '0 16px 40px', background: 'inherit' }}>
+            )} style={{ padding: (hideStatusBar || mode === 'poster') ? '0' : '0 16px 40px', background: 'inherit' }}>
               {children}
             </div>
 
