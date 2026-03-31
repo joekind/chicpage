@@ -12,7 +12,7 @@ export const DesktopMockup = ({ children }: { children: React.ReactNode }) => {
           <div className="size-3 rounded-full bg-emerald-400" />
         </div>
         <div className="ml-4 flex h-7 flex-1 items-center rounded-md bg-white px-3 text-[11px] text-zinc-400 shadow-sm">
-          https://chicpage.app/draft/preview
+          ChicPage
         </div>
       </div>
       <div className="h-[600px] overflow-y-auto p-8 bg-white">

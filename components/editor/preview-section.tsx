@@ -141,7 +141,7 @@ export const PreviewSection = ({
                       }}
                     >
                       <span style={{ fontSize: 11, color: "#999" }}>
-                        xiaohongshu.com
+                        ChicPage
                       </span>
                     </div>
                   </div>
@@ -210,7 +210,7 @@ export const PreviewSection = ({
                 />
               </DesktopMockup>
             ) : (
-              <IPhoneMockup 
+              <IPhoneMockup
                 mode={previewMode}
                 screenStyle={{ background: getWechatBackground(activeTheme) }}
               >
