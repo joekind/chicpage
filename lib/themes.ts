@@ -220,8 +220,8 @@ export const WECHAT_THEMES: WechatTheme[] = [
     preview: '#ffffff',
   },
   {
-    id: 'shaoshupai',
-    name: '少数派',
+    id: 'crimson',
+    name: '赤红',
     containerStyle: 'max-width:677px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#444;background:#fff;',
     css: BASE_CSS + `
       #chicpage { color: #444; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.75; }

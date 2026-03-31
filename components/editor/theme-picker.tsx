@@ -9,7 +9,7 @@ const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
   default:   { bg: '#ffffff', accent: '#6366f1' },
   elegant:   { bg: '#fdfaf6', accent: '#c8a96e' },
   magazine:  { bg: '#ffffff', accent: '#1a1a1a' },
-  shaoshupai: { bg: '#ffffff', accent: '#555555' },
+  crimson:    { bg: '#ffffff', accent: '#555555' },
   green:     { bg: '#f0faf4', accent: '#07c160' },
   tech:      { bg: '#1a1a2e', accent: '#7c83fd' },
   rose:      { bg: '#fff1f2', accent: '#be123c' },
