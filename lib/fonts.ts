@@ -1,10 +1,18 @@
-export interface XHSFont {
+/**
+ * 字体配置
+ * 用于贴图预览
+ */
+
+export interface FontConfig {
   id: string;
   name: string;
   value: string;
 }
 
-export const XHS_FONTS: XHSFont[] = [
+/**
+ * 贴图字体列表
+ */
+export const POSTER_FONTS: FontConfig[] = [
   {
     id: 'system',
     name: '系统默认',
@@ -51,3 +59,14 @@ export const XHS_FONTS: XHSFont[] = [
     value: '"Bebas Neue", sans-serif',
   }
 ];
+
+// 向后兼容的导出（使用 @deprecated 标记）
+/**
+ * @deprecated 使用 FontConfig 代替
+ */
+export type XHSFont = FontConfig;
+
+/**
+ * @deprecated 使用 POSTER_FONTS 代替
+ */
+export const XHS_FONTS = POSTER_FONTS;

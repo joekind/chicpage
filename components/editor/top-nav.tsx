@@ -23,29 +23,29 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
-import { XHS_THEMES } from "@/lib/xhs-themes";
+import { POSTER_THEMES } from "@/lib/poster-themes";
 import { WECHAT_THEMES } from "@/lib/themes";
-import { XHS_FONTS } from "@/lib/fonts";
+import { POSTER_FONTS } from "@/lib/fonts";
 
 interface TopNavProps {
-  previewMode: "pc" | "app" | "xhs";
-  setPreviewMode: (m: "pc" | "app" | "xhs") => void;
+  previewMode: "pc" | "app" | "poster";
+  setPreviewMode: (m: "pc" | "app" | "poster") => void;
   layoutMode: "split" | "edit" | "preview";
   setLayoutMode: (m: "split" | "edit" | "preview") => void;
-  styleTheme: "wechat" | "xhs";
-  setStyleTheme: (t: "wechat" | "xhs") => void;
+  styleTheme: "wechat" | "poster";
+  setStyleTheme: (t: "wechat" | "poster") => void;
   wechatTheme: string;
   setWechatTheme: (t: string) => void;
-  xhsTheme: string;
-  setXHSTheme: (t: string) => void;
-  xhsFont: string;
-  setXHSFont: (f: string) => void;
+  posterTheme: string;
+  setPosterTheme: (t: string) => void;
+  posterFont: string;
+  setPosterFont: (f: string) => void;
   onCopy: () => void;
   copyStatus: "idle" | "success" | "error";
   previewRef: React.RefObject<HTMLDivElement | null>;
   markdown: string;
-  onExportXHS: () => void;
-  isExportingXHS: boolean;
+  onExportPoster: () => void;
+  isExportingPoster: boolean;
   exportProgress?: { current: number; total: number };
   showWordCount: boolean;
   setShowWordCount: (show: boolean) => void;
@@ -60,16 +60,16 @@ export const TopNav = ({
   setStyleTheme,
   wechatTheme,
   setWechatTheme,
-  xhsTheme,
-  setXHSTheme,
-  xhsFont,
-  setXHSFont,
+  posterTheme,
+  setPosterTheme,
+  posterFont,
+  setPosterFont,
   onCopy,
   copyStatus,
   previewRef,
   markdown,
-  onExportXHS,
-  isExportingXHS,
+  onExportPoster,
+  isExportingPoster,
   exportProgress,
   showWordCount,
   setShowWordCount,
@@ -80,11 +80,11 @@ export const TopNav = ({
   const fontPickerRef = useRef<HTMLDivElement>(null);
   const currentWechatTheme =
     WECHAT_THEMES.find((t) => t.id === wechatTheme) || WECHAT_THEMES[0];
-  const currentXHSTheme =
-    XHS_THEMES.find((t) => t.id === xhsTheme) || XHS_THEMES[0];
+  const currentPosterTheme =
+    POSTER_THEMES.find((t) => t.id === posterTheme) || POSTER_THEMES[0];
   const currentTheme =
-    styleTheme === "wechat" ? currentWechatTheme : currentXHSTheme;
-  const currentFont = XHS_FONTS.find((f) => f.id === xhsFont) || XHS_FONTS[0];
+    styleTheme === "wechat" ? currentWechatTheme : currentPosterTheme;
+  const currentFont = POSTER_FONTS.find((f) => f.id === posterFont) || POSTER_FONTS[0];
 
   // 点击外部关闭主题选择器
   useEffect(() => {
@@ -182,7 +182,7 @@ export const TopNav = ({
             )}
             onClick={() => {
               setStyleTheme("wechat");
-              if (previewMode === "xhs") setPreviewMode("app");
+              if (previewMode === "poster") setPreviewMode("app");
             }}
           >
             <MessageCircle className="size-4" />
@@ -193,13 +193,13 @@ export const TopNav = ({
             size="sm"
             className={cn(
               "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
-              styleTheme === "xhs"
+              styleTheme === "poster"
                 ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200/80"
                 : "text-zinc-400 hover:text-zinc-600 hover:bg-white/50",
             )}
             onClick={() => {
-              setStyleTheme("xhs");
-              setPreviewMode("xhs");
+              setStyleTheme("poster");
+              setPreviewMode("poster");
             }}
           >
             <ImageIconLucide className="size-4" />
@@ -259,10 +259,10 @@ export const TopNav = ({
 
                 <div className="p-2">
                   <div className="grid grid-cols-1 gap-1">
-                    {(styleTheme === "wechat" ? WECHAT_THEMES : XHS_THEMES).map(
+                    {(styleTheme === "wechat" ? WECHAT_THEMES : POSTER_THEMES).map(
                       (theme) => {
                         const isActive =
-                          (styleTheme === "wechat" ? wechatTheme : xhsTheme) ===
+                          (styleTheme === "wechat" ? wechatTheme : posterTheme) ===
                           theme.id;
 
                         return (
@@ -272,7 +272,7 @@ export const TopNav = ({
                               if (styleTheme === "wechat") {
                                 setWechatTheme(theme.id);
                               } else {
-                                setXHSTheme(theme.id);
+                                setPosterTheme(theme.id);
                               }
                               setShowThemePicker(false);
                             }}
@@ -327,7 +327,7 @@ export const TopNav = ({
         </div>
 
         {/* 字体选择器 (仅小红书模式) */}
-        {styleTheme === "xhs" && (
+        {styleTheme === "poster" && (
           <div className="relative" ref={fontPickerRef}>
             <Button
               variant="ghost"
@@ -372,13 +372,13 @@ export const TopNav = ({
                   </div>
                   <div className="p-2">
                     <div className="grid grid-cols-1 gap-1">
-                      {XHS_FONTS.map((font) => {
-                        const isActive = xhsFont === font.id;
+                      {POSTER_FONTS.map((font) => {
+                        const isActive = posterFont === font.id;
                         return (
                           <button
                             key={font.id}
                             onClick={() => {
-                              setXHSFont(font.id);
+                              setPosterFont(font.id);
                               setShowFontPicker(false);
                             }}
                             className={cn(
@@ -427,7 +427,7 @@ export const TopNav = ({
           title="手机端预览"
           className={cn(
             "size-7 rounded-md transition-all",
-            previewMode === "app" || previewMode === "xhs"
+            previewMode === "app" || previewMode === "poster"
               ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200"
               : "text-zinc-400 hover:text-zinc-600",
           )}
@@ -454,10 +454,10 @@ export const TopNav = ({
       <div className="flex items-center gap-3">
         <div className="h-4 w-[1px] bg-zinc-200" />
 
-        {styleTheme === "xhs" ? (
+        {styleTheme === "poster" ? (
           <Button
-            onClick={onExportXHS}
-            disabled={isExportingXHS}
+            onClick={onExportPoster}
+            disabled={isExportingPoster}
             variant="ghost"
             size="sm"
             className={cn(
@@ -465,7 +465,7 @@ export const TopNav = ({
               "text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 disabled:cursor-not-allowed",
             )}
           >
-            {isExportingXHS ? (
+            {isExportingPoster ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
                 {exportProgress
@@ -505,7 +505,7 @@ export const TopNav = ({
             ? "已复制！"
             : copyStatus === "error"
               ? "复制失败"
-              : styleTheme === "xhs"
+              : styleTheme === "poster"
                 ? "复制正文"
                 : "复制 HTML"}
         </Button>

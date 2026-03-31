@@ -6,8 +6,8 @@ import { markdownToHtml } from "@/lib/markdown";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
 import { useStore } from "@/store/use-store";
 import { getTheme } from "@/lib/themes";
-import { getXHSTheme } from "@/lib/xhs-themes";
-import { XHS_FONTS } from "@/lib/fonts";
+import { getPosterTheme, POSTER_THEMES } from "@/lib/poster-themes";
+import { POSTER_FONTS } from "@/lib/fonts";
 import { storeImageLocally } from "@/lib/image_service";
 import { exportToImage } from "@/lib/export-image";
 import { injectReadInfo, getCleanText } from "@/lib/utils-content";
@@ -16,11 +16,9 @@ import JSZip from "jszip";
 import type { EditorMethods } from "@/components/editor/mdx-editor";
 import { TopNav } from "@/components/editor/top-nav";
 import { ContextMenu } from "@/components/editor/context-menu";
-import { XHSSlidePreviewMethods } from "@/components/editor/xhs-slide-preview";
+import type { SlidePreviewMethods } from "@/types";
 import { AnimatePresence } from "framer-motion";
-import {
-  getXHSContentCSS,
-} from "@/components/editor/xhs-slide-preview";
+import { getXHSContentCSS } from "@/components/editor/xhs-slide-preview";
 import { EditorSection } from "@/components/editor/editor-section";
 import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
 import { PreviewSection } from "@/components/editor/preview-section";
@@ -41,14 +39,14 @@ export default function ChicEditor() {
     setStyleTheme,
     wechatTheme,
     setWechatTheme,
-    xhsTheme,
-    setXHSTheme,
-    xhsFont,
-    setXHSFont,
+    posterTheme,
+    setPosterTheme,
+    posterFont,
+    setPosterFont,
     layoutMode,
     setLayoutMode,
-    xhsShowHeader,
-    xhsShowFooter,
+    posterShowHeader,
+    posterShowFooter,
     showWordCount,
     setShowWordCount,
     undo,
@@ -57,15 +55,15 @@ export default function ChicEditor() {
   } = useStore();
 
   const activeTheme = getTheme(wechatTheme);
-  const activeXHSTheme = getXHSTheme(xhsTheme);
+  const activePosterTheme = getPosterTheme(posterTheme);
   const editorRef = useRef<EditorMethods>(null);
   const previewRef = useRef<HTMLDivElement>(null);
-  const xhsSlideRef = useRef<XHSSlidePreviewMethods>(null);
+  const posterSlideRef = useRef<SlidePreviewMethods>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
     "idle",
   );
   const [isUploading, setIsUploading] = useState(false);
-  const [isExportingXHS, setIsExportingXHS] = useState(false);
+  const [isExportingPoster, setIsExportingPoster] = useState(false);
   const [exportProgress, setExportProgress] = useState<
     { current: number; total: number } | undefined
   >(undefined);
@@ -253,7 +251,7 @@ export default function ChicEditor() {
       // Ctrl/Cmd + B - 加粗
       if (e.key === "b") {
         e.preventDefault();
-        if (styleTheme === "xhs") {
+        if (styleTheme === "poster") {
           handleWrapText("「", "」");
         } else {
           handleWrapText("**");
@@ -280,7 +278,7 @@ export default function ChicEditor() {
 
   const handleCopy = async () => {
     try {
-      if (styleTheme === "xhs") {
+      if (styleTheme === "poster") {
         // 小红书模式：一键复制纯正文，移除 Markdown 语法
         let textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
         textToCopy = getCleanText(textToCopy);
@@ -313,11 +311,11 @@ export default function ChicEditor() {
     }
   };
 
-  const handleExportXHS = async () => {
-    if (!xhsSlideRef.current) return;
+  const handleExportPoster = async () => {
+    if (!posterSlideRef.current) return;
 
     // 直接从幻灯片组件获取带分页信息的列表
-    const allSlides = xhsSlideRef.current.getSlides();
+    const allSlides = posterSlideRef.current.getSlides();
     const slidesForPreview = allSlides.map((s, i) => ({
       html: s.html,
       index: i,
@@ -330,11 +328,11 @@ export default function ChicEditor() {
   };
 
   const handleConfirmExport = async () => {
-    if (!xhsSlideRef.current) return;
-    setIsExportingXHS(true);
+    if (!posterSlideRef.current) return;
+    setIsExportingPoster(true);
     setExportProgress({ current: 0, total: 0 });
     try {
-      const totalSlides = xhsSlideRef.current.getSlidesCount();
+      const totalSlides = posterSlideRef.current.getSlidesCount();
       setExportProgress({ current: 0, total: totalSlides });
       const timestamp = new Date()
         .toISOString()
@@ -358,7 +356,7 @@ export default function ChicEditor() {
           filename: `xhs-${timestamp}-${i + 1}-of-${totalSlides}`,
           format: "png",
           scale: 3,
-          backgroundColor: activeXHSTheme.background,
+          backgroundColor: activePosterTheme.background,
           returnDataUrl: true,
         })) as string;
 
@@ -386,7 +384,7 @@ export default function ChicEditor() {
     } catch (error) {
       console.error("Export failed:", error);
     } finally {
-      setIsExportingXHS(false);
+      setIsExportingPoster(false);
       setExportProgress(undefined);
     }
   };
@@ -405,16 +403,16 @@ export default function ChicEditor() {
         setStyleTheme={setStyleTheme}
         wechatTheme={wechatTheme}
         setWechatTheme={setWechatTheme}
-        xhsTheme={xhsTheme}
-        setXHSTheme={setXHSTheme}
-        xhsFont={xhsFont}
-        setXHSFont={setXHSFont}
+        posterTheme={posterTheme}
+        setPosterTheme={setPosterTheme}
+        posterFont={posterFont}
+        setPosterFont={setPosterFont}
         onCopy={handleCopy}
         copyStatus={copyStatus}
         previewRef={previewRef}
         markdown={markdown}
-        onExportXHS={handleExportXHS}
-        isExportingXHS={isExportingXHS}
+        onExportPoster={handleExportPoster}
+        isExportingPoster={isExportingPoster}
         exportProgress={exportProgress}
         showWordCount={showWordCount}
         setShowWordCount={setShowWordCount}
@@ -440,7 +438,7 @@ export default function ChicEditor() {
                 coords={selectionCoords}
                 onWrapText={handleWrapText}
                 onBold={() => {
-                  if (styleTheme === "xhs") handleWrapText("「", "」");
+                  if (styleTheme === "poster") handleWrapText("「", "」");
                   else handleWrapText("**");
                 }}
               />
@@ -454,7 +452,7 @@ export default function ChicEditor() {
                   onApplyPangu={applyPangu}
                   onInsertTable={handleInsertTable}
                   onHeading={(level: 1 | 2) => {
-                    if (styleTheme === "xhs") {
+                    if (styleTheme === "poster") {
                       if (level === 1)
                         handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
                       else handleInsertText("\n📍 ");
@@ -463,17 +461,17 @@ export default function ChicEditor() {
                     }
                   }}
                   onBold={() => {
-                    if (styleTheme === "xhs") handleWrapText("「", "」");
+                    if (styleTheme === "poster") handleWrapText("「", "」");
                     else handleWrapText("**");
                   }}
                   onSeparator={() => {
-                    if (styleTheme === "xhs")
+                    if (styleTheme === "poster")
                       handleInsertText("\n" + "━".repeat(15) + "\n");
                     else handleInsertText("\n\n---\n\n");
                   }}
                   onInsertPageBreak={handleInsertPageBreak}
                   onQuote={() => {
-                    if (styleTheme === "xhs") handleInsertText("\n✅ ");
+                    if (styleTheme === "poster") handleInsertText("\n✅ ");
                     else handleInsertAtLineStart("> ");
                   }}
                   onInsertImage={() => {
@@ -509,14 +507,14 @@ export default function ChicEditor() {
             html={html}
             activeThemeCss={activeTheme.css}
             activeTheme={activeTheme}
-            activeXHSTheme={activeXHSTheme}
-            xhsFont={xhsFont}
-            xhsShowHeader={xhsShowHeader}
-            xhsShowFooter={xhsShowFooter}
+            activePosterTheme={activePosterTheme}
+            posterFont={posterFont}
+            posterShowHeader={posterShowHeader}
+            posterShowFooter={posterShowFooter}
             imgRadius={imgRadius}
             isUploading={isUploading}
             previewRef={previewRef}
-            xhsSlideRef={xhsSlideRef}
+            posterSlideRef={posterSlideRef}
           />
         </AnimatePresence>
       </main>
@@ -541,21 +539,21 @@ export default function ChicEditor() {
             input.click();
           }}
           onInsertHeading={() => {
-            if (styleTheme === "xhs") {
+            if (styleTheme === "poster") {
               handleInsertText("\n✨ 在这输入标题 ✨\n━━━━━━━\n");
             } else {
               handleInsertAtLineStart("# ");
             }
           }}
           onInsertSeparator={() => {
-            if (styleTheme === "xhs") {
+            if (styleTheme === "poster") {
               handleInsertText("\n" + "━".repeat(15) + "\n");
             } else {
               handleInsertText("\n\n---\n\n");
             }
           }}
           onInsertPageBreak={handleInsertPageBreak}
-          separatorLabel={styleTheme === "xhs" ? "插入装饰分隔线" : "插入分隔线"}
+          separatorLabel={styleTheme === "poster" ? "插入装饰分隔线" : "插入分隔线"}
           pageBreakLabel="插入强制分页符（<!--pagebreak-->）"
           targetSelector=".mdx-editor-container"
           onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
@@ -567,10 +565,10 @@ export default function ChicEditor() {
         onClose={() => setShowExportPreview(false)}
         onConfirm={handleConfirmExport}
         slides={previewSlides}
-        themeBackground={activeXHSTheme.background}
+        themeBackground={activePosterTheme.background}
         themeCSS={getXHSContentCSS(
-          activeXHSTheme.css,
-          XHS_FONTS.find((f) => f.id === xhsFont)?.value || XHS_FONTS[0].value,
+          activePosterTheme.css,
+          POSTER_FONTS.find((f) => f.id === posterFont)?.value || POSTER_FONTS[0].value,
         )}
       />
     </div>

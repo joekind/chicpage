@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { IPhoneMockup } from "./mockups/iphone-mockup";
 import { DesktopMockup } from "./mockups/desktop-mockup";
-import { XHSSlidePreview, XHSSlidePreviewMethods } from "./xhs-slide-preview";
+import { XHSSlidePreview as PosterSlidePreview, XHSSlidePreviewMethods } from "./xhs-slide-preview";
 import { PreviewContent } from "./preview-content";
-import type { XHSTheme } from "@/lib/xhs-themes";
+import type { PosterTheme } from "@/lib/poster-themes";
 import type { WechatTheme } from "@/lib/themes";
 
 interface PreviewSectionProps {
@@ -18,14 +18,14 @@ interface PreviewSectionProps {
   html: string;
   activeThemeCss: string;
   activeTheme: WechatTheme;
-  activeXHSTheme: XHSTheme;
-  xhsFont: string;
-  xhsShowHeader: boolean;
-  xhsShowFooter: boolean;
+  activePosterTheme: PosterTheme;
+  posterFont: string;
+  posterShowHeader: boolean;
+  posterShowFooter: boolean;
   imgRadius: number;
   isUploading: boolean;
   previewRef: React.RefObject<HTMLDivElement | null>;
-  xhsSlideRef: React.RefObject<XHSSlidePreviewMethods | null>;
+  posterSlideRef: React.RefObject<XHSSlidePreviewMethods | null>;
 }
 
 export const PreviewSection = ({
@@ -35,14 +35,14 @@ export const PreviewSection = ({
   html,
   activeThemeCss,
   activeTheme,
-  activeXHSTheme,
-  xhsFont,
-  xhsShowHeader,
-  xhsShowFooter,
+  activePosterTheme,
+  posterFont,
+  posterShowHeader,
+  posterShowFooter,
   imgRadius,
   isUploading,
   previewRef,
-  xhsSlideRef,
+  posterSlideRef,
 }: PreviewSectionProps) => {
   if (layoutMode === "edit") return null;
 
@@ -155,13 +155,13 @@ export const PreviewSection = ({
                       justifyContent: "center",
                     }}
                   >
-                    <XHSSlidePreview
-                      ref={xhsSlideRef}
+                    <PosterSlidePreview
+                      ref={posterSlideRef}
                       html={html}
-                      theme={activeXHSTheme}
-                      font={xhsFont}
-                      showHeader={xhsShowHeader}
-                      showFooter={xhsShowFooter}
+                      theme={activePosterTheme}
+                      font={posterFont}
+                      showHeader={posterShowHeader}
+                      showFooter={posterShowFooter}
                       hideMockUI={true}
                     />
                   </div>
@@ -169,30 +169,30 @@ export const PreviewSection = ({
               ) : (
                 <div className="relative group">
                   <IPhoneMockup
-                    screenStyle={{ background: activeXHSTheme.background }}
+                    screenStyle={{ background: activePosterTheme.background }}
                     hideStatusBar={false}
                     showDynamicIsland={true}
                   >
-                    <XHSSlidePreview
-                      ref={xhsSlideRef}
+                    <PosterSlidePreview
+                      ref={posterSlideRef}
                       html={html}
-                      theme={activeXHSTheme}
-                      font={xhsFont}
-                      showHeader={xhsShowHeader}
-                      showFooter={xhsShowFooter}
+                      theme={activePosterTheme}
+                      font={posterFont}
+                      showHeader={posterShowHeader}
+                      showFooter={posterShowFooter}
                       hideMockUI={true}
                     />
                   </IPhoneMockup>
 
                   {/* External Navigation Arrows */}
                   <button
-                    onClick={() => xhsSlideRef.current?.goPrev()}
+                    onClick={() => posterSlideRef.current?.goPrev()}
                     className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
                   >
                     <ChevronLeft className="size-8 stroke-[2.5px]" />
                   </button>
                   <button
-                    onClick={() => xhsSlideRef.current?.goNext()}
+                    onClick={() => posterSlideRef.current?.goNext()}
                     className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
                   >
                     <ChevronRight className="size-8 stroke-[2.5px]" />
