@@ -577,12 +577,12 @@ export const TopNav = ({
                       </div>
                       <div className="flex-1 pt-1">
                         <div className="text-xs text-indigo-600 font-semibold mb-1">2026-03-31</div>
-                        <h4 className="text-sm font-bold text-zinc-900 mb-2">重大更新：贴图模式优化</h4>
+                        <h4 className="text-sm font-bold text-zinc-900 mb-2">主题系统全面升级</h4>
                         <ul className="space-y-1 text-xs text-zinc-600">
-                          <li>• 将"小红书"重命名为"贴图"</li>
-                          <li>• 新增 PC/移动端预览切换</li>
-                          <li>• 修复模式切换预览问题</li>
-                          <li>• 优化代码架构，提取 hooks</li>
+                          <li>• 全新主题视觉设计，每个主题独具特色</li>
+                          <li>• 赤红：东方美学 + 宣纸纹理</li>
+                          <li>• 暗黑：极客美学 + 紫粉渐变光效</li>
+                          <li>• 新增更新日志时间轴功能</li>
                         </ul>
                       </div>
                     </div>
