@@ -22,6 +22,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
+import { CHANGELOG } from "@/lib/changelog";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
 import { POSTER_THEMES } from "@/lib/poster-themes";
@@ -570,39 +571,35 @@ export const TopNav = ({
 
                   {/* Timeline items */}
                   <div className="space-y-6">
-                    {/* Latest update */}
-                    <div className="relative flex gap-4">
-                      <div className="size-8 rounded-full bg-indigo-500 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200 z-10">
-                        <span className="text-white text-xs font-bold">今</span>
+                    {CHANGELOG.map((entry, index) => (
+                      <div key={index} className="relative flex gap-4">
+                        <div className={cn(
+                          "size-8 rounded-full flex items-center justify-center shrink-0 shadow-lg z-10",
+                          index === 0 ? "bg-indigo-500 shadow-indigo-200" : "bg-zinc-200"
+                        )}>
+                          <span className={cn(
+                            "text-xs font-bold",
+                            index === 0 ? "text-white" : "text-zinc-500"
+                          )}>
+                            {index === 0 ? '今' : `v${CHANGELOG.length - index}`}
+                          </span>
+                        </div>
+                        <div className="flex-1 pt-1">
+                          <div className={cn(
+                            "text-xs font-semibold mb-1",
+                            index === 0 ? "text-indigo-600" : "text-zinc-400"
+                          )}>
+                            {entry.date}
+                          </div>
+                          <h4 className="text-sm font-bold text-zinc-900 mb-2">{entry.title}</h4>
+                          <ul className="space-y-1 text-xs text-zinc-600">
+                            {entry.items.map((item, i) => (
+                              <li key={i}>• {item}</li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                      <div className="flex-1 pt-1">
-                        <div className="text-xs text-indigo-600 font-semibold mb-1">2026-03-31</div>
-                        <h4 className="text-sm font-bold text-zinc-900 mb-2">主题系统全面升级</h4>
-                        <ul className="space-y-1 text-xs text-zinc-600">
-                          <li>• 全新主题视觉设计，每个主题独具特色</li>
-                          <li>• 赤红：东方美学 + 宣纸纹理</li>
-                          <li>• 暗黑：极客美学 + 紫粉渐变光效</li>
-                          <li>• 新增更新日志时间轴功能</li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    {/* Previous update */}
-                    <div className="relative flex gap-4">
-                      <div className="size-8 rounded-full bg-zinc-200 flex items-center justify-center shrink-0 z-10">
-                        <span className="text-zinc-500 text-xs font-bold">v1</span>
-                      </div>
-                      <div className="flex-1 pt-1">
-                        <div className="text-xs text-zinc-400 font-semibold mb-1">初始版本</div>
-                        <h4 className="text-sm font-bold text-zinc-900 mb-2">ChicPage 上线</h4>
-                        <ul className="space-y-1 text-xs text-zinc-600">
-                          <li>• 微信公众号排版编辑</li>
-                          <li>• 贴图模式一键导出</li>
-                          <li>• 实时预览与主题切换</li>
-                          <li>• Markdown 语法支持</li>
-                        </ul>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>

@@ -264,24 +264,17 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border-radius: 8px;
         opacity: 0.3;
       }
-      /* 印章装饰 */
+      /* 底部装饰线 */
       #chicpage h1::after {
-        content: '赤';
+        content: '';
         position: absolute;
-        bottom: 10px;
-        right: calc(50% + 100px);
-        width: 36px;
-        height: 36px;
-        line-height: 36px;
-        text-align: center;
-        font-size: 16px;
-        color: #fff;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 2px;
         background: #c41e3a;
-        border-radius: 4px;
-        font-weight: 700;
-        letter-spacing: 0;
-        box-shadow: 0 2px 8px rgba(196, 30, 58, 0.4);
-        opacity: 0.8;
+        border-radius: 1px;
       }
 
       /* H2: 红色装饰框 */
@@ -432,18 +425,16 @@ export const WECHAT_THEMES: WechatTheme[] = [
         background-size: 100% 100%, 40px 40px, 40px 40px;
       }
 
-      /* H1: 渐变发光标题 */
+      /* H1: 居中发光标题 */
       #chicpage h1 {
         font-size: 28px;
         font-weight: 700;
         margin: 1.5em 0 1em;
         text-align: center;
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #e6e6e6;
         position: relative;
         letter-spacing: 0.02em;
+        text-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
       }
       #chicpage h1::after {
         content: '';
@@ -453,8 +444,9 @@ export const WECHAT_THEMES: WechatTheme[] = [
         transform: translateX(-50%);
         width: 60px;
         height: 3px;
-        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+        background: #6366f1;
         border-radius: 2px;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
       }
 
       /* H2: 科技感卡片 */
