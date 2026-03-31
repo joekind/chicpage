@@ -187,9 +187,84 @@ export default function ChicEditor() {
         : markdown;
       const res = await markdownToHtml(contentToRender);
       setHtml(res);
-    }, 300);
+    }, 150);
     return () => clearTimeout(timer);
   }, [markdown, styleTheme, showWordCount, setHtml]);
+
+  // 键盘快捷键支持
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+      if (!cmdOrCtrl) return;
+
+      // Ctrl/Cmd + S - 复制到剪贴板
+      if (e.key === "s") {
+        e.preventDefault();
+        handleCopy();
+        return;
+      }
+
+      // Ctrl/Cmd + / - 切换预览模式
+      if (e.key === "/") {
+        e.preventDefault();
+        if (layoutMode === "edit") {
+          setLayoutMode("preview");
+        } else if (layoutMode === "preview") {
+          setLayoutMode("split");
+        } else {
+          setLayoutMode("edit");
+        }
+        return;
+      }
+
+      // Ctrl/Cmd + Shift + P - 切换 PC/移动端预览
+      if (e.shiftKey && e.key === "P") {
+        e.preventDefault();
+        setPreviewMode(previewMode === "pc" ? "app" : "pc");
+        return;
+      }
+
+      // Ctrl/Cmd + Z - 撤销
+      if (e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+        if (editorRef.current) {
+          const historyState = editorRef.current.getMarkdown();
+          setMarkdown(historyState);
+          editorRef.current.setMarkdown(historyState);
+        }
+        return;
+      }
+
+      // Ctrl/Cmd + Shift + Z 或 Ctrl/Cmd + Y - 重做
+      if ((e.key === "z" && e.shiftKey) || e.key === "y") {
+        e.preventDefault();
+        redo();
+        if (editorRef.current) {
+          const historyState = editorRef.current.getMarkdown();
+          setMarkdown(historyState);
+          editorRef.current.setMarkdown(historyState);
+        }
+        return;
+      }
+
+      // Ctrl/Cmd + B - 加粗
+      if (e.key === "b") {
+        e.preventDefault();
+        if (styleTheme === "xhs") {
+          handleWrapText("「", "」");
+        } else {
+          handleWrapText("**");
+        }
+        return;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [layoutMode, previewMode, styleTheme, undo, redo]);
 
   const handleSelectionChange = (info: SelectionInfo) => {
     setSelection(info);
@@ -282,7 +357,7 @@ export default function ChicEditor() {
         const dataUrl = (await exportToImage(slidePage as HTMLElement, {
           filename: `xhs-${timestamp}-${i + 1}-of-${totalSlides}`,
           format: "png",
-          scale: 8,
+          scale: 3,
           backgroundColor: activeXHSTheme.background,
           returnDataUrl: true,
         })) as string;
@@ -358,6 +433,7 @@ export default function ChicEditor() {
             onImageFile={handleImageFile}
             isUploading={isUploading}
             styleTheme={styleTheme}
+            onPushHistory={pushHistory}
             floatingToolbar={
               <FloatingToolbar
                 isVisible={!!selection && !selection.empty}

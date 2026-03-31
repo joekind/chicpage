@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useCallback } from "react";
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
@@ -30,6 +30,7 @@ interface EditorProps {
   onChange: (markdown: string) => void;
   onPaste?: (e: ClipboardEvent) => void;
   onSelectionChange?: (info: SelectionInfo) => void;
+  onPushHistory?: () => void;
   className?: string;
   isXHSTheme?: boolean;
 }
@@ -91,11 +92,16 @@ const chicpageTheme = EditorView.theme({
 });
 
 const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
-  ({ markdown: initialMarkdown, onChange, onPaste, onSelectionChange, className }, ref) => {
+  ({ markdown: initialMarkdown, onChange, onPaste, onSelectionChange, onPushHistory, className }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const onChangeRef = useRef(onChange);
+    const onPushHistoryRef = useRef(onPushHistory);
+    const historyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const lastSavedContentRef = useRef<string>(initialMarkdown);
+
     onChangeRef.current = onChange;
+    onPushHistoryRef.current = onPushHistory;
 
     // 暴露给父组件的方法
     useImperativeHandle(ref, () => ({
@@ -195,7 +201,21 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
           EditorView.lineWrapping,
           EditorView.updateListener.of((update) => {
             if (update.docChanged) {
-              onChangeRef.current(update.state.doc.toString());
+              const newContent = update.state.doc.toString();
+              onChangeRef.current(newContent);
+
+              // 防抖历史记录：用户停止输入 800ms 后记录
+              if (onPushHistoryRef.current) {
+                if (historyTimeoutRef.current) {
+                  clearTimeout(historyTimeoutRef.current);
+                }
+                historyTimeoutRef.current = setTimeout(() => {
+                  if (newContent !== lastSavedContentRef.current) {
+                    onPushHistoryRef.current?.();
+                    lastSavedContentRef.current = newContent;
+                  }
+                }, 800);
+              }
             }
             if (update.selectionSet || update.docChanged) {
               const sel = update.state.selection.main;
@@ -221,6 +241,16 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
       viewRef.current = view;
 
       return () => {
+        // 组件卸载时，如果有待保存的历史记录，立即保存
+        if (historyTimeoutRef.current) {
+          clearTimeout(historyTimeoutRef.current);
+          if (viewRef.current && onPushHistoryRef.current) {
+            const currentContent = viewRef.current.state.doc.toString();
+            if (currentContent !== lastSavedContentRef.current) {
+              onPushHistoryRef.current();
+            }
+          }
+        }
         view.destroy();
         viewRef.current = null;
       };

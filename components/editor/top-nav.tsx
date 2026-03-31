@@ -306,11 +306,7 @@ export const TopNav = ({
                                 {theme.name}
                               </div>
                               <p className="text-[10px] text-zinc-400 truncate mt-0.5">
-                                {theme.id === "elegant"
-                                  ? "典雅精致风格"
-                                  : theme.id === "magazine"
-                                    ? "时尚杂志排版"
-                                    : "经典简约排版"}
+                                {theme.description}
                               </p>
                             </div>
 

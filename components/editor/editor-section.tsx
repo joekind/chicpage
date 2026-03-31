@@ -24,6 +24,7 @@ interface EditorSectionProps {
   floatingToolbar?: React.ReactNode;
   onSelectionChange?: (info: SelectionInfo) => void;
   onInsertPageBreak?: () => void;
+  onPushHistory?: () => void;
 }
 
 export const EditorSection = ({
@@ -40,6 +41,7 @@ export const EditorSection = ({
   floatingToolbar,
   onSelectionChange,
   onInsertPageBreak,
+  onPushHistory,
 }: EditorSectionProps) => {
   const { wordCount, readTime } = getReadInfo(markdown);
   const [showPageBreakTip, setShowPageBreakTip] = useState(() => {
@@ -116,6 +118,7 @@ export const EditorSection = ({
           onChange={setMarkdown}
           onPaste={onPaste}
           onSelectionChange={onSelectionChange}
+          onPushHistory={onPushHistory}
         />
         {floatingToolbar}
       </div>

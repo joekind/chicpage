@@ -3,6 +3,7 @@ import { WECHAT_THEMES } from "./themes";
 export interface XHSTheme {
   id: string;
   name: string;
+  description: string;
   preview: string;
   background: string;
   containerStyle: string;

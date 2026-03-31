@@ -6,6 +6,7 @@
 export interface WechatTheme {
   id: string;
   name: string;
+  description: string;
   /** 预览区注入的 <style> 内容，根选择器为 #chicpage */
   css: string;
   /** 复制时包裹容器的 inline style */
@@ -56,6 +57,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'default',
     name: '默认',
+    description: '经典简约排版',
     containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;',
     css: BASE_CSS + `
       #chicpage { 
@@ -77,6 +79,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'elegant',
     name: '典雅',
+    description: '典雅精致风格',
     containerStyle: 'max-width:677px;margin:0 auto;font-family:Georgia, "Source Serif 4", "Noto Serif SC", "STSong", "SimSun", serif;color:#2c2c2c;background:#fdfaf6;padding:32px 24px;',
     css: BASE_CSS + `
       #chicpage { color: #2c2c2c; font-family: Georgia, "Source Serif 4", "Noto Serif SC", "STSong", "SimSun", serif; line-height: 1.9; background: #fdfaf6; }
@@ -136,6 +139,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'magazine',
     name: '杂志',
+    description: '时尚杂志排版',
     containerStyle: 'max-width:677px;margin:0 auto;font-family:"Optima", "Inter", "PingFang SC", sans-serif;color:#1a1a1a;background:#fff;',
     css: BASE_CSS + `
       #chicpage { 
@@ -222,6 +226,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'crimson',
     name: '赤红',
+    description: '热情赤红风格',
     containerStyle: 'max-width:677px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#444;background:#fff;',
     css: BASE_CSS + `
       #chicpage { color: #444; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.75; }
@@ -242,6 +247,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'tech',
     name: '极客',
+    description: '深色极客主题',
     containerStyle: 'max-width:677px;margin:0 auto;background:#1a1a2e;color:#e6e6e6;padding:24px;',
     css: BASE_CSS + `
       #chicpage { background: #1a1a2e; color: #e6e6e6; font-family: "Fira Code", "Consolas", monospace; padding: 2em 1.5em; line-height: 1.7; }
@@ -263,6 +269,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'sketch',
     name: '手绘',
+    description: '手绘涂鸦风格',
     containerStyle: 'max-width:677px;margin:0 auto;background:#fffef5;color:#333;padding:40px 30px;font-family: cursive, sans-serif;',
     css: BASE_CSS + `
       #chicpage { 
