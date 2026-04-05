@@ -27,7 +27,7 @@ const BASE_CSS = `
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
   }
-  #chicpage h1 { font-size: 24px; font-weight: 700; margin: 1.8em 0 1em; line-height: 1.3; }
+  #chicpage h1 { font-size: 24px; font-weight: 700; line-height: 1.3; }
   #chicpage h2 { font-size: 20px; font-weight: 700; margin: 1.8em 0 0.8em; line-height: 1.3; }
   #chicpage h3 { font-size: 18px; font-weight: 700; margin: 1.6em 0 0.6em; line-height: 1.3; }
   #chicpage h4, #chicpage h5, #chicpage h6 { font-size: 16px; font-weight: 700; margin: 1.4em 0 0.5em; }
@@ -64,8 +64,8 @@ export const WECHAT_THEMES: WechatTheme[] = [
         color: #333;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", Arial, sans-serif;
       }
-      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1.2em 0 0.8em; }
-      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 2em 0 1em; border-bottom: 1px solid #f0f0f0; padding-bottom: 0.3em; }
+      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1.2em 0 1em 0; }
+      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 2em 0 1em;  padding-bottom: 0.3em; }
       #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.8em 0 0.8em; }
       #chicpage p { font-size: 16px; margin: 1em 0; line-height: 1.8; color: #374151; }
       #chicpage blockquote { background: #f9fafb; border-left: 4px solid #e5e7eb; color: #4b5563; padding: 1.2em 1.5em; }
