@@ -26,6 +26,7 @@ const BASE_CSS = `
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
+    
   }
   #chicpage h1 { font-size: 24px; font-weight: 700; line-height: 1.3; }
   #chicpage h2 { font-size: 20px; font-weight: 700; margin: 1.8em 0 0.8em; line-height: 1.3; }
@@ -34,7 +35,7 @@ const BASE_CSS = `
   #chicpage p { margin: 1em 0; line-height: 1.75; }
   #chicpage ul, #chicpage ol { padding-left: 1.8em; margin: 1em 0; }
   #chicpage li { margin: 0.5em 0; line-height: 1.75; }
-  #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 0 8px 8px 0; }
+  #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 0; }
   #chicpage blockquote p { margin: 0.5em 0; }
   #chicpage blockquote p:first-child { margin-top: 0; }
   #chicpage blockquote p:last-child { margin-bottom: 0; }
@@ -58,23 +59,26 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'default',
     name: '默认',
     description: '经典简约排版',
-    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;',
+    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color: #ffffff;background-image: url("https://www.transparenttextures.com/patterns/concrete-wall.png");',
     css: BASE_CSS + `
       #chicpage {
         color: #333;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", Arial, sans-serif;
-      }
-      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1.2em 0 1em 0; }
-      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 2em 0 1em;  padding-bottom: 0.3em; }
-      #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.8em 0 0.8em; }
+       
+        }
+      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 1em 0; }
+      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 1.2em 0 1em 0; }
+      #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.2em 0 1em 0; }
       #chicpage p { font-size: 16px; margin: 1em 0; line-height: 1.8; color: #374151; }
-      #chicpage blockquote { background: #f9fafb; border-left: 4px solid #e5e7eb; color: #4b5563; padding: 1.2em 1.5em; }
-      #chicpage ul, #chicpage ol { margin: 1.2em 0; }
-      #chicpage li { margin: 0.6em 0; }
+      #chicpage blockquote { background: #f9fafb;  color: #4b5563; padding: 1.2em 1.5em; }
+      #chicpage li { list-style: disc; margin: 0.6em 0;}
+      #chicpage ul, #chicpage ol { margin: 1.2em 0;padding-left: 1em; }
       #chicpage a { color: #2563eb; text-decoration: underline; text-underline-offset: 4px; }
       #chicpage hr { border-top: 1px solid #f3f4f6; margin: 3em 0; }
+      #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 0px; }
+      #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 8px;border-left:0px}
     `,
-    preview: '#ffffff',
+    preview: 'red',
   },
   {
     id: 'elegant',

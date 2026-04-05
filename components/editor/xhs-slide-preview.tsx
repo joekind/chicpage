@@ -190,21 +190,21 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       margin: 0 !important;
       background: transparent !important;
     }
-    #xhs-content #chicpage > * {
-      margin-top: 0 !important;
-      margin-bottom: 0.8em !important;
-    }
+    // #xhs-content #chicpage > * {
+    //   margin-top: 0 !important;
+    //   margin-bottom: 0.8em !important;
+    // }
     #xhs-content #chicpage > *:last-child {
       margin-bottom: 0 !important;
     }
-    #xhs-content #chicpage h1,
-    #xhs-content #chicpage h2,
-    #xhs-content #chicpage h3 {
-      margin-top: 0.4em !important;
-      margin-bottom: 0.4em !important;
-      line-height: 1.3 !important;
-      text-align: inherit !important;
-    }
+    // #xhs-content #chicpage h1,
+    // #xhs-content #chicpage h2,
+    // #xhs-content #chicpage h3 {
+    //   margin-top: 0.4em !important;
+    //   margin-bottom: 0.4em !important;
+    //   line-height: 1.3 !important;
+    //   text-align: inherit !important;
+    // }
     /* Special handling for Magazine/Elegant theme borders and decorations */
     #xhs-content #chicpage h1::before, 
     #xhs-content #chicpage h1::after,
@@ -221,34 +221,34 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
       font-weight: inherit !important;
       color: inherit !important;
     }
-    #xhs-content #chicpage p {
-      margin: 0.4em 0 !important;
-      line-height: 1.7 !important;
-      text-indent: 0 !important;
-    }
-    #xhs-content img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 0.8em 0;
-      border-radius: 8px;
-      max-height: ${Math.floor(XHS_CONTENT_H * 0.78)}px;
-      object-fit: contain;
-    }
-    #xhs-content pre {
-      overflow-x: auto;
-      padding: 12px;
-      border-radius: 6px;
-      margin: 0.8em 0;
-      font-size: 13px;
-      max-height: ${Math.floor(XHS_CONTENT_H * 0.7)}px;
-    }
-    #xhs-content blockquote {
-      margin: 0.8em 0;
-      padding: 10px 14px;
-      border-left: 3px solid currentColor;
-      opacity: 0.8;
-    }
+    // #xhs-content #chicpage p {
+    //   margin: 0.4em 0 !important;
+    //   line-height: 1.7 !important;
+    //   text-indent: 0 !important;
+    // }
+    // #xhs-content img {
+    //   max-width: 100%;
+    //   height: auto;
+    //   display: block;
+    //   margin: 0.8em 0;
+    //   border-radius: 8px;
+    //   max-height: ${Math.floor(XHS_CONTENT_H * 0.78)}px;
+    //   object-fit: contain;
+    // }
+    // #xhs-content pre {
+    //   overflow-x: auto;
+    //   padding: 12px;
+    //   border-radius: 6px;
+    //   margin: 0.8em 0;
+    //   font-size: 13px;
+    //   max-height: ${Math.floor(XHS_CONTENT_H * 0.7)}px;
+    // }
+    // #xhs-content blockquote {
+    //   margin: 0.8em 0;
+    //   padding: 10px 14px;
+    //   border-left: 3px solid currentColor;
+    //   opacity: 0.8;
+    // }
     #xhs-content h1, 
     #xhs-content h2, 
     #xhs-content h3, 
