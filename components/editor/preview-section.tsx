@@ -10,6 +10,7 @@ import { XHSSlidePreview as PosterSlidePreview, XHSSlidePreviewMethods } from ".
 import { PreviewContent } from "./preview-content";
 import type { PosterTheme } from "@/lib/poster-themes";
 import type { WechatTheme } from "@/lib/themes";
+import { getThemeBackgroundStyle } from "@/lib/theme-background";
 
 interface PreviewSectionProps {
   layoutMode: string;
@@ -46,10 +47,7 @@ export const PreviewSection = ({
 }: PreviewSectionProps) => {
   if (layoutMode === "edit") return null;
 
-  const getWechatBackground = (theme: WechatTheme): string => {
-    const bgMatch = theme.containerStyle.match(/(?:background|background-color):\s*(#[a-fA-F0-9]{3,6}|[a-z]+)/);
-    return bgMatch ? bgMatch[1] : '#ffffff';
-  };
+  const wechatBackgroundStyle = getThemeBackgroundStyle(activeTheme);
 
   return (
     <motion.section
@@ -207,12 +205,19 @@ export const PreviewSection = ({
                   styleTheme={styleTheme}
                   imgRadius={imgRadius}
                   activeThemeCss={activeThemeCss}
+                  activeTheme={activeTheme}
                 />
               </DesktopMockup>
             ) : (
               <IPhoneMockup
                 mode={previewMode}
-                screenStyle={{ background: getWechatBackground(activeTheme) }}
+                screenStyle={{
+                  backgroundColor: wechatBackgroundStyle.backgroundColor,
+                  backgroundImage: wechatBackgroundStyle.backgroundImage,
+                  backgroundRepeat: wechatBackgroundStyle.backgroundRepeat,
+                  backgroundSize: wechatBackgroundStyle.backgroundSize,
+                  backgroundPosition: wechatBackgroundStyle.backgroundPosition,
+                }}
               >
                 <PreviewContent
                   containerRef={previewRef}
@@ -220,6 +225,7 @@ export const PreviewSection = ({
                   styleTheme={styleTheme}
                   imgRadius={imgRadius}
                   activeThemeCss={activeThemeCss}
+                  activeTheme={activeTheme}
                 />
               </IPhoneMockup>
             )}

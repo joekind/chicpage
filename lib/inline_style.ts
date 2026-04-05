@@ -263,22 +263,117 @@ function optimizeBase64Images(html: string): string {
   return doc.body.innerHTML;
 }
 
+async function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+        return;
+      }
+      reject(new Error('Failed to read blob as data URL'));
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read blob'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function fetchAsDataUrl(rawUrl: string): Promise<string | null> {
+  if (typeof window === 'undefined' || !rawUrl) return null;
+  if (rawUrl.startsWith('data:') || rawUrl.startsWith('blob:')) return rawUrl;
+
+  try {
+    const absoluteUrl = new URL(rawUrl, window.location.origin).toString();
+    const response = await fetch(absoluteUrl);
+    if (!response.ok) return null;
+    const blob = await response.blob();
+    return await blobToDataUrl(blob);
+  } catch {
+    return null;
+  }
+}
+
+async function inlineStyleUrls(style: string): Promise<string> {
+  if (typeof window === 'undefined' || !style.includes('url(')) {
+    return style;
+  }
+
+  const matches = Array.from(style.matchAll(/url\((['"]?)(.*?)\1\)/gi));
+  if (matches.length === 0) return style;
+
+  let nextStyle = style;
+
+  for (const match of matches) {
+    const rawUrl = match[2]?.trim();
+    if (!rawUrl || rawUrl.startsWith('data:') || rawUrl.startsWith('blob:')) {
+      continue;
+    }
+
+    try {
+      const dataUrl = await fetchAsDataUrl(rawUrl);
+      if (!dataUrl) continue;
+      nextStyle = nextStyle.replace(match[0], `url("${dataUrl}")`);
+    } catch {
+      continue;
+    }
+  }
+
+  return nextStyle;
+}
+
+async function inlineHtmlAssetUrls(html: string): Promise<string> {
+  if (typeof window === 'undefined') return html;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const allElements = Array.from(doc.body.querySelectorAll('*')) as HTMLElement[];
+
+  for (const elem of allElements) {
+    const styleAttr = elem.getAttribute('style');
+    if (styleAttr && styleAttr.includes('url(')) {
+      elem.setAttribute('style', await inlineStyleUrls(styleAttr));
+    }
+
+    if (elem.tagName === 'IMG') {
+      const src = elem.getAttribute('src') || '';
+      const dataUrl = await fetchAsDataUrl(src);
+      if (dataUrl) {
+        elem.setAttribute('src', dataUrl);
+      }
+    }
+  }
+
+  return doc.body.innerHTML;
+}
+
 /**
  * 生成微信公众号专用的HTML
  * 包含完整的样式包装，确保复制后样式不丢失
  */
-export function getWeChatHtml(
+export async function getWeChatHtml(
   contentHtml: string,
   containerStyle: string = ''
-): string {
+): Promise<string> {
   // 优化 base64 图片，同时把 blobUrl 图片替换为提示（blob 在公众号服务器无效）
   let optimizedHtml = optimizeBase64Images(contentHtml);
   optimizedHtml = optimizedHtml.replace(
     /src="blob:[^"]+"/g,
     'src="" alt="[图片上传中，请稍后重新复制]"'
   );
+  optimizedHtml = await inlineHtmlAssetUrls(optimizedHtml);
 
-  const style = containerStyle || 'max-width:677px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:15px;color:#333;line-height:1.8;';
+  const normalizedStyle = (containerStyle || 'max-width:677px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:15px;color:#333;line-height:1.8;').replace(
+    /url\((['"]?)(\/[^)"]+)\1\)/gi,
+    (_match, quote, path) => {
+      if (typeof window === 'undefined') {
+        return `url(${quote}${path}${quote})`;
+      }
+
+      return `url(${quote}${new URL(path, window.location.origin).toString()}${quote})`;
+    }
+  );
+
+  const style = await inlineStyleUrls(normalizedStyle);
 
   return `<section style="${style}">${optimizedHtml}</section>`;
 }

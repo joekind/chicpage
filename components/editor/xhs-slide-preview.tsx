@@ -691,7 +691,11 @@ export const XHSSlidePreview = forwardRef<
         ref={containerRef}
         className="xhs-slide-container select-none"
         style={{
-          background: theme.background,
+          backgroundColor: theme.background,
+          backgroundImage: theme.backgroundImage,
+          backgroundRepeat: theme.backgroundRepeat,
+          backgroundSize: theme.backgroundSize,
+          backgroundPosition: theme.backgroundPosition,
           width: `${XHS_CARD_W}px`,
           height: `${XHS_CARD_H}px`,
           position: "relative",
@@ -776,6 +780,11 @@ export const XHSSlidePreview = forwardRef<
                 key={`${slide.sectionId}-${slide.pageInGroup}-${i}`}
                 className="xhs-slide-page"
                 style={{
+                  backgroundColor: theme.background,
+                  backgroundImage: theme.backgroundImage,
+                  backgroundRepeat: theme.backgroundRepeat,
+                  backgroundSize: theme.backgroundSize,
+                  backgroundPosition: theme.backgroundPosition,
                   width: `${XHS_CARD_W}px`,
                   flexShrink: 0,
                   height: "100%",

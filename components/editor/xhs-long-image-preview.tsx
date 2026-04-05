@@ -29,7 +29,11 @@ export const XHSLongImagePreview = forwardRef<HTMLDivElement, XHSLongImagePrevie
         ref={ref}
         className="xhs-long-image"
         style={{
-          background: theme.background,
+          backgroundColor: theme.background,
+          backgroundImage: theme.backgroundImage,
+          backgroundRepeat: theme.backgroundRepeat,
+          backgroundSize: theme.backgroundSize,
+          backgroundPosition: theme.backgroundPosition,
           minHeight: '100%',
           width: '375px',
           margin: '0 auto',

@@ -5,21 +5,39 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, FileCode, FileLineChart, Check, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
+import type { WechatTheme } from "@/lib/themes";
 
 interface ExportButtonProps {
   previewRef: React.RefObject<HTMLDivElement | null>;
   markdown: string;
+   styleTheme: "wechat" | "poster";
+   activeWechatTheme?: WechatTheme;
   fileName?: string;
 }
 
-export function ExportButton({ previewRef, markdown, fileName = "document" }: ExportButtonProps) {
+export function ExportButton({
+  previewRef,
+  markdown,
+  styleTheme,
+  activeWechatTheme,
+  fileName = "document",
+}: ExportButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [exportStatus, setExportStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const exportToHTML = () => {
+  const exportToHTML = async () => {
     if (!previewRef.current) return;
     try {
-      const htmlContent = previewRef.current.innerHTML;
+      let htmlContent = previewRef.current.innerHTML;
+
+      if (styleTheme === "wechat" && activeWechatTheme) {
+        const chicpageEl = previewRef.current.querySelector("#chicpage") as HTMLElement | null;
+        const target = chicpageEl ?? previewRef.current;
+        const inlinedHtml = getInlinedHtml(target, { wechatOptimized: true });
+        htmlContent = await getWeChatHtml(inlinedHtml, activeWechatTheme.containerStyle);
+      }
+
       const fullHtml = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -108,7 +126,7 @@ export function ExportButton({ previewRef, markdown, fileName = "document" }: Ex
               className="absolute right-0 top-full mt-2 z-50 w-56 bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl border border-zinc-200/50 overflow-hidden p-2"
             >
               <button
-                onClick={() => { exportToHTML(); setIsOpen(false); }}
+                onClick={async () => { await exportToHTML(); setIsOpen(false); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition-colors"
               >
                 <div className="size-8 rounded-lg bg-blue-50 flex items-center justify-center">

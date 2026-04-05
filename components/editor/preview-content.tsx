@@ -2,12 +2,16 @@
 
 import React from "react";
 import { cn } from "@/lib/utils";
+import type { CSSProperties } from "react";
+import type { WechatTheme } from "@/lib/themes";
+import { getThemeBackgroundStyle } from "@/lib/theme-background";
 
 interface PreviewContentProps {
   html: string;
   styleTheme: string;
   imgRadius: number;
   activeThemeCss: string;
+  activeTheme?: WechatTheme;
   containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -16,8 +20,21 @@ export const PreviewContent = ({
   styleTheme,
   imgRadius,
   activeThemeCss,
+  activeTheme,
   containerRef,
 }: PreviewContentProps) => {
+  const themeContainerStyle: CSSProperties | undefined =
+    styleTheme === "wechat" && activeTheme
+      ? {
+          ...getThemeBackgroundStyle(activeTheme),
+          width: "100%",
+          maxWidth: "677px",
+          margin: "0 auto",
+          minHeight: "100%",
+          padding: 0,
+        }
+      : undefined;
+
   return (
     <div
       ref={containerRef}
@@ -36,7 +53,9 @@ export const PreviewContent = ({
         .poster-card-theme th { background: #f9f9f9; padding: 8px; border: 1px solid #eee; font-weight: 700; text-align: left; }
         .poster-card-theme td { padding: 8px; border: 1px solid #eee; color: #444; }
       `}</style>
-      <div id="chicpage" dangerouslySetInnerHTML={{ __html: html }} />
+      <div style={themeContainerStyle}>
+        <div id="chicpage" dangerouslySetInnerHTML={{ __html: html }} />
+      </div>
     </div>
   );
 };

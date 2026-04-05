@@ -294,7 +294,7 @@ export default function ChicEditor() {
       ) as HTMLElement | null;
       const target = chicpageEl ?? previewRef.current;
       const contentHtml = getInlinedHtml(target, { wechatOptimized: true });
-      const finalHtml = getWeChatHtml(contentHtml, activeTheme.containerStyle);
+      const finalHtml = await getWeChatHtml(contentHtml, activeTheme.containerStyle);
       const textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
       const data = [
         new ClipboardItem({
@@ -566,6 +566,10 @@ export default function ChicEditor() {
         onConfirm={handleConfirmExport}
         slides={previewSlides}
         themeBackground={activePosterTheme.background}
+        themeBackgroundImage={activePosterTheme.backgroundImage}
+        themeBackgroundRepeat={activePosterTheme.backgroundRepeat}
+        themeBackgroundSize={activePosterTheme.backgroundSize}
+        themeBackgroundPosition={activePosterTheme.backgroundPosition}
         themeCSS={getXHSContentCSS(
           activePosterTheme.css,
           POSTER_FONTS.find((f) => f.id === posterFont)?.value || POSTER_FONTS[0].value,

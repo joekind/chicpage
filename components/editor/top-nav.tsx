@@ -26,7 +26,7 @@ import { CHANGELOG } from "@/lib/changelog";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/editor/export-button";
 import { POSTER_THEMES } from "@/lib/poster-themes";
-import { WECHAT_THEMES } from "@/lib/themes";
+import { WECHAT_THEMES, type WechatTheme } from "@/lib/themes";
 import { POSTER_FONTS } from "@/lib/fonts";
 
 interface TopNavProps {
@@ -277,6 +277,20 @@ export const TopNav = ({
                         const isActive =
                           (styleTheme === "wechat" ? wechatTheme : posterTheme) ===
                           theme.id;
+                        const posterThemeData =
+                          "background" in theme ? (theme as (typeof POSTER_THEMES)[number]) : null;
+                        const previewStyle =
+                          posterThemeData
+                            ? {
+                                backgroundColor: posterThemeData.background,
+                                backgroundImage: posterThemeData.backgroundImage,
+                                backgroundRepeat: posterThemeData.backgroundRepeat,
+                                backgroundSize: posterThemeData.backgroundSize,
+                                backgroundPosition: posterThemeData.backgroundPosition,
+                              }
+                            : {
+                                backgroundColor: theme.preview || "#fff",
+                              };
 
                         return (
                           <button
@@ -301,7 +315,7 @@ export const TopNav = ({
                                 "size-10 rounded-lg border border-zinc-200 overflow-hidden relative shrink-0 transition-transform group-hover:scale-105",
                                 isActive ? "border-indigo-200 shadow-sm" : "",
                               )}
-                              style={{ background: theme.preview || "#fff" }}
+                              style={previewStyle}
                             >
                               {/* Simple abstract preview */}
                               <div
@@ -493,7 +507,12 @@ export const TopNav = ({
             )}
           </Button>
         ) : (
-          <ExportButton previewRef={previewRef} markdown={markdown} />
+          <ExportButton
+            previewRef={previewRef}
+            markdown={markdown}
+            styleTheme={styleTheme}
+            activeWechatTheme={currentWechatTheme as WechatTheme}
+          />
         )}
 
         <Button

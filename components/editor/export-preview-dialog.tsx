@@ -22,6 +22,10 @@ interface ExportPreviewDialogProps {
     pageInGroup: number 
   }[];
   themeBackground: string;
+  themeBackgroundImage?: string;
+  themeBackgroundRepeat?: string;
+  themeBackgroundSize?: string;
+  themeBackgroundPosition?: string;
   themeCSS: string;
 }
 
@@ -31,6 +35,10 @@ export function ExportPreviewDialog({
   onConfirm,
   slides,
   themeBackground,
+  themeBackgroundImage,
+  themeBackgroundRepeat,
+  themeBackgroundSize,
+  themeBackgroundPosition,
   themeCSS,
 }: ExportPreviewDialogProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -86,7 +94,11 @@ export function ExportPreviewDialog({
             height: `${XHS_CARD_H}px`,
             transform: `scale(${scale})`,
             transformOrigin: "top left",
-            background: themeBackground,
+            backgroundColor: themeBackground,
+            backgroundImage: themeBackgroundImage,
+            backgroundRepeat: themeBackgroundRepeat,
+            backgroundSize: themeBackgroundSize,
+            backgroundPosition: themeBackgroundPosition,
             display: "flex",
             flexDirection: "column",
           }}

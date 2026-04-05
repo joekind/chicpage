@@ -22,6 +22,10 @@ export interface PosterTheme {
   description: string;
   preview: string;
   background: string;
+  backgroundImage?: string;
+  backgroundRepeat?: string;
+  backgroundSize?: string;
+  backgroundPosition?: string;
   containerStyle: string;
   css: string;
 }

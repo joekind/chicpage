@@ -31,7 +31,13 @@ export const XHSThemePicker: React.FC<XHSThemePickerProps> = ({
                 "aspect-square w-full rounded-xl border border-zinc-200/60 shadow-sm transition-all duration-500 overflow-hidden relative",
                 isActive ? "ring-2 ring-indigo-500 border-transparent shadow-lg scale-[1.05]" : "hover:border-zinc-300 hover:scale-[1.05] bg-zinc-50"
               )}
-              style={{ background: theme.preview }}
+              style={{
+                backgroundColor: theme.background,
+                backgroundImage: theme.backgroundImage,
+                backgroundRepeat: theme.backgroundRepeat,
+                backgroundSize: theme.backgroundSize,
+                backgroundPosition: theme.backgroundPosition,
+              }}
             >
               {/* Mini Preview Decoration */}
               <div className="p-1 space-y-1 opacity-20">

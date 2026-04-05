@@ -56,6 +56,41 @@ const preloadImages = async (element: HTMLElement): Promise<void> => {
   }
 };
 
+const preloadBackgroundImages = async (element: HTMLElement): Promise<void> => {
+  const elements = [element, ...Array.from(element.querySelectorAll<HTMLElement>("*"))];
+  const urls = new Set<string>();
+
+  for (const node of elements) {
+    const inlineBackgroundImage = node.style.backgroundImage;
+    const computedBackgroundImage = window.getComputedStyle(node).backgroundImage;
+
+    [inlineBackgroundImage, computedBackgroundImage].forEach((value) => {
+      if (!value || value === "none") return;
+
+      for (const match of value.matchAll(/url\((['"]?)(.*?)\1\)/gi)) {
+        const url = match[2]?.trim();
+        if (url) urls.add(url);
+      }
+    });
+  }
+
+  if (urls.size === 0) return;
+
+  await Promise.all(
+    Array.from(urls).map(
+      (url) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.decoding = "async";
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = url;
+        }),
+    ),
+  );
+};
+
 // html-to-image 通用配置
 const getOptions = (element: HTMLElement, scale: number, backgroundColor: string) => ({
   cacheBust: true,
@@ -87,6 +122,7 @@ export const exportToImage = async (
 
   try {
     await preloadImages(element);
+    await preloadBackgroundImages(element);
 
     console.log('开始 html-to-image 渲染...');
     const opts = getOptions(element, scale, backgroundColor);
@@ -153,6 +189,7 @@ export const getImageDataUrl = async (
   } = options;
 
   await preloadImages(element);
+  await preloadBackgroundImages(element);
 
   const opts = getOptions(element, scale, backgroundColor);
   const toImageFn = format === 'jpeg' ? toJpeg : toPng;
