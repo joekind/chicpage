@@ -52,7 +52,7 @@ export function useExport() {
       for (let i = 0; i < totalSlides; i++) {
         const slidePage = slidePages[i];
         const dataUrl = (await exportToImage(slidePage as HTMLElement, {
-          filename: `poster-${timestamp}-${i + 1}-of-${totalSlides}`,
+          filename: `chicpage-${timestamp}-${i + 1}-of-${totalSlides}`,
           format: 'png',
           scale: 3, // EXPORT.DEFAULT_SCALE
           backgroundColor: theme.background,
@@ -60,7 +60,7 @@ export function useExport() {
         })) as string;
 
         if (dataUrl) {
-          const filename = `poster-${timestamp}-${i + 1}-of-${totalSlides}.png`;
+          const filename = `chicpage-${timestamp}-${i + 1}-of-${totalSlides}.png`;
           validResults.push({
             filename,
             dataUrl,
@@ -80,7 +80,7 @@ export function useExport() {
       const zipUrl = URL.createObjectURL(zipBlob);
       const link = document.createElement('a');
       link.href = zipUrl;
-      link.download = `poster-export-${timestamp}.zip`;
+      link.download = `chicpage-${timestamp}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

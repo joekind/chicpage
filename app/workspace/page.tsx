@@ -353,7 +353,7 @@ export default function ChicEditor() {
       for (let i = 0; i < totalSlides; i++) {
         const slidePage = slidePages[i];
         const dataUrl = (await exportToImage(slidePage as HTMLElement, {
-          filename: `xhs-${timestamp}-${i + 1}-of-${totalSlides}`,
+          filename: `chicpage-${timestamp}-${i + 1}-of-${totalSlides}`,
           format: "png",
           scale: 3,
           backgroundColor: activePosterTheme.background,
@@ -361,7 +361,7 @@ export default function ChicEditor() {
         })) as string;
 
         if (dataUrl) {
-          const filename = `xhs-${timestamp}-${i + 1}-of-${totalSlides}.png`;
+          const filename = `chicpage-${timestamp}-${i + 1}-of-${totalSlides}.png`;
           validResults.push({ filename, dataUrl, base64Data: dataUrl.split(",")[1] });
         }
         setExportProgress({ current: i + 1, total: totalSlides });
@@ -376,7 +376,7 @@ export default function ChicEditor() {
       const zipUrl = URL.createObjectURL(zipBlob);
       const link = document.createElement("a");
       link.href = zipUrl;
-      link.download = `xhs-export-${timestamp}.zip`;
+      link.download = `chicpage-${timestamp}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
