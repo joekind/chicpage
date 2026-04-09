@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    date: '2026-04-09',
+    title: '贴图工作流与首页体验升级',
+    items: [
+      '贴图新增 3:4、9:16、1:2 三种比例切换',
+      '预览与导出统一适配当前贴图比例',
+      '新增快捷键说明面板，操作入口更直观',
+      '首页新增加载动画、骨架屏与回到顶部交互',
+    ],
+  },
+  {
     date: '2026-03-31',
     title: '主题系统全面升级',
     items: [
