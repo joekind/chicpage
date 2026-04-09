@@ -6,8 +6,8 @@
  * 贴图卡片尺寸配置
  */
 export const POSTER_CARD = {
-  WIDTH: 334,
-  HEIGHT: 672,
+  WIDTH: 336,
+  HEIGHT: 448,
   STATUS_HEIGHT: 40,
   HEADER_HEIGHT: 0,
   FOOTER_HEIGHT: 48,

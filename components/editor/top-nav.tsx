@@ -28,10 +28,17 @@ import { ExportButton } from "@/components/editor/export-button";
 import { POSTER_THEMES } from "@/lib/poster-themes";
 import { WECHAT_THEMES, type WechatTheme } from "@/lib/themes";
 import { POSTER_FONTS } from "@/lib/fonts";
+import type { PosterRatio } from "@/types";
+
+const POSTER_RATIO_OPTIONS: { value: PosterRatio; label: string }[] = [
+  { value: "3:4", label: "3:4" },
+  { value: "9:16", label: "9:16" },
+  { value: "1:2", label: "1:2" },
+];
 
 interface TopNavProps {
-  previewMode: "pc" | "app" | "poster";
-  setPreviewMode: (m: "pc" | "app" | "poster") => void;
+  previewMode: "pc" | "app";
+  setPreviewMode: (m: "pc" | "app") => void;
   layoutMode: "split" | "edit" | "preview";
   setLayoutMode: (m: "split" | "edit" | "preview") => void;
   styleTheme: "wechat" | "poster";
@@ -42,6 +49,8 @@ interface TopNavProps {
   setPosterTheme: (t: string) => void;
   posterFont: string;
   setPosterFont: (f: string) => void;
+  posterRatio: PosterRatio;
+  setPosterRatio: (ratio: PosterRatio) => void;
   onCopy: () => void;
   copyStatus: "idle" | "success" | "error";
   previewRef: React.RefObject<HTMLDivElement | null>;
@@ -66,6 +75,8 @@ export const TopNav = ({
   setPosterTheme,
   posterFont,
   setPosterFont,
+  posterRatio,
+  setPosterRatio,
   onCopy,
   copyStatus,
   previewRef,
@@ -195,7 +206,6 @@ export const TopNav = ({
             )}
             onClick={() => {
               setStyleTheme("wechat");
-              if (previewMode === "poster") setPreviewMode("app");
             }}
           >
             <MessageCircle className="size-4" />
@@ -212,13 +222,37 @@ export const TopNav = ({
             )}
             onClick={() => {
               setStyleTheme("poster");
-              setPreviewMode("poster");
             }}
           >
             <ImageIconLucide className="size-4" />
             贴图
           </Button>
         </div>
+
+        {styleTheme === "poster" && (
+          <div className="flex items-center gap-1 rounded-2xl border border-indigo-200/70 bg-indigo-50/70 px-2 py-1 shadow-sm">
+        
+            <div className="flex items-center rounded-xl bg-white/90 p-1 ring-1 ring-indigo-100">
+              {POSTER_RATIO_OPTIONS.map((option) => (
+                <Button
+                  key={option.value}
+                  variant="ghost"
+                  size="sm"
+                  title={`切换到 ${option.label} 比例`}
+                  onClick={() => setPosterRatio(option.value)}
+                  className={cn(
+                    "h-7 rounded-lg px-3 text-[11px] font-bold transition-all",
+                    posterRatio === option.value
+                      ? "bg-zinc-900 text-white shadow-sm"
+                      : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900",
+                  )}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 极简主题选择器 */}
         <div className="relative" ref={themePickerRef}>
@@ -355,128 +389,149 @@ export const TopNav = ({
 
         {/* 字体选择器 (仅小红书模式) */}
         {styleTheme === "poster" && (
-          <div className="relative" ref={fontPickerRef}>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "h-9 gap-2 rounded-xl px-3 transition-all duration-200 border border-zinc-200/60 bg-white/50 hover:bg-white hover:border-zinc-300 shadow-sm",
-                showFontPicker
-                  ? "bg-white border-zinc-400 ring-2 ring-zinc-100"
-                  : "",
-              )}
-              onClick={() => setShowFontPicker(!showFontPicker)}
-            >
-              <span
+          <>
+            <div className="relative" ref={fontPickerRef}>
+              <Button
+                variant="ghost"
+                size="sm"
                 className={cn(
-                  "text-[12px] font-bold tracking-tight",
-                  showFontPicker ? "text-zinc-900" : "text-zinc-600",
+                  "h-9 gap-2 rounded-xl px-3 transition-all duration-200 border border-zinc-200/60 bg-white/50 hover:bg-white hover:border-zinc-300 shadow-sm",
+                  showFontPicker
+                    ? "bg-white border-zinc-400 ring-2 ring-zinc-100"
+                    : "",
                 )}
+                onClick={() => setShowFontPicker(!showFontPicker)}
               >
-                {currentFont.name}
-              </span>
-              <ChevronDown
-                className={cn(
-                  "size-3 text-zinc-400 transition-transform duration-200",
-                  showFontPicker ? "rotate-180" : "",
-                )}
-              />
-            </Button>
-
-            <AnimatePresence>
-              {showFontPicker && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute top-full right-0 mt-2 w-[200px] bg-white rounded-2xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] border border-zinc-200 z-50 overflow-hidden"
+                <span
+                  className={cn(
+                    "text-[12px] font-bold tracking-tight",
+                    showFontPicker ? "text-zinc-900" : "text-zinc-600",
+                  )}
                 >
-                  <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/30">
-                    <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase">
-                      选择字体
-                    </h3>
-                  </div>
-                  <div className="p-2">
-                    <div className="grid grid-cols-1 gap-1">
-                      {POSTER_FONTS.map((font) => {
-                        const isActive = posterFont === font.id;
-                        return (
-                          <button
-                            key={font.id}
-                            onClick={() => {
-                              setPosterFont(font.id);
-                              setShowFontPicker(false);
-                            }}
-                            className={cn(
-                              "flex items-center justify-between p-2.5 rounded-xl transition-all duration-200",
-                              isActive
-                                ? "bg-indigo-50/50 text-indigo-600"
-                                : "hover:bg-zinc-50 text-zinc-600",
-                            )}
-                            style={{ fontFamily: font.value }}
-                          >
-                            <span className="text-[14px]">{font.name}</span>
-                            {isActive && (
-                              <Check className="size-4 text-indigo-500" />
-                            )}
-                          </button>
-                        );
-                      })}
+                  {currentFont.name}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "size-3 text-zinc-400 transition-transform duration-200",
+                    showFontPicker ? "rotate-180" : "",
+                  )}
+                />
+              </Button>
+
+              <AnimatePresence>
+                {showFontPicker && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute top-full right-0 mt-2 w-[200px] bg-white rounded-2xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.15)] border border-zinc-200 z-50 overflow-hidden"
+                  >
+                    <div className="px-4 py-3 border-b border-zinc-100 bg-zinc-50/30">
+                      <h3 className="text-[11px] font-bold tracking-widest text-zinc-400 uppercase">
+                        选择字体
+                      </h3>
                     </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                    <div className="p-2">
+                      <div className="grid grid-cols-1 gap-1">
+                        {POSTER_FONTS.map((font) => {
+                          const isActive = posterFont === font.id;
+                          return (
+                            <button
+                              key={font.id}
+                              onClick={() => {
+                                setPosterFont(font.id);
+                                setShowFontPicker(false);
+                              }}
+                              className={cn(
+                                "flex items-center justify-between p-2.5 rounded-xl transition-all duration-200",
+                                isActive
+                                  ? "bg-indigo-50/50 text-indigo-600"
+                                  : "hover:bg-zinc-50 text-zinc-600",
+                              )}
+                              style={{ fontFamily: font.value }}
+                            >
+                              <span className="text-[14px]">{font.name}</span>
+                              {isActive && (
+                                <Check className="size-4 text-indigo-500" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </>
         )}
       </div>
 
-      <div className="flex items-center gap-0.5 rounded-lg bg-zinc-100/50 p-0.5 border border-zinc-200/50">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setPreviewMode("pc")}
-          title="电脑端预览"
-          className={cn(
-            "size-7 rounded-md transition-all",
-            previewMode === "pc"
-              ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200"
-              : "text-zinc-400 hover:text-zinc-600",
-          )}
-        >
-          <Monitor className="size-3.5" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setPreviewMode("app")}
-          title="手机端预览"
-          className={cn(
-            "size-7 rounded-md transition-all",
-            previewMode === "app" || previewMode === "poster"
-              ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200"
-              : "text-zinc-400 hover:text-zinc-600",
-          )}
-        >
-          <Smartphone className="size-3.5" />
-        </Button>
-        <div className="h-4 w-px bg-zinc-300 mx-1" />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowWordCount(!showWordCount)}
-          title={showWordCount ? "隐藏字数信息" : "显示字数信息"}
-          className={cn(
-            "size-7 rounded-md transition-all",
-            showWordCount
-              ? "bg-white text-indigo-500 shadow-sm ring-1 ring-zinc-200"
-              : "text-zinc-400 hover:text-zinc-600",
-          )}
-        >
-          <FileText className="size-3.5" />
-        </Button>
-      </div>
+        {styleTheme !== "poster" && (
+          <div className="flex items-center gap-0.5 rounded-lg bg-zinc-100/50 p-0.5 border border-zinc-200/50">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setPreviewMode("pc")}
+              title="电脑端预览"
+              className={cn(
+                "size-7 rounded-md transition-all",
+                previewMode === "pc"
+                  ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200"
+                  : "text-zinc-400 hover:text-zinc-600",
+              )}
+            >
+              <Monitor className="size-3.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setPreviewMode("app")}
+              title="手机端预览"
+              className={cn(
+                "size-7 rounded-md transition-all",
+                previewMode === "app"
+                  ? "bg-white text-zinc-900 shadow-sm ring-1 ring-zinc-200"
+                  : "text-zinc-400 hover:text-zinc-600",
+              )}
+            >
+              <Smartphone className="size-3.5" />
+            </Button>
+            <div className="h-4 w-px bg-zinc-300 mx-1" />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowWordCount(!showWordCount)}
+              title={showWordCount ? "隐藏字数信息" : "显示字数信息"}
+              className={cn(
+                "size-7 rounded-md transition-all",
+                showWordCount
+                  ? "bg-white text-indigo-500 shadow-sm ring-1 ring-zinc-200"
+                  : "text-zinc-400 hover:text-zinc-600",
+              )}
+            >
+              <FileText className="size-3.5" />
+            </Button>
+          </div>
+        )}
+
+        {styleTheme === "poster" && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowWordCount(!showWordCount)}
+            title={showWordCount ? "隐藏字数信息" : "显示字数信息"}
+            className={cn(
+              "size-9 rounded-xl transition-all border border-zinc-200/60 bg-white/50 hover:bg-white hover:border-zinc-300 shadow-sm",
+              showWordCount
+                ? "text-indigo-500 ring-2 ring-zinc-100"
+                : "text-zinc-400 hover:text-zinc-600",
+            )}
+          >
+            <FileText className="size-4" />
+          </Button>
+        )}
 
       <div className="flex items-center gap-3">
         <div className="h-4 w-[1px] bg-zinc-200" />

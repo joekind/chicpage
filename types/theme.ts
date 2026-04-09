@@ -37,8 +37,11 @@ export interface FontConfig {
   value: string;
 }
 
+/** 贴图比例 */
+export type PosterRatio = '3:4' | '9:16' | '1:2';
+
 /** 预览模式 */
-export type PreviewMode = 'pc' | 'app' | 'poster';
+export type PreviewMode = 'pc' | 'app';
 
 /** 布局模式 */
 export type LayoutMode = 'split' | 'edit' | 'preview';

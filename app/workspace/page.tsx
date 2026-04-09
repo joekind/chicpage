@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import TurndownService from "turndown";
-import { markdownToHtml } from "@/lib/markdown";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
 import { useStore } from "@/store/use-store";
 import { getTheme } from "@/lib/themes";
-import { getPosterTheme, POSTER_THEMES } from "@/lib/poster-themes";
+import { getPosterTheme } from "@/lib/poster-themes";
 import { POSTER_FONTS } from "@/lib/fonts";
 import { storeImageLocally } from "@/lib/image_service";
 import { exportToImage } from "@/lib/export-image";
@@ -18,13 +17,19 @@ import { TopNav } from "@/components/editor/top-nav";
 import { ContextMenu } from "@/components/editor/context-menu";
 import type { SlidePreviewMethods } from "@/types";
 import { AnimatePresence } from "framer-motion";
-import { getXHSContentCSS } from "@/components/editor/xhs-slide-preview";
+import {
+  getPosterLayoutConfig,
+  getXHSContentCSS,
+} from "@/components/editor/xhs-slide-preview";
 import { EditorSection } from "@/components/editor/editor-section";
 import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
 import { PreviewSection } from "@/components/editor/preview-section";
 import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
 import { FloatingToolbar } from "@/components/editor/floating-toolbar";
+import { ShortcutsPanel } from "@/components/editor/shortcuts-panel";
 import type { SelectionInfo } from "@/components/editor/mdx-editor";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { useMarkdownSync } from "@/hooks/use-markdown-sync";
 
 export default function ChicEditor() {
   const {
@@ -43,6 +48,8 @@ export default function ChicEditor() {
     setPosterTheme,
     posterFont,
     setPosterFont,
+    posterRatio,
+    setPosterRatio,
     layoutMode,
     setLayoutMode,
     posterShowHeader,
@@ -56,9 +63,11 @@ export default function ChicEditor() {
 
   const activeTheme = getTheme(wechatTheme);
   const activePosterTheme = getPosterTheme(posterTheme);
+  const posterLayout = getPosterLayoutConfig(posterRatio);
   const editorRef = useRef<EditorMethods>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const posterSlideRef = useRef<SlidePreviewMethods>(null);
+  const exportPreviewRef = useRef<HTMLDivElement>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
     "idle",
   );
@@ -178,105 +187,14 @@ export default function ChicEditor() {
     }
   };
 
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      const contentToRender = showWordCount
-        ? injectReadInfo(markdown)
-        : markdown;
-      const res = await markdownToHtml(contentToRender);
-      setHtml(res);
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [markdown, styleTheme, showWordCount, setHtml]);
+  useMarkdownSync({
+    markdown,
+    styleTheme,
+    showWordCount,
+    onHtmlChange: setHtml,
+  });
 
-  // 键盘快捷键支持
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
-
-      if (!cmdOrCtrl) return;
-
-      // Ctrl/Cmd + S - 复制到剪贴板
-      if (e.key === "s") {
-        e.preventDefault();
-        handleCopy();
-        return;
-      }
-
-      // Ctrl/Cmd + / - 切换预览模式
-      if (e.key === "/") {
-        e.preventDefault();
-        if (layoutMode === "edit") {
-          setLayoutMode("preview");
-        } else if (layoutMode === "preview") {
-          setLayoutMode("split");
-        } else {
-          setLayoutMode("edit");
-        }
-        return;
-      }
-
-      // Ctrl/Cmd + Shift + P - 切换 PC/移动端预览
-      if (e.shiftKey && e.key === "P") {
-        e.preventDefault();
-        setPreviewMode(previewMode === "pc" ? "app" : "pc");
-        return;
-      }
-
-      // Ctrl/Cmd + Z - 撤销
-      if (e.key === "z" && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-        if (editorRef.current) {
-          const historyState = editorRef.current.getMarkdown();
-          setMarkdown(historyState);
-          editorRef.current.setMarkdown(historyState);
-        }
-        return;
-      }
-
-      // Ctrl/Cmd + Shift + Z 或 Ctrl/Cmd + Y - 重做
-      if ((e.key === "z" && e.shiftKey) || e.key === "y") {
-        e.preventDefault();
-        redo();
-        if (editorRef.current) {
-          const historyState = editorRef.current.getMarkdown();
-          setMarkdown(historyState);
-          editorRef.current.setMarkdown(historyState);
-        }
-        return;
-      }
-
-      // Ctrl/Cmd + B - 加粗
-      if (e.key === "b") {
-        e.preventDefault();
-        if (styleTheme === "poster") {
-          handleWrapText("「", "」");
-        } else {
-          handleWrapText("**");
-        }
-        return;
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [layoutMode, previewMode, styleTheme, undo, redo]);
-
-  const handleSelectionChange = (info: SelectionInfo) => {
-    setSelection(info);
-    if (!info.empty) {
-      setTimeout(() => {
-        const coords = editorRef.current?.getSelectionCoords();
-        if (coords) setSelectionCoords(coords);
-      }, 0);
-    } else {
-      setSelectionCoords(null);
-    }
-  };
-
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     try {
       if (styleTheme === "poster") {
         // 小红书模式：一键复制纯正文，移除 Markdown 语法
@@ -302,12 +220,50 @@ export default function ChicEditor() {
           "text/plain": new Blob([textToCopy], { type: "text/plain" }),
         }),
       ];
+
       await navigator.clipboard.write(data);
       setCopyStatus("success");
       setTimeout(() => setCopyStatus("idle"), 2000);
     } catch (err) {
-      console.error("Copy failed:", err);
+      console.error("复制失败:", err);
       setCopyStatus("error");
+      setTimeout(() => setCopyStatus("idle"), 2000);
+    }
+  }, [styleTheme, showWordCount, markdown, activeTheme.containerStyle]);
+
+  const handleUndo = useCallback(() => {
+    undo();
+    const historyState = useStore.getState().markdown;
+    editorRef.current?.setMarkdown(historyState);
+  }, [undo]);
+
+  const handleRedo = useCallback(() => {
+    redo();
+    const historyState = useStore.getState().markdown;
+    editorRef.current?.setMarkdown(historyState);
+  }, [redo]);
+
+  useKeyboardShortcuts({
+    layoutMode,
+    previewMode,
+    styleTheme,
+    setLayoutMode,
+    setPreviewMode,
+    onCopy: handleCopy,
+    onWrapText: handleWrapText,
+    undo: handleUndo,
+    redo: handleRedo,
+  });
+
+  const handleSelectionChange = (info: SelectionInfo) => {
+    setSelection(info);
+    if (!info.empty) {
+      setTimeout(() => {
+        const coords = editorRef.current?.getSelectionCoords();
+        if (coords) setSelectionCoords(coords);
+      }, 0);
+    } else {
+      setSelectionCoords(null);
     }
   };
 
@@ -340,7 +296,7 @@ export default function ChicEditor() {
         .slice(0, -5);
 
       const slidePages = Array.from(
-        document.querySelectorAll(".xhs-slide-page"),
+        exportPreviewRef.current?.querySelectorAll(".xhs-slide-page") ?? [],
       ) as HTMLElement[];
 
       if (slidePages.length < totalSlides) {
@@ -407,6 +363,8 @@ export default function ChicEditor() {
         setPosterTheme={setPosterTheme}
         posterFont={posterFont}
         setPosterFont={setPosterFont}
+        posterRatio={posterRatio}
+        setPosterRatio={setPosterRatio}
         onCopy={handleCopy}
         copyStatus={copyStatus}
         previewRef={previewRef}
@@ -509,6 +467,7 @@ export default function ChicEditor() {
             activeTheme={activeTheme}
             activePosterTheme={activePosterTheme}
             posterFont={posterFont}
+            posterRatio={posterRatio}
             posterShowHeader={posterShowHeader}
             posterShowFooter={posterShowFooter}
             imgRadius={imgRadius}
@@ -561,6 +520,7 @@ export default function ChicEditor() {
       </AnimatePresence>
 
       <ExportPreviewDialog
+        containerRef={exportPreviewRef}
         isOpen={showExportPreview}
         onClose={() => setShowExportPreview(false)}
         onConfirm={handleConfirmExport}
@@ -570,11 +530,15 @@ export default function ChicEditor() {
         themeBackgroundRepeat={activePosterTheme.backgroundRepeat}
         themeBackgroundSize={activePosterTheme.backgroundSize}
         themeBackgroundPosition={activePosterTheme.backgroundPosition}
+        layout={posterLayout}
         themeCSS={getXHSContentCSS(
           activePosterTheme.css,
           POSTER_FONTS.find((f) => f.id === posterFont)?.value || POSTER_FONTS[0].value,
+          posterLayout,
         )}
       />
+
+      <ShortcutsPanel />
     </div>
   );
 }

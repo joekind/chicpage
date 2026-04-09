@@ -6,10 +6,14 @@ import { cn } from "@/lib/utils";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { IPhoneMockup } from "./mockups/iphone-mockup";
 import { DesktopMockup } from "./mockups/desktop-mockup";
-import { XHSSlidePreview as PosterSlidePreview, XHSSlidePreviewMethods } from "./xhs-slide-preview";
+import {
+  XHSSlidePreview as PosterSlidePreview,
+  XHSSlidePreviewMethods,
+} from "./xhs-slide-preview";
 import { PreviewContent } from "./preview-content";
 import type { PosterTheme } from "@/lib/poster-themes";
 import type { WechatTheme } from "@/lib/themes";
+import type { PosterRatio } from "@/types";
 import { getThemeBackgroundStyle } from "@/lib/theme-background";
 
 interface PreviewSectionProps {
@@ -21,6 +25,7 @@ interface PreviewSectionProps {
   activeTheme: WechatTheme;
   activePosterTheme: PosterTheme;
   posterFont: string;
+  posterRatio: PosterRatio;
   posterShowHeader: boolean;
   posterShowFooter: boolean;
   imgRadius: number;
@@ -38,6 +43,7 @@ export const PreviewSection = ({
   activeTheme,
   activePosterTheme,
   posterFont,
+  posterRatio,
   posterShowHeader,
   posterShowFooter,
   imgRadius,
@@ -80,123 +86,51 @@ export const PreviewSection = ({
           <div
             className="origin-top transition-transform duration-500 ease-out"
             style={{
-              transform:
-                previewMode === "pc" ? "none" : "scale(0.9) translateZ(0)",
+              transform: "none",
               backfaceVisibility: "hidden",
               WebkitFontSmoothing: "antialiased",
             }}
           >
             {styleTheme === "poster" ? (
-              previewMode === "pc" ? (
-                <div
-                  style={{
-                    background: "#f0f0f0",
-                    borderRadius: 12,
-                    padding: "40px 60px",
-                    boxShadow: "0 8px 40px rgba(0,0,0,0.12)",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 0,
-                  }}
-                >
-                  {/* Browser top UI */}
-                  <div
-                    style={{
-                      width: "100%",
-                      background: "#fff",
-                      borderRadius: "10px 10px 0 0",
-                      padding: "10px 16px",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      borderBottom: "1px solid #e8e8e8",
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: 5 }}>
-                      {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
-                        <div
-                          key={c}
-                          style={{
-                            width: 10,
-                            height: 10,
-                            borderRadius: "50%",
-                            background: c,
-                          }}
+              <div className="relative group flex items-center justify-center">
+                <div className="rounded-[32px] border border-zinc-200 bg-white p-3 shadow-[0_14px_34px_rgba(15,23,42,0.10)]">
+                  <div className="rounded-[28px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,244,245,0.96)_100%)] p-[3px] shadow-[0_14px_34px_rgba(15,23,42,0.10)] ring-1 ring-black/5">
+                    <div className="rounded-[24px] border border-white/85 bg-[linear-gradient(180deg,#ffffff_0%,#fafafa_100%)] p-[4px] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                      <div
+                        style={{
+                          transform: "scale(1.14)",
+                          transformOrigin: "center center",
+                        }}
+                      >
+                        <PosterSlidePreview
+                          ref={posterSlideRef}
+                          html={html}
+                          theme={activePosterTheme}
+                          font={posterFont}
+                          ratio={posterRatio}
+                          showHeader={posterShowHeader}
+                          showFooter={posterShowFooter}
+                          hideMockUI={true}
                         />
-                      ))}
+                      </div>
                     </div>
-                    <div
-                      style={{
-                        flex: 1,
-                        background: "#f5f5f5",
-                        borderRadius: 6,
-                        height: 22,
-                        marginLeft: 8,
-                        display: "flex",
-                        alignItems: "center",
-                        paddingLeft: 10,
-                      }}
-                    >
-                      <span style={{ fontSize: 11, color: "#999" }}>
-                        ChicPage
-                      </span>
-                    </div>
-                  </div>
-                  {/* Card */}
-                  <div
-                    style={{
-                      background: "#fff",
-                      borderRadius: "0 0 10px 10px",
-                      padding: "24px",
-                      display: "flex",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <PosterSlidePreview
-                      ref={posterSlideRef}
-                      html={html}
-                      theme={activePosterTheme}
-                      font={posterFont}
-                      showHeader={posterShowHeader}
-                      showFooter={posterShowFooter}
-                      hideMockUI={true}
-                    />
                   </div>
                 </div>
-              ) : (
-                <div className="relative group">
-                  <IPhoneMockup
-                    screenStyle={{ background: activePosterTheme.background }}
-                    hideStatusBar={false}
-                    showDynamicIsland={true}
-                  >
-                    <PosterSlidePreview
-                      ref={posterSlideRef}
-                      html={html}
-                      theme={activePosterTheme}
-                      font={posterFont}
-                      showHeader={posterShowHeader}
-                      showFooter={posterShowFooter}
-                      hideMockUI={true}
-                    />
-                  </IPhoneMockup>
 
-                  {/* External Navigation Arrows */}
-                  <button
-                    onClick={() => posterSlideRef.current?.goPrev()}
-                    className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
-                  >
-                    <ChevronLeft className="size-8 stroke-[2.5px]" />
-                  </button>
-                  <button
-                    onClick={() => posterSlideRef.current?.goNext()}
-                    className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
-                  >
-                    <ChevronRight className="size-8 stroke-[2.5px]" />
-                  </button>
-                </div>
-              )
+                {/* External Navigation Arrows */}
+                <button
+                  onClick={() => posterSlideRef.current?.goPrev()}
+                  className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                >
+                  <ChevronLeft className="size-8 stroke-[2.5px]" />
+                </button>
+                <button
+                  onClick={() => posterSlideRef.current?.goNext()}
+                  className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                >
+                  <ChevronRight className="size-8 stroke-[2.5px]" />
+                </button>
+              </div>
             ) : previewMode === "pc" ? (
               <DesktopMockup>
                 <PreviewContent

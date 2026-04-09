@@ -3,15 +3,10 @@
 import React from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  XHS_CARD_W,
-  XHS_CARD_H,
-  XHS_STATUS_H,
-  XHS_FOOTER_H,
-  XHS_CONTENT_H,
-} from "@/components/editor/xhs-slide-preview";
+import type { PosterLayoutConfig } from "@/components/editor/xhs-slide-preview";
 
 interface ExportPreviewDialogProps {
+  containerRef?: React.RefObject<HTMLDivElement | null>;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void> | void;
@@ -27,9 +22,11 @@ interface ExportPreviewDialogProps {
   themeBackgroundSize?: string;
   themeBackgroundPosition?: string;
   themeCSS: string;
+  layout: PosterLayoutConfig;
 }
 
 export function ExportPreviewDialog({
+  containerRef,
   isOpen,
   onClose,
   onConfirm,
@@ -40,6 +37,7 @@ export function ExportPreviewDialog({
   themeBackgroundSize,
   themeBackgroundPosition,
   themeCSS,
+  layout,
 }: ExportPreviewDialogProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [activeSlideIndex, setActiveSlideIndex] = React.useState<number | null>(null);
@@ -78,8 +76,8 @@ export function ExportPreviewDialog({
     activeSlideIndex !== null ? slides[activeSlideIndex] : undefined;
 
   const renderSlideCard = (slide: ExportPreviewDialogProps["slides"][number], scale: number) => {
-    const width = Math.round(XHS_CARD_W * scale);
-    const height = Math.round(XHS_CARD_H * scale);
+    const width = Math.round(layout.width * scale);
+    const height = Math.round(layout.height * scale);
     return (
       <div
         className="overflow-hidden relative"
@@ -89,9 +87,10 @@ export function ExportPreviewDialog({
         }}
       >
         <div
+          className="xhs-slide-page"
           style={{
-            width: `${XHS_CARD_W}px`,
-            height: `${XHS_CARD_H}px`,
+            width: `${layout.width}px`,
+            height: `${layout.height}px`,
             transform: `scale(${scale})`,
             transformOrigin: "top left",
             backgroundColor: themeBackground,
@@ -103,12 +102,12 @@ export function ExportPreviewDialog({
             flexDirection: "column",
           }}
         >
-          <div style={{ height: XHS_STATUS_H, flexShrink: 0 }} />
+          <div style={{ height: layout.statusHeight, flexShrink: 0 }} />
           <div
             style={{
               width: "100%",
-              height: `calc(100% - ${XHS_STATUS_H}px - ${XHS_FOOTER_H}px)`,
-              padding: "32px 26px",
+              height: `calc(100% - ${layout.statusHeight}px - ${layout.footerHeight}px)`,
+              padding: `${layout.paddingY}px ${layout.paddingX}px`,
               boxSizing: "border-box",
               overflow: "hidden",
             }}
@@ -117,12 +116,12 @@ export function ExportPreviewDialog({
               className="preview-content w-full"
               dangerouslySetInnerHTML={{ __html: slide.html }}
               style={{
-                height: `${XHS_CONTENT_H}px`,
+                height: `${layout.contentHeight}px`,
                 overflow: "hidden",
               }}
             />
           </div>
-          <div style={{ height: XHS_FOOTER_H, flexShrink: 0 }} />
+          <div style={{ height: layout.footerHeight, flexShrink: 0 }} />
         </div>
       </div>
     );
@@ -131,7 +130,7 @@ export function ExportPreviewDialog({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <style>{scopedCSS}</style>
-      <div className="relative w-[90vw] max-w-5xl h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div ref={containerRef} className="relative w-[90vw] max-w-5xl h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
           <div>

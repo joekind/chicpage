@@ -29,6 +29,7 @@ export interface SlidePreviewMethods {
   getCurrentSlide: () => number;
   goPrev: () => void;
   goNext: () => void;
+  clearSelectedImage: () => void;
 }
 
 /** 导出进度信息 */

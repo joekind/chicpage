@@ -5,10 +5,13 @@ import React, {
   useState,
   useRef,
   useEffect,
+  useMemo,
   useImperativeHandle,
 } from "react";
 import { XHSTheme } from "@/lib/xhs-themes";
 import { XHS_FONTS } from "@/lib/fonts";
+import type { SlideItem } from "@/types";
+import type { PosterRatio } from "@/types";
 
 // 判断颜色是否为深色
 function isColorDark(color: string): boolean {
@@ -130,6 +133,7 @@ export interface XHSSlidePreviewMethods {
   getCurrentSlide: () => number;
   goPrev: () => void;
   goNext: () => void;
+  clearSelectedImage: () => void;
 }
 
 interface XHSSlidePreviewProps {
@@ -142,27 +146,74 @@ interface XHSSlidePreviewProps {
   showFooter?: boolean;
   hideMockUI?: boolean;
   font?: string;
+  ratio?: PosterRatio;
 }
 
-export const XHS_CARD_W = 334;
-export const XHS_CARD_H = 672;
-export const XHS_STATUS_H = 40; // 状态栏高度
-const HEADER_H = 0;
-export const XHS_FOOTER_H = 48;
-const PADDING_X = 26; // 增加左右内边距，从 20px 提升至 26px
-const PADDING_Y = 32; // 增加上下内边距，从 24px 提升至 32px
-export const SAFE_MARGIN = 20; // 极大幅度降低安全边距，优先保证内容不被拆分（原 102 -> 64 -> 20）
+export interface PosterLayoutConfig {
+  ratio: PosterRatio;
+  width: number;
+  height: number;
+  statusHeight: number;
+  headerHeight: number;
+  footerHeight: number;
+  paddingX: number;
+  paddingY: number;
+  safeMargin: number;
+  contentWidth: number;
+  contentHeight: number;
+}
 
-export const XHS_CONTENT_H =
-  XHS_CARD_H -
-  XHS_STATUS_H -
-  HEADER_H -
-  XHS_FOOTER_H -
-  PADDING_Y * 2 -
-  SAFE_MARGIN; // 450px 左右
+const POSTER_RATIO_HEIGHT_MAP: Record<PosterRatio, number> = {
+  "3:4": 480,
+  "9:16": 640,
+  "1:2": 720,
+};
+
+export function getPosterLayoutConfig(
+  ratio: PosterRatio = "9:16",
+): PosterLayoutConfig {
+  const width = 360;
+  const height = POSTER_RATIO_HEIGHT_MAP[ratio];
+  const statusHeight = 0;
+  const headerHeight = 0;
+  const footerHeight = 18;
+  const paddingX = 18;
+  const paddingY = 12;
+  const safeMargin = 0;
+
+  return {
+    ratio,
+    width,
+    height,
+    statusHeight,
+    headerHeight,
+    footerHeight,
+    paddingX,
+    paddingY,
+    safeMargin,
+    contentWidth: width - paddingX * 2,
+    contentHeight:
+      height -
+      statusHeight -
+      headerHeight -
+      footerHeight -
+      paddingY * 2 -
+      safeMargin,
+  };
+}
+
+export const XHS_CARD_W = getPosterLayoutConfig("3:4").width;
+export const XHS_CARD_H = getPosterLayoutConfig("3:4").height;
+export const XHS_STATUS_H = getPosterLayoutConfig("3:4").statusHeight;
+export const XHS_FOOTER_H = getPosterLayoutConfig("3:4").footerHeight;
+export const XHS_CONTENT_H = getPosterLayoutConfig("3:4").contentHeight;
 
 // 导出内容区域的通用 CSS，供导出时注入
-export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
+export function getXHSContentCSS(
+  themeCSS: string,
+  fontValue?: string,
+  layout: PosterLayoutConfig = getPosterLayoutConfig("9:16"),
+): string {
   // 将主题中的 #chicpage 替换为 #xhs-content 以适配小红书预览
   const adjustedCSS = themeCSS.replace(/#chicpage/g, "#xhs-content");
   const fontFamilyRule = fontValue
@@ -172,8 +223,8 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
     ${adjustedCSS}
     #xhs-content {
       ${fontFamilyRule}
-      font-size: 14.5px;
-      line-height: 1.8;
+      font-size: 12.5px;
+      line-height: 1.7;
       word-wrap: break-word;
       overflow-wrap: break-word;
       word-break: break-word;
@@ -194,17 +245,25 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
     //   margin-top: 0 !important;
     //   margin-bottom: 0.8em !important;
     // }
+    #xhs-content #chicpage > *:first-child {
+      margin-top: 0 !important;
+      margin-bottom: 0.12em !important;
+    }
     #xhs-content #chicpage > *:last-child {
       margin-bottom: 0 !important;
     }
-    // #xhs-content #chicpage h1,
-    // #xhs-content #chicpage h2,
-    // #xhs-content #chicpage h3 {
-    //   margin-top: 0.4em !important;
-    //   margin-bottom: 0.4em !important;
-    //   line-height: 1.3 !important;
-    //   text-align: inherit !important;
-    // }
+    #xhs-content #chicpage h1,
+    #xhs-content #chicpage h2,
+    #xhs-content #chicpage h3 {
+      margin-top: 0.25em !important;
+      margin-bottom: 0.28em !important;
+      line-height: 1.3 !important;
+      text-align: inherit !important;
+    }
+    #xhs-content #chicpage > *:first-child:is(h1, h2, h3) {
+      margin-top: 0 !important;
+      margin-bottom: 0.18em !important;
+    }
     /* Special handling for Magazine/Elegant theme borders and decorations */
     #xhs-content #chicpage h1::before, 
     #xhs-content #chicpage h1::after,
@@ -226,15 +285,16 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
     //   line-height: 1.7 !important;
     //   text-indent: 0 !important;
     // }
-    // #xhs-content img {
-    //   max-width: 100%;
-    //   height: auto;
-    //   display: block;
-    //   margin: 0.8em 0;
-    //   border-radius: 8px;
-    //   max-height: ${Math.floor(XHS_CONTENT_H * 0.78)}px;
-    //   object-fit: contain;
-    // }
+    #xhs-content img {
+      max-width: 100% !important;
+      width: auto !important;
+      height: auto !important;
+      display: block;
+      margin: 0.8em auto !important;
+      border-radius: 8px;
+      max-height: ${Math.floor(layout.contentHeight * 0.62)}px !important;
+      object-fit: contain !important;
+    }
     // #xhs-content pre {
     //   overflow-x: auto;
     //   padding: 12px;
@@ -279,13 +339,6 @@ export function getXHSContentCSS(themeCSS: string, fontValue?: string): string {
  * ==========================================================
  */
 
-interface SlideItem {
-  html: string;      // 归属章节的 HTML
-  sectionId: number; // 章节索引
-  pageInGroup: number; // 在该章节中的页码
-  totalInGroup: number; // 该章节总页数
-}
-
 /**
  * 分页计算函数：按语义块测量高度并分页
  */
@@ -293,6 +346,7 @@ async function calculateSlides(
   html: string,
   themeCSS: string,
   fontValue?: string,
+  layout: PosterLayoutConfig = getPosterLayoutConfig("9:16"),
 ): Promise<SlideItem[]> {
   // 1. 按 <hr data-pagebreak="true"> 拆分章节
   const parser = new DOMParser();
@@ -329,11 +383,11 @@ async function calculateSlides(
 
   // 2. 用隐藏探针测量“当前页 + 新块”是否溢出
   const styleEl = document.createElement("style");
-  styleEl.textContent = getXHSContentCSS(themeCSS, fontValue);
+  styleEl.textContent = getXHSContentCSS(themeCSS, fontValue, layout);
 
   const probe = document.createElement("div");
-  const contentW = XHS_CARD_W - PADDING_X * 2;
-  const contentH = XHS_CONTENT_H;
+  const contentW = layout.contentWidth;
+  const contentH = layout.contentHeight;
   probe.style.cssText = `
     position: fixed; top: -9999px; left: -9999px;
     width: ${contentW}px;
@@ -575,7 +629,7 @@ async function calculateSlides(
   return finalSlides;
 }
 
-// 供外部引用的占位符，不再使用旧的 splitIntoSlides 名称以防冲突
+// 保留旧名称，供外部逻辑兼容调用
 export const splitIntoSlides = calculateSlides;
 
 
@@ -590,14 +644,22 @@ export const XHSSlidePreview = forwardRef<
       showFooter = true,
       hideMockUI = false,
       font = "system",
+      ratio = "9:16",
     },
     ref,
   ) => {
+    const layout = useMemo(() => getPosterLayoutConfig(ratio), [ratio]);
     const [slides, setSlides] = useState<SlideItem[]>([]);
     const [current, setCurrent] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [dragOffset, setDragOffset] = useState(0);
+    const [selectedImage, setSelectedImage] = useState<{
+      slideIndex: number;
+      imageIndex: number;
+      src: string;
+      scale: number;
+    } | null>(null);
 
     useEffect(() => {
       if (!html) return;
@@ -607,10 +669,16 @@ export const XHSSlidePreview = forwardRef<
 
       let isMounted = true;
       const run = async () => {
-        const result = await splitIntoSlides(html, theme.css, currentFontValue);
+        const result = await splitIntoSlides(
+          html,
+          theme.css,
+          currentFontValue,
+          layout,
+        );
         if (isMounted) {
           setSlides(result);
           setCurrent(0);
+          setSelectedImage(null);
         }
       };
       run();
@@ -618,7 +686,7 @@ export const XHSSlidePreview = forwardRef<
       return () => {
         isMounted = false;
       };
-    }, [html, theme.css, font]);
+    }, [html, theme.css, font, layout]);
 
     const go = (dir: 1 | -1) => {
       setCurrent((p) =>
@@ -666,7 +734,7 @@ export const XHSSlidePreview = forwardRef<
 
     // 计算位移，并在边缘滑动时增加阻尼感
     const translateX = (() => {
-      const base = -current * XHS_CARD_W;
+      const base = -current * layout.width;
       if (current === 0 && dragOffset > 0) return base + dragOffset * 0.35;
       if (current === slideCount - 1 && dragOffset < 0)
         return base + dragOffset * 0.35;
@@ -684,6 +752,7 @@ export const XHSSlidePreview = forwardRef<
       goPrev: () => setCurrent((prev) => Math.max(0, prev - 1)),
       goNext: () =>
         setCurrent((prev) => Math.min(slideCount - 1, prev + 1)),
+      clearSelectedImage: () => setSelectedImage(null),
     }));
 
     return (
@@ -696,8 +765,8 @@ export const XHSSlidePreview = forwardRef<
           backgroundRepeat: theme.backgroundRepeat,
           backgroundSize: theme.backgroundSize,
           backgroundPosition: theme.backgroundPosition,
-          width: `${XHS_CARD_W}px`,
-          height: `${XHS_CARD_H}px`,
+          width: `${layout.width}px`,
+          height: `${layout.height}px`,
           position: "relative",
           overflow: "hidden",
           borderRadius: "0",
@@ -733,7 +802,7 @@ export const XHSSlidePreview = forwardRef<
         {/* Status Bar */}
         <div
           style={{
-            height: `${XHS_STATUS_H}px`,
+            height: `${layout.statusHeight}px`,
             flexShrink: 0,
             position: "relative",
             zIndex: 20,
@@ -742,7 +811,19 @@ export const XHSSlidePreview = forwardRef<
           {!hideMockUI && <StatusBar backgroundColor={theme.background} />}
         </div>
         <style>{`
-          ${getXHSContentCSS(theme.css, XHS_FONTS.find((f) => f.id === font)?.value || XHS_FONTS[0].value)}
+          ${getXHSContentCSS(theme.css, XHS_FONTS.find((f) => f.id === font)?.value || XHS_FONTS[0].value, layout)}
+          .xhs-preview-image-selectable {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
+          }
+          .xhs-preview-image-selectable:hover {
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.22);
+          }
+          .xhs-preview-image-selectable.is-selected {
+            outline: 2px solid rgba(99, 102, 241, 0.95);
+            outline-offset: 2px;
+            box-shadow: 0 10px 24px rgba(99, 102, 241, 0.22);
+          }
           .xhs-slide-nav {
             position: absolute;
             top: 50%;
@@ -763,11 +844,19 @@ export const XHSSlidePreview = forwardRef<
         `}</style>
 
         {/* Slides viewport */}
-        <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+        <div
+          style={{ flex: 1, overflow: "hidden", position: "relative" }}
+          onClick={(e) => {
+            const target = e.target as HTMLElement;
+            if (!target.closest("img")) {
+              setSelectedImage(null);
+            }
+          }}
+        >
           <div
             style={{
               display: "flex",
-              width: `${displaySlides.length * XHS_CARD_W}px`,
+              width: `${displaySlides.length * layout.width}px`,
               height: "100%",
               transform: `translateX(${translateX}px)`,
               transition: isDragging
@@ -785,10 +874,10 @@ export const XHSSlidePreview = forwardRef<
                   backgroundRepeat: theme.backgroundRepeat,
                   backgroundSize: theme.backgroundSize,
                   backgroundPosition: theme.backgroundPosition,
-                  width: `${XHS_CARD_W}px`,
+                  width: `${layout.width}px`,
                   flexShrink: 0,
                   height: "100%",
-                  padding: `${PADDING_Y}px ${PADDING_X}px`,
+                  padding: `${layout.paddingY}px ${layout.paddingX}px`,
                   display: "flex",
                   flexDirection: "column",
                   boxSizing: "border-box",
@@ -808,14 +897,41 @@ export const XHSSlidePreview = forwardRef<
                     id="xhs-content"
                     className="xhs-content-wrapper"
                     style={{
-                      width: `${XHS_CARD_W - PADDING_X * 2}px`,
-                      maxWidth: `${XHS_CARD_W - PADDING_X * 2}px`,
-                      height: `${XHS_CONTENT_H}px`,
+                      width: `${layout.contentWidth}px`,
+                      maxWidth: `${layout.contentWidth}px`,
+                      height: `${layout.contentHeight}px`,
                       overflow: "hidden",
                       display: "block",
                     }}
                   >
-                    <div id="chicpage" dangerouslySetInnerHTML={{ __html: slide.html }} />
+                    <div
+                      id="chicpage"
+                      dangerouslySetInnerHTML={{ __html: slide.html }}
+                      ref={(node) => {
+                        if (!node) return;
+                        const images = Array.from(node.querySelectorAll("img"));
+                        images.forEach((img, imageIndex) => {
+                          const isSelected =
+                            selectedImage?.slideIndex === i &&
+                            selectedImage?.imageIndex === imageIndex;
+                          const scale = isSelected ? selectedImage.scale : 1;
+                          img.classList.add("xhs-preview-image-selectable");
+                          img.classList.toggle("is-selected", isSelected);
+                          img.style.transform = `scale(${scale})`;
+                          img.style.transformOrigin = "center center";
+                          img.style.pointerEvents = "auto";
+                          img.onclick = (event) => {
+                            event.stopPropagation();
+                            setSelectedImage({
+                              slideIndex: i,
+                              imageIndex,
+                              src: img.currentSrc || img.getAttribute("src") || "",
+                              scale: isSelected ? selectedImage.scale : 1,
+                            });
+                          };
+                        });
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -827,7 +943,7 @@ export const XHSSlidePreview = forwardRef<
         <div
           style={{
             position: "absolute",
-            bottom: showFooter ? `${XHS_FOOTER_H + 6}px` : "12px",
+            bottom: showFooter ? `${layout.footerHeight + 4}px` : "8px",
             left: "50%",
             transform: "translateX(-50%)",
             display: "flex",
@@ -852,7 +968,73 @@ export const XHSSlidePreview = forwardRef<
 
         {/* Footer */}
         {showFooter && (
-          <div style={{ height: `${XHS_FOOTER_H}px`, flexShrink: 0 }} />
+          <div style={{ height: `${layout.footerHeight}px`, flexShrink: 0 }} />
+        )}
+
+        {selectedImage && selectedImage.slideIndex === current && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: showFooter ? `${layout.footerHeight + 20}px` : "22px",
+              transform: "translateX(-50%)",
+              zIndex: 25,
+              width: "min(280px, calc(100% - 32px))",
+              padding: "10px 12px",
+              borderRadius: 14,
+              background: "rgba(255,255,255,0.95)",
+              border: "1px solid rgba(99,102,241,0.15)",
+              boxShadow: "0 14px 40px rgba(15,23,42,0.18)",
+              backdropFilter: "blur(10px)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
+                marginBottom: 8,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: "#312e81",
+                }}
+              >
+                图片缩放
+              </span>
+              <span
+                style={{
+                  fontSize: 11,
+                  color: "#6366f1",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {Math.round(selectedImage.scale * 100)}%
+              </span>
+            </div>
+            <input
+              type="range"
+              min="60"
+              max="140"
+              step="1"
+              value={Math.round(selectedImage.scale * 100)}
+              onChange={(e) => {
+                const nextScale = Number(e.target.value) / 100;
+                setSelectedImage((prev) =>
+                  prev ? { ...prev, scale: nextScale } : prev,
+                );
+              }}
+              style={{
+                width: "100%",
+                accentColor: "#6366f1",
+              }}
+            />
+          </div>
         )}
 
         <div

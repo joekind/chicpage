@@ -3,7 +3,6 @@
  */
 
 import { useEffect } from 'react';
-import type { EditorMethods } from '@/types';
 import type { LayoutMode, PreviewMode, StyleTheme } from '@/types';
 
 interface KeyboardShortcutsOptions {
@@ -56,10 +55,12 @@ export function useKeyboardShortcuts({
         return;
       }
 
-      // Ctrl/Cmd + Shift + P - 切换 PC/移动端预览
+      // Ctrl/Cmd + Shift + P - 切换 PC/移动端预览（贴图模式下禁用）
       if (e.shiftKey && e.key === 'P') {
         e.preventDefault();
-        setPreviewMode(previewMode === 'pc' ? 'app' : 'pc');
+        if (styleTheme !== 'poster') {
+          setPreviewMode(previewMode === 'pc' ? 'app' : 'pc');
+        }
         return;
       }
 
@@ -87,6 +88,7 @@ export function useKeyboardShortcuts({
         }
         return;
       }
+
     };
 
     window.addEventListener('keydown', handleKeyDown);

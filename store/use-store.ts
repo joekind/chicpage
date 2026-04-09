@@ -1,15 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getPosterTheme } from '@/lib/poster-themes';
+import type { PosterRatio } from '@/types';
 
 interface AppState {
   markdown: string;
   html: string;
   imgRadius: number;
-  previewMode: 'pc' | 'app' | 'poster';
+  previewMode: 'pc' | 'app';
   styleTheme: 'wechat' | 'poster';
   wechatTheme: string;
   posterTheme: string;
   posterFont: string;
+  posterRatio: PosterRatio;
   layoutMode: 'split' | 'edit' | 'preview';
   posterShowHeader: boolean;
   posterShowFooter: boolean;
@@ -20,11 +23,12 @@ interface AppState {
   setMarkdown: (markdown: string | ((prev: string) => string)) => void;
   setHtml: (html: string) => void;
   setImgRadius: (radius: number) => void;
-  setPreviewMode: (mode: 'pc' | 'app' | 'poster') => void;
+  setPreviewMode: (mode: 'pc' | 'app') => void;
   setStyleTheme: (theme: 'wechat' | 'poster') => void;
   setWechatTheme: (id: string) => void;
   setPosterTheme: (id: string) => void;
   setPosterFont: (id: string) => void;
+  setPosterRatio: (ratio: PosterRatio) => void;
   setLayoutMode: (mode: 'split' | 'edit' | 'preview') => void;
   setPosterShowHeader: (show: boolean) => void;
   setPosterShowFooter: (show: boolean) => void;
@@ -79,6 +83,7 @@ export const useStore = create<AppState>()(
       wechatTheme: 'default',
       posterTheme: 'pure-white',
       posterFont: 'system',
+      posterRatio: '9:16',
       layoutMode: 'split',
       posterShowHeader: true,
       posterShowFooter: true,
@@ -99,6 +104,7 @@ export const useStore = create<AppState>()(
       setWechatTheme: (wechatTheme) => set({ wechatTheme }),
       setPosterTheme: (posterTheme) => set({ posterTheme }),
       setPosterFont: (posterFont) => set({ posterFont }),
+      setPosterRatio: (posterRatio) => set({ posterRatio }),
       setLayoutMode: (layoutMode) => set({ layoutMode }),
 
       pushHistory: () => set((state) => ({
@@ -135,6 +141,7 @@ export const useStore = create<AppState>()(
         wechatTheme: state.wechatTheme,
         posterTheme: state.posterTheme,
         posterFont: state.posterFont,
+        posterRatio: state.posterRatio,
         layoutMode: state.layoutMode,
         posterShowHeader: state.posterShowHeader,
         posterShowFooter: state.posterShowFooter,
@@ -147,6 +154,5 @@ export const useStore = create<AppState>()(
 // 向后兼容的导出
 export const getXHSTheme = (id: string) => {
   console.warn('getXHSTheme is deprecated, use getPosterTheme instead');
-  const { POSTER_THEMES, getPosterTheme } = require('@/lib/poster-themes');
   return getPosterTheme(id);
 };

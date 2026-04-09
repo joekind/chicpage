@@ -22,14 +22,26 @@ export function useMarkdownSync({
   onHtmlChange,
 }: MarkdownSyncOptions) {
   useEffect(() => {
+    let cancelled = false;
+
     const timer = setTimeout(async () => {
-      const contentToRender = showWordCount
-        ? injectReadInfo(markdown)
-        : markdown;
-      const res = await markdownToHtml(contentToRender);
-      onHtmlChange(res);
+      try {
+        const contentToRender = showWordCount
+          ? injectReadInfo(markdown)
+          : markdown;
+        const res = await markdownToHtml(contentToRender);
+
+        if (!cancelled) {
+          onHtmlChange(res);
+        }
+      } catch (error) {
+        console.error('Markdown render failed:', error);
+      }
     }, EXPORT.MARKDOWN_DEBOUNCE_MS);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [markdown, styleTheme, showWordCount, onHtmlChange]);
 }
