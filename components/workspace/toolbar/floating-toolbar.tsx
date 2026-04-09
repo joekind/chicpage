@@ -28,12 +28,13 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
   const ESTIMATED_TOOLBAR_W = showColors ? 340 : 420;
   const TOOLBAR_H = 44;
   const GAP = 8;
+  const VIEWPORT_PADDING = 8;
   const centerX = coords.left + coords.width / 2;
   const preferredTop = coords.top - TOOLBAR_H - GAP;
-  const placeBelow = preferredTop < 10;
+  const placeBelow = preferredTop < VIEWPORT_PADDING;
   const top = placeBelow ? coords.top + coords.height + GAP : preferredTop;
-  const minLeft = ESTIMATED_TOOLBAR_W / 2 + 8;
-  const maxLeft = window.innerWidth - ESTIMATED_TOOLBAR_W / 2 - 8;
+  const minLeft = ESTIMATED_TOOLBAR_W / 2 + VIEWPORT_PADDING;
+  const maxLeft = window.innerWidth - ESTIMATED_TOOLBAR_W / 2 - VIEWPORT_PADDING;
   const clampedCenterX = Math.min(Math.max(centerX, minLeft), maxLeft);
 
   return (
@@ -44,7 +45,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 10 }}
           style={{
-            position: 'absolute',
+            position: 'fixed',
             top,
             left: clampedCenterX,
             transform: "translateX(-50%)",
@@ -54,7 +55,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
         >
           {!showColors ? (
             <div className="flex items-center">
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={onBold}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
@@ -62,7 +63,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               >
                 <Bold className="size-4" />
               </button>
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('*')}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
@@ -70,7 +71,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               >
                 <Italic className="size-4" />
               </button>
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('~~')}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
@@ -78,7 +79,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               >
                 <Strikethrough className="size-3.5" />
               </button>
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('`')}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-violet-400"
@@ -86,7 +87,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               >
                 <Code className="size-4" />
               </button>
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('[', '](url)')}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-blue-400"
@@ -94,10 +95,10 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               >
                 <LinkIcon className="size-4" />
               </button>
-              
+
               <div className="w-px h-4 bg-white/20 mx-1" />
-              
-              <button 
+
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('<sup>', '</sup>')}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-sky-400"
@@ -105,7 +106,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               >
                 <Superscript className="size-3.5" />
               </button>
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('<sub>', '</sub>')}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-sky-400"
@@ -116,7 +117,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
 
               <div className="w-px h-4 bg-white/20 mx-1" />
 
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowColors(true)}
                 className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-amber-400 font-bold"
@@ -127,7 +128,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
             </div>
           ) : (
             <div className="flex items-center gap-1.5 px-1 animate-in fade-in slide-in-from-left-2 duration-300">
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowColors(false)}
                 className="size-7 flex items-center justify-center hover:bg-white/10 rounded-full mr-1"
@@ -147,10 +148,10 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
                   style={{ backgroundColor: c.value }}
                 />
               ))}
-              <button 
+              <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  onWrapText('', ''); 
+                  onWrapText('', '');
                   setShowColors(false);
                 }}
                 className="size-6 rounded-full border border-dashed border-white/20 flex items-center justify-center hover:bg-white/10"

@@ -3,8 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
-  Undo,
-  Redo,
   Copy,
   Scissors,
   ClipboardPaste,
@@ -16,8 +14,6 @@ import {
 } from "lucide-react";
 
 interface ContextMenuProps {
-  onUndo: () => void;
-  onRedo: () => void;
   onCopy: () => void;
   onCut: () => void;
   onPaste: () => void;
@@ -33,8 +29,6 @@ interface ContextMenuProps {
 }
 
 export const ContextMenu: React.FC<ContextMenuProps> = ({
-  onUndo,
-  onRedo,
   onCopy,
   onCut,
   onPaste,
@@ -96,9 +90,6 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
   const maxMenuHeight = Math.max(180, viewportH - clampedY - padding);
 
   const menuItems = [
-    { label: "撤销", icon: Undo, action: onUndo, shortcut: "Ctrl+Z" },
-    { label: "重做", icon: Redo, action: onRedo, shortcut: "Ctrl+Y" },
-    { separator: true },
     { label: "复制", icon: Copy, action: onCopy, shortcut: "Ctrl+C" },
     { label: "剪切", icon: Scissors, action: onCut, shortcut: "Ctrl+X" },
     { label: "粘贴", icon: ClipboardPaste, action: onPaste, shortcut: "Ctrl+V" },

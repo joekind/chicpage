@@ -3,7 +3,7 @@
 import React from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { PosterLayoutConfig } from "@/components/editor/xhs-slide-preview";
+import type { PosterLayoutConfig } from "@/components/workspace/preview/xhs-slide-preview";
 
 interface ExportPreviewDialogProps {
   containerRef?: React.RefObject<HTMLDivElement | null>;

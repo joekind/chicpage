@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import TurndownService from "turndown";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
 import { useStore } from "@/store/use-store";
@@ -12,22 +12,22 @@ import { exportToImage } from "@/lib/export-image";
 import { injectReadInfo, getCleanText } from "@/lib/utils-content";
 import JSZip from "jszip";
 
-import type { EditorMethods } from "@/components/editor/mdx-editor";
-import { TopNav } from "@/components/editor/top-nav";
-import { ContextMenu } from "@/components/editor/context-menu";
+import type { EditorMethods, SelectionInfo } from "@/components/workspace/editor/mdx-editor";
+import { TopNav } from "@/components/workspace/layout/top-nav";
+import { ContextMenu } from "@/components/workspace/toolbar/context-menu";
 import type { SlidePreviewMethods } from "@/types";
 import { AnimatePresence } from "framer-motion";
 import {
   getPosterLayoutConfig,
   getXHSContentCSS,
-} from "@/components/editor/xhs-slide-preview";
-import { EditorSection } from "@/components/editor/editor-section";
-import { MarkdownToolbar } from "@/components/editor/markdown-toolbar";
-import { PreviewSection } from "@/components/editor/preview-section";
-import { ExportPreviewDialog } from "@/components/editor/export-preview-dialog";
-import { FloatingToolbar } from "@/components/editor/floating-toolbar";
-import { ShortcutsPanel } from "@/components/editor/shortcuts-panel";
-import type { SelectionInfo } from "@/components/editor/mdx-editor";
+} from "@/components/workspace/preview/xhs-slide-preview";
+import { EditorSection } from "@/components/workspace/editor/editor-section";
+import { MarkdownToolbar } from "@/components/workspace/toolbar/markdown-toolbar";
+import { PreviewSection } from "@/components/workspace/preview/preview-section";
+import { ExportPreviewDialog } from "@/components/workspace/dialogs/export-preview-dialog";
+import { FloatingToolbar } from "@/components/workspace/toolbar/floating-toolbar";
+import { InsertLinkDialog } from "@/components/workspace/dialogs/insert-link-dialog";
+
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useMarkdownSync } from "@/hooks/use-markdown-sync";
 
@@ -68,10 +68,14 @@ export default function ChicEditor() {
   const previewRef = useRef<HTMLDivElement>(null);
   const posterSlideRef = useRef<SlidePreviewMethods>(null);
   const exportPreviewRef = useRef<HTMLDivElement>(null);
+  const uploadNoticeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
     "idle",
   );
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadNotice, setUploadNotice] = useState<
+    { type: "loading" | "success" | "error"; message: string } | null
+  >(null);
   const [isExportingPoster, setIsExportingPoster] = useState(false);
   const [exportProgress, setExportProgress] = useState<
     { current: number; total: number } | undefined
@@ -83,6 +87,39 @@ export default function ChicEditor() {
   >([]);
   const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [selectionCoords, setSelectionCoords] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("https://");
+  const [linkText, setLinkText] = useState("");
+  const [linkSelection, setLinkSelection] = useState<SelectionInfo | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (uploadNoticeTimerRef.current) {
+        clearTimeout(uploadNoticeTimerRef.current);
+      }
+    };
+  }, []);
+
+  const showUploadNotice = useCallback(
+    (type: "loading" | "success" | "error", message: string, duration?: number) => {
+      if (uploadNoticeTimerRef.current) {
+        clearTimeout(uploadNoticeTimerRef.current);
+        uploadNoticeTimerRef.current = null;
+      }
+
+      setUploadNotice({ type, message });
+
+      if (duration) {
+        uploadNoticeTimerRef.current = setTimeout(() => {
+          setUploadNotice((current) =>
+            current?.type === type && current.message === message ? null : current,
+          );
+          uploadNoticeTimerRef.current = null;
+        }, duration);
+      }
+    },
+    [],
+  );
 
   const handlePaste = async (e: React.ClipboardEvent | ClipboardEvent) => {
     const clipboardData =
@@ -174,17 +211,56 @@ export default function ChicEditor() {
   const handleImageFile = async (file: File) => {
     if (!file.type.startsWith("image/")) return;
     setIsUploading(true);
+    showUploadNotice("loading", "正在处理图片…");
     try {
       const localUrl = await storeImageLocally(file);
       if (editorRef.current) {
+        pushHistory();
         editorRef.current.insertMarkdown(`![${file.name}](${localUrl})`);
         setMarkdown(editorRef.current.getMarkdown());
       }
+      showUploadNotice("success", "图片已插入编辑区", 2200);
     } catch (err) {
       console.error("❌ 图片处理失败:", err);
+      showUploadNotice("error", "图片处理失败，请重试", 2600);
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleOpenInsertLink = () => {
+    const currentSelection = editorRef.current?.getSelection() ?? selection ?? { from: 0, to: 0, text: "", empty: true };
+    setLinkSelection(currentSelection);
+    setLinkText(currentSelection.empty ? "" : currentSelection.text);
+    setLinkUrl("https://");
+    setIsLinkDialogOpen(true);
+  };
+
+  const handleCloseInsertLink = () => {
+    setIsLinkDialogOpen(false);
+    setLinkSelection(null);
+    setLinkUrl("https://");
+    setLinkText("");
+    editorRef.current?.focus();
+  };
+
+  const handleConfirmInsertLink = () => {
+    const normalizedUrl = linkUrl.trim();
+    if (!normalizedUrl) return;
+
+    const finalText = linkText.trim() || linkSelection?.text || "链接文字";
+    const markdownLink = `[${finalText}](${normalizedUrl})`;
+
+    pushHistory();
+
+    if (linkSelection) {
+      editorRef.current?.replaceRange(linkSelection.from, linkSelection.to, markdownLink);
+    } else {
+      editorRef.current?.insertMarkdown(markdownLink);
+    }
+
+    setMarkdown(editorRef.current?.getMarkdown() || "");
+    handleCloseInsertLink();
   };
 
   useMarkdownSync({
@@ -347,7 +423,7 @@ export default function ChicEditor() {
 
   return (
     <div
-      className="flex h-screen flex-col bg-[#fcfcfc] overflow-hidden selection:bg-zinc-900 selection:text-white"
+      className="flex h-screen flex-col bg-[#fcfcfc] overflow-hidden selection:bg-indigo-200 selection:text-zinc-900"
       onDragOver={(e) => e.preventDefault()}
     >
       <TopNav
@@ -388,6 +464,7 @@ export default function ChicEditor() {
             onFileUpload={handleFileUpload}
             onImageFile={handleImageFile}
             isUploading={isUploading}
+            uploadNotice={uploadNotice}
             styleTheme={styleTheme}
             onPushHistory={pushHistory}
             floatingToolbar={
@@ -481,12 +558,27 @@ export default function ChicEditor() {
       <AnimatePresence>
         <ContextMenu
           key="context-menu"
-          onUndo={undo}
-          onRedo={redo}
-          onCopy={handleCopy}
-          onCut={() => document.execCommand("cut")}
-          onPaste={() => {}}
-          onInsertLink={() => {}}
+          onCopy={async () => {
+            const text = editorRef.current?.copySelection() || "";
+            if (!text) return;
+            await navigator.clipboard.writeText(text);
+            editorRef.current?.focus();
+          }}
+          onCut={async () => {
+            const text = editorRef.current?.cutSelection() || "";
+            if (!text) return;
+            await navigator.clipboard.writeText(text);
+            setMarkdown(editorRef.current?.getMarkdown() || "");
+            editorRef.current?.focus();
+          }}
+          onPaste={async () => {
+            const text = await navigator.clipboard.readText();
+            if (!text) return;
+            editorRef.current?.pasteText(text);
+            setMarkdown(editorRef.current?.getMarkdown() || "");
+            editorRef.current?.focus();
+          }}
+          onInsertLink={handleOpenInsertLink}
           onInsertImage={() => {
             const input = document.createElement("input");
             input.type = "file";
@@ -503,6 +595,7 @@ export default function ChicEditor() {
             } else {
               handleInsertAtLineStart("# ");
             }
+            editorRef.current?.focus();
           }}
           onInsertSeparator={() => {
             if (styleTheme === "poster") {
@@ -510,12 +603,20 @@ export default function ChicEditor() {
             } else {
               handleInsertText("\n\n---\n\n");
             }
+            editorRef.current?.focus();
           }}
-          onInsertPageBreak={handleInsertPageBreak}
+          onInsertPageBreak={() => {
+            handleInsertPageBreak();
+            editorRef.current?.focus();
+          }}
           separatorLabel={styleTheme === "poster" ? "插入装饰分隔线" : "插入分隔线"}
           pageBreakLabel="插入强制分页符（<!--pagebreak-->）"
           targetSelector=".mdx-editor-container"
-          onDeleteLine={() => editorRef.current?.insertMarkdown("\n")}
+          onDeleteLine={() => {
+            editorRef.current?.deleteCurrentLine();
+            setMarkdown(editorRef.current?.getMarkdown() || "");
+            editorRef.current?.focus();
+          }}
         />
       </AnimatePresence>
 
@@ -538,7 +639,15 @@ export default function ChicEditor() {
         )}
       />
 
-      <ShortcutsPanel />
+      <InsertLinkDialog
+        isOpen={isLinkDialogOpen}
+        url={linkUrl}
+        text={linkText}
+        onUrlChange={setLinkUrl}
+        onTextChange={setLinkText}
+        onClose={handleCloseInsertLink}
+        onConfirm={handleConfirmInsertLink}
+      />
     </div>
   );
 }

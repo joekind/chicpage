@@ -93,15 +93,16 @@ export default function LandingPage() {
   const [showInitialLoader, setShowInitialLoader] = useState(true);
   const [imagesLoaded, setImagesLoaded] = useState({ hero: false, mobile: false });
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { scrollY } = useScroll();
 
   useEffect(() => {
+    setMounted(true);
     const timer = setTimeout(() => setShowInitialLoader(false), 800);
     return () => clearTimeout(timer);
   }, []);
 
-  const isLoading =
-    showInitialLoader || !imagesLoaded.hero || !imagesLoaded.mobile;
+  const isLoading = !mounted || showInitialLoader;
 
   useEffect(() => {
     const unsubscribe = scrollY.on("change", (latest) => {
@@ -115,8 +116,8 @@ export default function LandingPage() {
   };
   const features = [
     {
-      title: "全方位贴图引擎",
-      desc: "专为小红书、抖音、推特设计的语义级切图逻辑。",
+      title: "全平台贴图导出",
+      desc: "支持 3:4、9:16、1:2 三种比例，适配微信公众号、小红书、抖音、TikTok、Twitter、知乎、Facebook 等内容发布场景。",
       icon: <Share2 className="size-5" />,
       preview: (
         <div className="relative h-full py-4 flex items-center justify-center scroll-fade">
@@ -147,15 +148,15 @@ export default function LandingPage() {
     },
     {
       title: "全平台优雅排版",
-      desc: "深度适配微信公众号、掘金、知乎、Twitter 等主流平台。",
+      desc: "支持公众号文章排版，也适配微信公众号、小红书、抖音、TikTok、Twitter、知乎、Facebook 等内容发布场景，让同一份内容在不同渠道保持统一表达。",
       icon: <Smartphone className="size-5" />,
       preview: (
         <div className="flex items-center justify-center gap-4 h-full pt-4">
           <motion.div className="flex flex-col gap-2">
             {[
               { label: "微信公众号", bg: "bg-zinc-900", color: "text-white" },
-              { label: "掘金 Juejin", bg: "bg-indigo-50", color: "text-indigo-600" },
-              { label: "Twitter (X)", bg: "bg-zinc-100", color: "text-zinc-500" }
+              { label: "小红书", bg: "bg-rose-50", color: "text-rose-600" },
+              { label: "抖音 / TikTok", bg: "bg-zinc-100", color: "text-zinc-500" }
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -325,7 +326,7 @@ export default function LandingPage() {
       <AnimatePresence>
         {isLoading && <PageLoader />}
       </AnimatePresence>
-      <div className="min-h-screen bg-[#fafafa] text-zinc-900 font-sans selection:bg-zinc-900 selection:text-white overflow-x-hidden">
+      <div className="min-h-screen bg-[#fafafa] text-zinc-900 font-sans selection:bg-indigo-200 selection:text-zinc-900 overflow-x-hidden">
         <Nav />
 
       {/* Hero Section */}
@@ -346,10 +347,10 @@ export default function LandingPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] uppercase"
+            className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.95]"
           >
-            可以让排版， <br />
-            <span className="text-zinc-400">更加</span>优雅。
+            为中文内容创作者打造的<br />
+            Markdown 写作、排版与贴图导出工具。
           </motion.h1>
 
           <motion.div
@@ -358,10 +359,21 @@ export default function LandingPage() {
             transition={{ delay: 0.3 }}
             className="flex flex-col items-center gap-8"
           >
-            <p className="text-xl md:text-2xl text-zinc-400 font-medium max-w-2xl leading-relaxed">
-              专注于内容本身，<br />
-              其他的繁复琐碎，交给 ChicPage 处理。
+            <p className="text-lg md:text-2xl text-zinc-500 font-medium max-w-3xl leading-relaxed">
+              面向公众号作者、知乎答主与各大社媒创作者，
+              在一个工作台里完成写作、预览、主题排版与多比例贴图导出。
             </p>
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs md:text-sm font-bold text-zinc-500">
+              {[
+                "支持 3:4 / 9:16 / 1:2",
+                "适配微信公众号、小红书、抖音、TikTok、Twitter、知乎、Facebook",
+                "导入 Markdown 后即可预览与导出"
+              ].map((item) => (
+                <div key={item} className="rounded-full border border-zinc-200 bg-white/80 px-4 py-2 shadow-sm">
+                  {item}
+                </div>
+              ))}
+            </div>
             <div className="flex items-center gap-6">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link href="/workspace">
@@ -380,17 +392,17 @@ export default function LandingPage() {
           transition={{ delay: 0.5, duration: 1 }}
           className="mt-24 mx-auto max-w-5xl"
         >
-          {!imagesLoaded.hero && <ImageSkeleton />}
+          {!mounted || !imagesLoaded.hero ? <ImageSkeleton /> : null}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: imagesLoaded.hero ? 1 : 0 }}
+            animate={{ opacity: mounted && imagesLoaded.hero ? 1 : 0 }}
             transition={{ duration: 0.5 }}
             className="rounded-[32px] overflow-hidden shadow-2xl border border-white relative"
-            style={{ display: imagesLoaded.hero ? 'block' : 'none' }}
+            style={{ display: mounted && imagesLoaded.hero ? 'block' : 'none' }}
           >
             <Image
-              src="/mockup/hero-pc-mockup.png"
-              alt="Hero Mockup"
+              src="/mockup/banner-hero.png"
+              alt="ChicPage Banner"
               width={1600}
               height={900}
               className="w-full h-auto"
@@ -404,6 +416,18 @@ export default function LandingPage() {
       {/* Main Feature Bento Grid */}
       <section className="py-32 px-6">
         <div className="mx-auto max-w-screen-xl">
+          <div className="mx-auto mb-16 max-w-3xl text-center space-y-5">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">
+              One workspace, multiple outputs
+            </p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
+              从 Markdown 初稿，到公众号排版，再到多平台贴图导出。
+            </h2>
+            <p className="text-base md:text-lg text-zinc-500 leading-relaxed">
+              不用在编辑器、排版工具和图片工具之间来回切换，
+              ChicPage 把写作、预览、主题切换和导出整合到同一个工作台里。
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, i) => (
               <motion.div
@@ -442,6 +466,53 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Workflow Section */}
+      <section className="px-6 py-28 bg-[#fafafa] border-t border-zinc-100">
+        <div className="mx-auto max-w-screen-xl">
+          <div className="mx-auto max-w-3xl text-center space-y-5">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">
+              Three simple steps
+            </p>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-tight">
+              三步完成内容创作、排版与发布准备。
+            </h2>
+            <p className="text-base md:text-lg text-zinc-500 leading-relaxed">
+              从 Markdown 内容输入，到样式调整，再到公众号与社媒平台输出，
+              ChicPage 把整条发布链路压缩成一个顺手的工作流。
+            </p>
+          </div>
+
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                step: "01",
+                title: "写入内容",
+                desc: "支持直接编写或导入 Markdown，让初稿快速进入可编辑状态。"
+              },
+              {
+                step: "02",
+                title: "调整样式",
+                desc: "切换主题、字体与展示方式，同时预览公众号排版和 3:4、9:16、1:2 贴图效果。"
+              },
+              {
+                step: "03",
+                title: "导出发布",
+                desc: "一键导出公众号排版结果，或生成适配微信公众号、小红书、抖音、TikTok、Twitter、知乎、Facebook 的内容素材。"
+              }
+            ].map((item) => (
+              <div
+                key={item.step}
+                className="rounded-[32px] border border-zinc-100 bg-white p-8 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.12)]"
+              >
+                <div className="text-xs font-black tracking-[0.3em] text-zinc-300">{item.step}</div>
+                <h3 className="mt-6 text-2xl font-black tracking-tight text-zinc-900">{item.title}</h3>
+                <p className="mt-4 text-sm leading-7 text-zinc-500 font-medium">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Experience Section - Unified White Theme */}
       <section className="py-40 px-6 bg-white text-zinc-900 border-t border-zinc-100">
         <div className="mx-auto max-w-screen-xl">
@@ -451,18 +522,19 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-5xl md:text-7xl font-black tracking-tighter leading-none uppercase"
+                className="text-4xl md:text-6xl font-black tracking-tighter leading-[1.02]"
               >
-                现在，<br />
-                开始重新 <br />
-                定义你的<br />
-                <span className="text-zinc-400">表达方式.</span>
+                一次写作，
+                <br />
+                同时服务公众号、
+                <br />
+                知乎与各大社媒平台。
               </motion.h2>
               <div className="flex flex-col gap-6">
                 {[
                   "无需注册，开箱即用",
-                  "完全私有化，内容不留存",
-                  "极致优化，秒级响应"
+                  "支持公众号排版与小红书、抖音、TikTok、Twitter、知乎、Facebook 等平台内容输出",
+                  "适配 3:4、9:16、1:2 三种贴图比例，导入 Markdown 后即可预览与导出"
                 ].map((text, i) => (
                   <motion.div
                     key={i}
@@ -488,30 +560,70 @@ export default function LandingPage() {
                 </Link>
               </motion.div>
             </div>
-            <div className="lg:w-1/2 relative">
-              {!imagesLoaded.mobile && (
-                <div className="w-full aspect-[2/3] bg-gradient-to-br from-zinc-100 to-zinc-50 rounded-[40px] animate-pulse flex items-center justify-center">
-                  <Loader2 className="size-8 text-zinc-300 animate-spin" />
-                </div>
-              )}
+            <div className="lg:w-1/2 relative flex justify-center lg:justify-end">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(24,24,27,0.05),transparent_55%)]" />
               <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: imagesLoaded.mobile ? 1 : 0, scale: 1 }}
+                initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                whileInView={{ opacity: mounted ? 1 : 0, y: 0, scale: 1 }}
                 viewport={{ once: true }}
-                className="relative z-10 rounded-[40px] overflow-hidden shadow-2xl border border-zinc-100"
-                style={{ display: imagesLoaded.mobile ? 'block' : 'none' }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="relative z-10 w-full max-w-[510px]"
               >
                 <Image
-                  src="/mockup/hero-mobile-mockup.png"
-                  alt="Mobile Mockup"
-                  width={800}
-                  height={1200}
-                  className="w-full h-auto"
+                  src="/mockup/iPhone.png"
+                  alt="ChicPage iPhone Preview"
+                  width={1020}
+                  height={1800}
+                  className="w-full h-auto drop-shadow-[0_40px_80px_rgba(15,23,42,0.22)] transition-opacity duration-500"
+                  style={{ opacity: imagesLoaded.mobile ? 1 : 0.01 }}
                   onLoad={() => setImagesLoaded(prev => ({ ...prev, mobile: true }))}
                 />
+
+                {!imagesLoaded.mobile ? (
+                  <div className="absolute inset-0 bg-gradient-to-br from-zinc-100 to-zinc-50 rounded-[48px] animate-pulse flex items-center justify-center">
+                    <Loader2 className="size-8 text-zinc-300 animate-spin" />
+                  </div>
+                ) : null}
               </motion.div>
-              <div className="absolute -inset-20 bg-zinc-100 blur-[120px] rounded-full pointer-events-none" />
+
+              <div className="absolute -inset-16 bg-zinc-100/70 blur-[120px] rounded-full pointer-events-none" />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="px-6 py-24 bg-[#fafafa] border-t border-zinc-100">
+        <div className="mx-auto max-w-5xl rounded-[40px] bg-white border border-zinc-100 shadow-[0_20px_80px_-30px_rgba(0,0,0,0.12)] px-8 py-14 md:px-14 md:py-18 text-center">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">
+            Ready to publish
+          </p>
+          <h2 className="mt-5 text-3xl md:text-5xl font-black tracking-tighter leading-tight text-zinc-900">
+            把一份 Markdown 内容，
+            <br />
+            直接变成可发布的排版稿和社媒贴图。
+          </h2>
+          <p className="mt-6 mx-auto max-w-3xl text-base md:text-lg text-zinc-500 leading-relaxed">
+            从公众号文章，到小红书、抖音、TikTok、Twitter、知乎、Facebook 等平台内容，
+            在同一个工作台里完成写作、预览、样式调整与导出。
+          </p>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3 text-xs md:text-sm font-bold text-zinc-500">
+            {[
+              "Markdown 导入",
+              "公众号排版",
+              "3:4 / 9:16 / 1:2 贴图导出"
+            ].map((item) => (
+              <div key={item} className="rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2">
+                {item}
+              </div>
+            ))}
+          </div>
+          <div className="mt-10 flex items-center justify-center">
+            <Link href="/workspace">
+              <Button className="h-14 px-10 bg-zinc-900 text-white hover:bg-zinc-800 rounded-full text-lg font-bold transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1">
+                立即开始创作
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

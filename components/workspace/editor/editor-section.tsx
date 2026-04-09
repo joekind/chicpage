@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
-import { Loader2, X } from "lucide-react";
+import { CheckCircle2, ImagePlus, Loader2, TriangleAlert, X } from "lucide-react";
 import type { EditorMethods, SelectionInfo } from "./mdx-editor";
 import { getReadInfo } from "@/lib/utils-content";
 
@@ -19,6 +19,7 @@ interface EditorSectionProps {
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onImageFile: (file: File) => void;
   isUploading: boolean;
+  uploadNotice?: { type: "loading" | "success" | "error"; message: string } | null;
   styleTheme: string;
   toolbar?: React.ReactNode;
   floatingToolbar?: React.ReactNode;
@@ -36,6 +37,7 @@ export const EditorSection = ({
   onFileUpload,
   onImageFile,
   isUploading,
+  uploadNotice,
   styleTheme,
   toolbar,
   floatingToolbar,
@@ -48,6 +50,7 @@ export const EditorSection = ({
     if (typeof window === "undefined") return true;
     return window.localStorage.getItem("chicpage-hide-pagebreak-tip") !== "1";
   });
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleCloseTip = () => {
     setShowPageBreakTip(false);
@@ -56,29 +59,83 @@ export const EditorSection = ({
     }
   };
 
+  const uploadNoticeConfig = uploadNotice
+    ? uploadNotice.type === "success"
+      ? {
+          icon: <CheckCircle2 className="size-4" />,
+          className: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        }
+      : uploadNotice.type === "error"
+        ? {
+            icon: <TriangleAlert className="size-4" />,
+            className: "border-red-200 bg-red-50 text-red-700",
+          }
+        : {
+            icon: <Loader2 className="size-4 animate-spin" />,
+            className: "border-zinc-200 bg-white text-zinc-700",
+          }
+    : null;
+
   return (
     <motion.section
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       className={cn(
         "flex flex-col bg-white rounded-none border border-zinc-900/10 shadow-2xl shadow-zinc-200/50 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] overflow-visible relative",
+        isDragOver && "border-zinc-900 shadow-[0_0_0_4px_rgba(24,24,27,0.06)]",
         layoutMode === "split"
           ? "flex-1"
           : layoutMode === "edit"
             ? "w-full max-w-5xl mx-auto"
-            : "w-0 opacity-0 pointer-events-none p-0"
+            : "w-0 opacity-0 pointer-events-none p-0",
       )}
     >
       {toolbar}
 
       <div
-        className="flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-10 py-10"
+        className={cn(
+          "flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-10 py-10 transition-colors",
+          isDragOver && "bg-zinc-50/80",
+        )}
+        onDragEnter={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (!isDragOver) setIsDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          const nextTarget = e.relatedTarget;
+          if (!nextTarget || !(e.currentTarget as HTMLDivElement).contains(nextTarget as Node)) {
+            setIsDragOver(false);
+          }
+        }}
         onDrop={(e) => {
           e.preventDefault();
+          setIsDragOver(false);
           Array.from(e.dataTransfer.files).forEach(onImageFile);
         }}
         onPaste={onPaste}
       >
+        <AnimatePresence>
+          {uploadNotice && uploadNoticeConfig ? (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className={cn(
+                "mb-4 flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium shadow-sm",
+                uploadNoticeConfig.className,
+              )}
+            >
+              {uploadNoticeConfig.icon}
+              <span>{uploadNotice.message}</span>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
         {styleTheme === "poster" && showPageBreakTip && (
           <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
             <div className="flex items-center justify-between gap-3">
@@ -112,14 +169,37 @@ export const EditorSection = ({
           className="hidden"
           onChange={onFileUpload}
         />
-        <MDXEditor
-          ref={editorRef}
-          markdown={markdown}
-          onChange={setMarkdown}
-          onPaste={onPaste}
-          onSelectionChange={onSelectionChange}
-          onPushHistory={onPushHistory}
-        />
+        <div className="relative flex-1">
+          <MDXEditor
+            ref={editorRef}
+            markdown={markdown}
+            onChange={setMarkdown}
+            onPaste={onPaste}
+            onSelectionChange={onSelectionChange}
+            onPushHistory={onPushHistory}
+          />
+
+          <AnimatePresence>
+            {isDragOver ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-zinc-300 bg-white/85 backdrop-blur-[1px]"
+              >
+                <div className="flex flex-col items-center gap-3 text-center text-zinc-700">
+                  <div className="flex size-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg">
+                    <ImagePlus className="size-6" />
+                  </div>
+                  <div>
+                    <p className="text-base font-bold text-zinc-900">松手即可插入图片</p>
+                    <p className="mt-1 text-sm text-zinc-500">支持将图片拖到编辑区，自动插入 Markdown 图片语法</p>
+                  </div>
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
         {floatingToolbar}
       </div>
 

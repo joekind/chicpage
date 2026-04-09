@@ -1,105 +1,88 @@
-# 🖋️ ChicPage — 极致极简的排版生产力
+# ChicPage
 
 <p align="center">
-  <img src="https://img.shields.io/badge/ChicPage-Labs-black?style=for-the-badge" alt="ChicPage" />
-  <img src="https://img.shields.io/badge/Status-Live-emerald?style=for-the-badge" alt="Status" />
-  <img src="https://img.shields.io/badge/Platform-Next.js-white?style=for-the-badge&logo=nextdotjs&logoColor=black" alt="Platform" />
+  <img src="./public/mockup/banner-hero.png" width="100%" alt="ChicPage Banner" />
 </p>
 
-<p align="center">
-  <strong>让每一行文字，都散发优雅。专为微信公众号与小红书设计的 Markdown 排版利器。</strong>
-</p>
+一个为中文内容创作者打造的 Markdown 写作、排版与贴图导出工具。
 
-<p align="center">
-  <a href="http://chicpage.quickext.com/"><strong>🚀 立即在线使用</strong></a> | 
-  <a href="https://github.com/joekind/chicpage/stargazers">✨ 给个 Star </a> | 
-  <a href="https://github.com/joekind/chicpage/issues">🐞 提交反馈</a>
-</p>
+ChicPage 希望把内容创作到发布前的关键链路，收敛到一个足够轻、足够顺手的工作台里：
+- 写 Markdown
+- 做公众号排版
+- 预览不同平台内容效果
+- 导出适配社媒平台的贴图素材
 
-<p align="center">
-  <img src="./public/mockup/banner-hero.png" width="100%" alt="ChicPage Banner" style="border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);" />
-</p>
+## 在线地址
 
----
+- 产品地址：https://chicpage.quickext.com/
+- 仓库地址：https://github.com/joekind/chicpage
 
-## 🖋️ 愿景：重塑文字资产的质感
+## 适合谁用
 
-在信息爆炸的社交媒体时代，内容的**“视觉传达”**与文字本身同样重要。**ChicPage 并不是一个简单的编辑器**，它是我们对“数字排版美学”的一种追求。我们希望创作者能从繁琐的 HTML 标签和复杂的编辑器中解放出来，回归到 Markdown 的纯粹与专注。
+如果你是以下类型的内容创作者，ChicPage 会比较适合你：
+- 公众号作者
+- 知乎答主
+- 小红书 / 抖音 / TikTok / Twitter / Facebook 等社媒内容创作者
+- 习惯先用 Markdown 起稿，再整理成正式发布内容的人
 
----
+## 你可以用 ChicPage 做什么
 
-## ✨ 核心特性 
+### 1. Markdown 写作与实时预览
+- 支持 Markdown 输入与实时渲染
+- 支持编辑区 / 预览区 / 分栏三种工作模式
+- 支持基础编辑辅助与快捷键操作
+- 支持撤销、重做与内容同步
 
-### 🎨 极致多端排版 (Multi-Platform Artistry)
-不仅是微信公众号，我们会慢慢适配 **掘金 (Juejin)**、**知乎 (Zhihu)**、**Medium**、**Twitter (X)** 等主流文字平台。一键复制，样式完美迁移，告别手动调整。
+### 2. 公众号排版
+- 支持公众号文章排版预览
+- 支持主题切换
+- 支持字号、图片圆角等常用展示参数调整
+- 支持一键复制排版结果
 
-### 🍱 智能全能贴图引擎 (All-in-One Poster Engine)
- **小红书 (XHS)**、**抖音 (Douyin)**、**推特 (X)** 社交媒体设计的语义级切图逻辑。不仅支持横竖屏自由比例，更能智能分析文字段落，自动生成高传播力的视觉卡片。
+### 3. 多平台贴图模式
+- 支持 `3:4`、`9:16`、`1:2` 三种贴图比例
+- 支持多页贴图预览、翻页与导出预览
+- 支持贴图主题切换
+- 支持贴图字体切换
+- 支持封面头部、底部信息显示开关
+- 适配微信公众号、小红书、抖音、TikTok、Twitter、知乎、Facebook 等内容发布场景
 
-### 📁 一键 MD 导入 (Quick MD Import)
-支持本地 Markdown 文件直接导入。无论是你沉淀已久的笔记，还是在 Obsidian/Typora 撰写的长文，都能在 ChicPage 中瞬间“优雅化”。
+### 4. 导入与导出
+- 支持导入本地 Markdown 文件
+- 支持导出贴图图片
+- 支持在导出前查看预览结果
+- 支持导出 HTML、Markdown 或图片压缩包
 
-### 🖋️ 沉浸式创作空间 (Focused Space)
-全沉浸式写作体验，支持 PC 与 Mobile 模型机实时切换预览。所见即所得，不仅是口号，更是生产力。
+### 5. 使用体验
+- 提供快捷键说明面板
+- 提供更新日志弹窗
+- 首页提供加载动画、骨架屏与基础动效反馈
+- 本地状态持久化，刷新后可保留主要编辑状态
 
-### ⚡ 零负担 
-- **无需注册**：打开即用。
-- **隐私至上**：本地存储，内容永不上传云端。
-- **秒级响应**：基于 Next.js 极致优化。
+## 核心流程
 
----
+1. 导入或编写 Markdown 内容
+2. 选择主题、字体与展示方式
+3. 预览公众号排版或贴图效果
+4. 导出可发布的排版稿或社媒内容素材
 
-## 🛠️ 技术底座 (Infrastructure)
-
-| Core | Styles | Motion | Store |
-| :--- | :--- | :--- | :--- |
-| **Next.js 16** | **Tailwind CSS** | **Framer Motion** | **Zustand** |
-| React 生态顶配 | 极致原子化样式 | 电影级平滑过渡 | 轻量响应式状态 |
-
----
-
-## 📸 视觉预览 (Visual Preview)
-
-<p align="center">
-  <img src="./public/mockup/hero-pc-mockup.png" width="80%" alt="PC View" style="border-radius: 12px;" />
-</p>
-
-<div align="center">
-  <table>
-    <tr>
-      <td><img src="./public/mockup/mobile-article-preview.png" width="200" alt="WeChat Mobile" /></td>
-      <td><img src="./public/mockup/mobile-poster-preview.png" width="200" alt="XHS Mobile" /></td>
-    </tr>
-  </table>
-</div>
-
----
-
-## 🚀 快速上手 (Quick Run)
+## 本地开发
 
 ```bash
-# 1. 下载项目
 git clone https://github.com/joekind/chicpage.git
-
-# 2. 准备运行
+cd chicpage
 npm install
-
-# 3. 开启优雅
 npm run dev
 ```
 
----
+## 技术栈
 
-## 🤝 创作者社区 (Community)
+- Next.js
+- React
+- Tailwind CSS
+- Framer Motion
+- Zustand
 
-扫描下方二维码，加入 ChicPage 创作者社区。获取最新的设计灵感与排版方案。
+## 说明
 
-<p align="center">
-  <img src="./public/6.png" width="300" alt="Wechat Official" style="border-radius: 20px;" />
-</p>
-
----
-
-<p align="center">
-  Made with 🖤 by <strong><a href="http://chicpage.quickext.com/">ChicPage Labs</a></strong>
-</p>
+项目还在持续整理和迭代中。

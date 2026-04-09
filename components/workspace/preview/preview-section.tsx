@@ -4,8 +4,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
-import { IPhoneMockup } from "./mockups/iphone-mockup";
-import { DesktopMockup } from "./mockups/desktop-mockup";
+import { IPhoneMockup } from "../layout/iphone-mockup";
+import { DesktopMockup } from "../layout/desktop-mockup";
 import {
   XHSSlidePreview as PosterSlidePreview,
   XHSSlidePreviewMethods,

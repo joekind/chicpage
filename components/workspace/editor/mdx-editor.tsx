@@ -1,6 +1,6 @@
 "use client";
 
-import React, { forwardRef, useEffect, useImperativeHandle, useRef, useCallback } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from "@codemirror/view";
 import { EditorState } from "@codemirror/state";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
@@ -15,6 +15,13 @@ export interface EditorMethods {
   insertMarkdown: (text: string) => void;
   insertAtLineStart: (prefix: string) => void;
   wrapSelection: (before: string, after: string) => void;
+  getSelection: () => SelectionInfo;
+  copySelection: () => string;
+  cutSelection: () => string;
+  pasteText: (text: string) => void;
+  replaceRange: (from: number, to: number, text: string) => void;
+  deleteCurrentLine: () => void;
+  focus: () => void;
   getSelectionCoords: () => { top: number; left: number; width: number; height: number; } | null;
 }
 
@@ -87,7 +94,7 @@ const chicpageTheme = EditorView.theme({
   ".cm-emphasis": { fontStyle: "italic", color: "#374151" },
   ".cm-link": { color: "#6366f1", textDecoration: "underline" },
   ".cm-url": { color: "#818cf8" },
-  ".cm-quote": { color: "#6b7280", borderLeft: "3px solid #e5e7eb", paddingLeft: "8px" },
+  ".cm-quote": { color: "#6b7280", borderLeft: "3px solid #e5e5eb", paddingLeft: "8px" },
   ".cm-monospace": { fontFamily: 'Consolas, "Courier New", monospace', backgroundColor: "rgba(99,102,241,0.08)", borderRadius: "3px", padding: "0 3px", color: "#e06c75" },
 });
 
@@ -106,6 +113,17 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
     // 暴露给父组件的方法
     useImperativeHandle(ref, () => ({
       getMarkdown: () => viewRef.current?.state.doc.toString() ?? "",
+      getSelection: () => {
+        const view = viewRef.current;
+        if (!view) return { from: 0, to: 0, text: "", empty: true };
+        const sel = view.state.selection.main;
+        return {
+          from: sel.from,
+          to: sel.to,
+          text: view.state.doc.sliceString(sel.from, sel.to),
+          empty: sel.empty,
+        };
+      },
       setMarkdown: (md: string) => {
         const view = viewRef.current;
         if (!view) return;
@@ -148,18 +166,72 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         });
         view.focus();
       },
+      copySelection: () => {
+        const view = viewRef.current;
+        if (!view) return "";
+        const { from, to } = view.state.selection.main;
+        return view.state.doc.sliceString(from, to);
+      },
+      cutSelection: () => {
+        const view = viewRef.current;
+        if (!view) return "";
+        const { from, to } = view.state.selection.main;
+        const selected = view.state.doc.sliceString(from, to);
+        if (from !== to) {
+          view.dispatch({
+            changes: { from, to, insert: "" },
+            selection: { anchor: from },
+          });
+          view.focus();
+        }
+        return selected;
+      },
+      pasteText: (text: string) => {
+        const view = viewRef.current;
+        if (!view) return;
+        const { from, to } = view.state.selection.main;
+        view.dispatch({
+          changes: { from, to, insert: text },
+          selection: { anchor: from + text.length },
+        });
+        view.focus();
+      },
+      replaceRange: (from: number, to: number, text: string) => {
+        const view = viewRef.current;
+        if (!view) return;
+        view.dispatch({
+          changes: { from, to, insert: text },
+          selection: { anchor: from + text.length },
+        });
+        view.focus();
+      },
+      deleteCurrentLine: () => {
+        const view = viewRef.current;
+        if (!view) return;
+        const { from } = view.state.selection.main;
+        const line = view.state.doc.lineAt(from);
+        const deleteTo =
+          line.number < view.state.doc.lines ? view.state.doc.line(line.number + 1).from : line.to;
+        view.dispatch({
+          changes: { from: line.from, to: deleteTo, insert: "" },
+          selection: { anchor: Math.min(line.from, view.state.doc.length - (line.from === view.state.doc.length ? 0 : 1) + 1) },
+        });
+        view.focus();
+      },
+      focus: () => {
+        viewRef.current?.focus();
+      },
       getSelectionCoords: () => {
         const view = viewRef.current;
-        if (!view || !containerRef.current) return null;
+        if (!view) return null;
         const sel = view.state.selection.main;
         if (sel.empty) return null;
-        
+
         try {
           const startCoords = view.coordsAtPos(sel.from);
           const endCoords = view.coordsAtPos(sel.to);
           if (!startCoords) return null;
-          
-          const parentRect = containerRef.current.getBoundingClientRect();
+
           const right = endCoords?.right ?? startCoords.right;
           const left = Math.min(startCoords.left, endCoords?.left ?? startCoords.left);
           const top = Math.min(startCoords.top, endCoords?.top ?? startCoords.top);
@@ -167,8 +239,8 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
           const width = Math.max(0, right - left);
 
           return {
-            top: top - parentRect.top,
-            left: left - parentRect.left,
+            top,
+            left,
             width,
             height: (bottom - top) || 20
           };
