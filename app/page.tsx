@@ -102,7 +102,7 @@ export default function LandingPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const isLoading = !mounted || showInitialLoader;
+  const isLoading = showInitialLoader;
 
   useEffect(() => {
     const unsubscribe = scrollY.on("change", (latest) => {
@@ -320,6 +320,10 @@ export default function LandingPage() {
       )
     }
   ];
+
+  if (!mounted) {
+    return <PageLoader />;
+  }
 
   return (
     <>

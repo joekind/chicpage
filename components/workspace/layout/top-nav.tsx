@@ -157,7 +157,7 @@ export const TopNav = ({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "edit"
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -171,7 +171,7 @@ export const TopNav = ({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "split"
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -185,7 +185,7 @@ export const TopNav = ({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "preview"
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -202,7 +202,7 @@ export const TopNav = ({
               className={cn(
                 "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-colors",
                 styleTheme === "wechat"
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
               onClick={() => {
@@ -218,7 +218,7 @@ export const TopNav = ({
               className={cn(
                 "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-colors",
                 styleTheme === "poster"
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
               onClick={() => {
@@ -242,7 +242,7 @@ export const TopNav = ({
                   className={cn(
                     "h-8 rounded-xl px-3 text-[11px] font-bold transition-colors",
                     posterRatio === option.value
-                      ? "bg-zinc-900 text-white"
+                      ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                       : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                   )}
                 >
@@ -454,7 +454,7 @@ export const TopNav = ({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   previewMode === "pc"
-                    ? "bg-zinc-900 text-white"
+                    ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -468,7 +468,7 @@ export const TopNav = ({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   previewMode === "app"
-                    ? "bg-zinc-900 text-white"
+                    ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -483,7 +483,7 @@ export const TopNav = ({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   showWordCount
-                    ? "bg-zinc-900 text-white"
+                    ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -501,7 +501,7 @@ export const TopNav = ({
               className={cn(
                 "size-9 rounded-xl border border-zinc-200 bg-white transition-colors hover:bg-zinc-50 hover:border-zinc-300",
                 showWordCount
-                  ? "bg-zinc-900 text-white hover:bg-zinc-900"
+                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-500 hover:text-zinc-900",
               )}
             >

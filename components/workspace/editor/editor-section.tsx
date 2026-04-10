@@ -87,7 +87,7 @@ export const EditorSection = ({
           ? "flex-1"
           : layoutMode === "edit"
             ? "w-full max-w-5xl mx-auto"
-            : "w-0 opacity-0 pointer-events-none p-0",
+            : "w-0 min-w-0 opacity-0 pointer-events-none p-0 border-0 shadow-none overflow-hidden",
       )}
     >
       {toolbar}
