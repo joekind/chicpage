@@ -203,7 +203,7 @@ export const EditorSection = ({
         {floatingToolbar}
       </div>
 
-      <div className="flex items-center justify-between px-8 py-4 bg-zinc-50 border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
+      <div className="flex items-center justify-between px-8 py-3.5 bg-white/50 backdrop-blur-md border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
         <div className="flex items-center gap-6">
           {isUploading && (
             <div className="flex items-center gap-2 text-zinc-900 animate-pulse">

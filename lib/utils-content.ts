@@ -3,28 +3,28 @@
  */
 export function getCleanText(text: string) {
   return text
-    .replace(/!\[.*?\]\(.*?\)/g, '') // 优先彻底移除图片标记（含 Alt 和 URL）
-    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // 移除链接标记，保留链接文字
-    .replace(/#+\s/g, '') // 移除标题符号
-    .replace(/[*\-_~`]/g, '') // 移除加粗、斜体、删除线等符号
-    .replace(/:::.*?|:::/g, '') // 移除自定义容器指令 (:::tip 等)
+    .replace(/<!--.*?-->/gs, '') // 移除 HTML 注释（如分页符）
+    .replace(/!\[.*?\]\(.*?\)/g, '') // 彻底移除图片
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1') // 链接保留文字
+    .replace(/#+\s+(.*)/g, '$1') // 移除标题符号，保留文字
+    .replace(/(\*\*|__)(.*?)\1/g, '$2') // 移除加粗
+    .replace(/(\*|_)(.*?)\1/g, '$2') // 移除斜体
+    .replace(/~~(.*?)~~/g, '$1') // 移除删除线
+    .replace(/`(.*?)`/g, '$1') // 移除行内代码块符号
     .replace(/^>\s*/gm, '') // 移除引用符号
-    .replace(/^\s*-\s+/gm, '') // 移除无序列表符号
-    .replace(/^\s*\d+\.\s+/gm, '') // 移除有序列表符号
-    .replace(/<[^>]*>/g, '') // 移除 HTML 标签
-    .replace(/\n{3,}/g, '\n\n') // 合并过多的回车
+    .replace(/^\s*[-*+]\s+/gm, '• ') // 将列表符号统一为优雅的点
+    .replace(/^\s*\d+\.\s+/gm, (match) => match.trim() + ' ') // 保持有序列表数字
+    .replace(/<[^>]*>/g, '') // 移除其他 HTML 标签
+    .replace(/\n{3,}/g, '\n\n') // 合并过多回车
     .trim();
 }
 
 /**
  * 计算字数和阅读时间
- * @param text Markdown 源码
  */
 export function getReadInfo(text: string) {
   const cleanText = getCleanText(text);
-  // 过滤掉纯空格和换行符后的真实长度
   const wordCount = cleanText.replace(/\s/g, '').length;
-  // 中文阅读速度约 500 字/分钟
   const readTime = Math.ceil(wordCount / 500);
   
   return { wordCount, readTime };
@@ -35,7 +35,7 @@ export function getReadInfo(text: string) {
  */
 export function injectReadInfo(markdown: string) {
   const { wordCount, readTime } = getReadInfo(markdown);
-  // 使用普通段落格式，避免被当作不可分割元素
-  const info = `全文共 ${wordCount} 字 <br>预计阅读时间 ${readTime} 分钟 \n\n`;
+  // 使用双回车确保 Markdown 解析为两个段落，保证 HTML 渲染出换行
+  const info = `全文共 ${wordCount} 字\n\n预计阅读时间 ${readTime} 分钟\n\n${'━'.repeat(18)}\n\n`;
   return info + markdown;
 }

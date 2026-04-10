@@ -274,7 +274,8 @@ export default function ChicEditor() {
     try {
       if (styleTheme === "poster") {
         // 小红书模式：一键复制纯正文，移除 Markdown 语法
-        let textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
+        const currentMarkdown = useStore.getState().markdown;
+        let textToCopy = showWordCount ? injectReadInfo(currentMarkdown) : currentMarkdown;
         textToCopy = getCleanText(textToCopy);
         await navigator.clipboard.writeText(textToCopy);
         setCopyStatus("success");
@@ -289,7 +290,8 @@ export default function ChicEditor() {
       const target = chicpageEl ?? previewRef.current;
       const contentHtml = getInlinedHtml(target, { wechatOptimized: true });
       const finalHtml = await getWeChatHtml(contentHtml, activeTheme.containerStyle);
-      const textToCopy = showWordCount ? injectReadInfo(markdown) : markdown;
+      const currentMarkdown = useStore.getState().markdown;
+      const textToCopy = showWordCount ? injectReadInfo(currentMarkdown) : currentMarkdown;
       const data = [
         new ClipboardItem({
           "text/html": new Blob([finalHtml], { type: "text/html" }),
@@ -305,7 +307,7 @@ export default function ChicEditor() {
       setCopyStatus("error");
       setTimeout(() => setCopyStatus("idle"), 2000);
     }
-  }, [styleTheme, showWordCount, markdown, activeTheme.containerStyle]);
+  }, [styleTheme, showWordCount, activeTheme.containerStyle]);
 
   const handleUndo = useCallback(() => {
     undo();
@@ -426,6 +428,25 @@ export default function ChicEditor() {
       className="flex h-screen flex-col bg-[#fcfcfc] overflow-hidden selection:bg-indigo-200 selection:text-zinc-900"
       onDragOver={(e) => e.preventDefault()}
     >
+      <style jsx global>{`
+        ::-webkit-scrollbar {
+          width: 5px;
+          height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.05);
+          border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.1);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
       <TopNav
         previewMode={previewMode}
         setPreviewMode={setPreviewMode}
@@ -444,7 +465,6 @@ export default function ChicEditor() {
         onCopy={handleCopy}
         copyStatus={copyStatus}
         previewRef={previewRef}
-        markdown={markdown}
         onExportPoster={handleExportPoster}
         isExportingPoster={isExportingPoster}
         exportProgress={exportProgress}

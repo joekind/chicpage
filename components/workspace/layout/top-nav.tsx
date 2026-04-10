@@ -33,7 +33,7 @@ import type { PosterRatio } from "@/types";
 const POSTER_RATIO_OPTIONS: { value: PosterRatio; label: string }[] = [
   { value: "3:4", label: "3:4" },
   { value: "9:16", label: "9:16" },
-  { value: "1:2", label: "1:2" },
+  { value: "1:1", label: "1:1" },
 ];
 
 interface TopNavProps {
@@ -54,7 +54,6 @@ interface TopNavProps {
   onCopy: () => void;
   copyStatus: "idle" | "success" | "error";
   previewRef: React.RefObject<HTMLDivElement | null>;
-  markdown: string;
   onExportPoster: () => void;
   isExportingPoster: boolean;
   exportProgress?: { current: number; total: number };
@@ -62,7 +61,7 @@ interface TopNavProps {
   setShowWordCount: (show: boolean) => void;
 }
 
-export const TopNav = ({
+export const TopNav = React.memo(({
   previewMode,
   setPreviewMode,
   layoutMode,
@@ -80,7 +79,6 @@ export const TopNav = ({
   onCopy,
   copyStatus,
   previewRef,
-  markdown,
   onExportPoster,
   isExportingPoster,
   exportProgress,
@@ -121,7 +119,7 @@ export const TopNav = ({
   }, []);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white px-4 py-3 md:px-6">
+    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/70 backdrop-blur-xl px-4 py-3 md:px-6">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
@@ -138,15 +136,17 @@ export const TopNav = ({
             </span>
           </Link>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowChangelog(true)}
-            className="h-9 gap-2 rounded-xl border border-zinc-200 px-3 text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
-          >
-            <History className="size-4" />
-            <span className="text-xs font-bold">更新日志</span>
-          </Button>
+          <motion.div whileTap={{ scale: 0.97 }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowChangelog(true)}
+              className="h-9 gap-2 rounded-xl border border-zinc-200 px-3 text-zinc-600 transition-all hover:bg-zinc-50 hover:text-zinc-900"
+            >
+              <History className="size-4" />
+              <span className="text-xs font-bold">更新日志</span>
+            </Button>
+          </motion.div>
 
           <div className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1">
             <Button
@@ -157,7 +157,7 @@ export const TopNav = ({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "edit"
-                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -171,7 +171,7 @@ export const TopNav = ({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "split"
-                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -185,24 +185,27 @@ export const TopNav = ({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "preview"
-                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
               <Sidebar className="size-4" />
             </Button>
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-          <div className="flex items-center gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1">
+          <div className="mx-1 h-5 w-px bg-zinc-200 hidden md:block" />
+
+          <motion.div 
+            layout 
+            className="flex items-center gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1"
+          >
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-colors",
+                "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
                 styleTheme === "wechat"
-                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
               onClick={() => {
@@ -216,9 +219,9 @@ export const TopNav = ({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-colors",
+                "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
                 styleTheme === "poster"
-                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
               onClick={() => {
@@ -228,52 +231,66 @@ export const TopNav = ({
               <ImageIconLucide className="size-4" />
               贴图
             </Button>
-          </div>
+          </motion.div>
+        </div>
 
-          {styleTheme === "poster" && (
-            <div className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1">
-              {POSTER_RATIO_OPTIONS.map((option) => (
-                <Button
-                  key={option.value}
-                  variant="ghost"
-                  size="sm"
-                  title={`切换到 ${option.label} 比例`}
-                  onClick={() => setPosterRatio(option.value)}
-                  className={cn(
-                    "h-8 rounded-xl px-3 text-[11px] font-bold transition-colors",
-                    posterRatio === option.value
-                      ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
-                      : "text-zinc-500 hover:bg-white hover:text-zinc-900",
-                  )}
-                >
-                  {option.label}
-                </Button>
-              ))}
-            </div>
-          )}
+        <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+
+          <AnimatePresence mode="popLayout">
+            {styleTheme === "poster" && (
+              <motion.div
+                layout
+                initial={{ opacity: 0, x: -20, scale: 0.95 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: -20, scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1"
+              >
+                {POSTER_RATIO_OPTIONS.map((option) => (
+                  <Button
+                    key={option.value}
+                    variant="ghost"
+                    size="sm"
+                    title={`切换到 ${option.label} 比例`}
+                    onClick={() => setPosterRatio(option.value)}
+                    className={cn(
+                      "h-8 rounded-xl px-3 text-[11px] font-bold transition-all",
+                      posterRatio === option.value
+                        ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                        : "text-zinc-500 hover:bg-white hover:text-zinc-900",
+                    )}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="relative" ref={themePickerRef}>
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-colors hover:bg-zinc-50 hover:border-zinc-300",
+                "h-9 min-w-[120px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
                 showThemePicker ? "border-zinc-400 text-zinc-900" : "text-zinc-600",
               )}
               onClick={() => setShowThemePicker(!showThemePicker)}
             >
-              <Palette
-                className={cn(
-                  "size-3.5",
-                  showThemePicker ? "text-zinc-900" : "text-zinc-500",
-                )}
-              />
-              <span className="text-[12px] font-bold tracking-tight">
-                {currentTheme.name}
-              </span>
+              <div className="flex items-center gap-2 overflow-hidden">
+                <Palette
+                  className={cn(
+                    "size-3.5 shrink-0",
+                    showThemePicker ? "text-zinc-900" : "text-zinc-500",
+                  )}
+                />
+                <span className="truncate text-[12px] font-bold tracking-tight">
+                  {currentTheme.name}
+                </span>
+              </div>
               <ChevronDown
                 className={cn(
-                  "size-3 text-zinc-400 transition-transform duration-200",
+                  "size-3 shrink-0 text-zinc-400 transition-transform duration-200",
                   showThemePicker ? "rotate-180" : "",
                 )}
               />
@@ -378,25 +395,25 @@ export const TopNav = ({
 
           {styleTheme === "poster" && (
             <div className="relative" ref={fontPickerRef}>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "h-9 gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-colors hover:bg-zinc-50 hover:border-zinc-300",
-                  showFontPicker ? "border-zinc-400 text-zinc-900" : "text-zinc-600",
-                )}
-                onClick={() => setShowFontPicker(!showFontPicker)}
-              >
-                <span className="text-[12px] font-bold tracking-tight">
-                  {currentFont.name}
-                </span>
-                <ChevronDown
+                <Button
+                  variant="ghost"
+                  size="sm"
                   className={cn(
-                    "size-3 text-zinc-400 transition-transform duration-200",
-                    showFontPicker ? "rotate-180" : "",
+                    "h-9 min-w-[100px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
+                    showFontPicker ? "border-zinc-400 text-zinc-900" : "text-zinc-600",
                   )}
-                />
-              </Button>
+                  onClick={() => setShowFontPicker(!showFontPicker)}
+                >
+                  <span className="truncate text-[12px] font-bold tracking-tight">
+                    {currentFont.name}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "size-3 shrink-0 text-zinc-400 transition-transform duration-200",
+                      showFontPicker ? "rotate-180" : "",
+                    )}
+                  />
+                </Button>
 
               <AnimatePresence>
                 {showFontPicker && (
@@ -454,7 +471,7 @@ export const TopNav = ({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   previewMode === "pc"
-                    ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                    ? "bg-zinc-200 text-zinc-900 shadow-sm"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -468,7 +485,7 @@ export const TopNav = ({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   previewMode === "app"
-                    ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                    ? "bg-zinc-200 text-zinc-900 shadow-sm"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -483,7 +500,7 @@ export const TopNav = ({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   showWordCount
-                    ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                    ? "bg-zinc-200 text-zinc-900 shadow-sm"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -501,7 +518,7 @@ export const TopNav = ({
               className={cn(
                 "size-9 rounded-xl border border-zinc-200 bg-white transition-colors hover:bg-zinc-50 hover:border-zinc-300",
                 showWordCount
-                  ? "bg-zinc-900 text-white hover:bg-zinc-900 hover:text-white"
+                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
                   : "text-zinc-500 hover:text-zinc-900",
               )}
             >
@@ -518,59 +535,93 @@ export const TopNav = ({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-colors",
-                "text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50",
+                "h-9 min-w-[100px] gap-2 rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
+                "relative flex items-center justify-center overflow-hidden text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50",
               )}
             >
-              {isExportingPoster ? (
-                <>
-                  <Loader2 className="size-3.5 animate-spin" />
-                  {exportProgress
-                    ? `正在导出第 ${exportProgress.current}/${exportProgress.total} 页`
-                    : "导出中..."}
-                </>
-              ) : (
-                <>
-                  <Download className="size-3.5" />
-                  导出
-                </>
-              )}
+              <AnimatePresence mode="wait">
+                {isExportingPoster ? (
+                  <motion.div
+                    key="exporting"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                    className="flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <Loader2 className="size-3.5 animate-spin text-indigo-500" />
+                    <span className="tabular-nums">
+                      {exportProgress
+                        ? `${exportProgress.current}/${exportProgress.total}`
+                        : "导出中..."}
+                    </span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Download className="size-3.5" />
+                    <span>导出海报</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </Button>
           ) : (
             <ExportButton
               previewRef={previewRef}
-              markdown={markdown}
               styleTheme={styleTheme}
               activeWechatTheme={currentWechatTheme as WechatTheme}
             />
           )}
 
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onCopy}
-            className={cn(
-              "h-9 rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-colors",
-              copyStatus === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-600"
-                : copyStatus === "error"
-                  ? "border-red-200 bg-red-50 text-red-600"
-                  : "text-zinc-700 hover:bg-zinc-50",
-            )}
-          >
-            {copyStatus === "success" ? (
-              <Check className="mr-1 size-3.5" />
-            ) : (
-              <Copy className="mr-1 size-3.5" />
-            )}
-            {copyStatus === "success"
-              ? "已复制！"
-              : copyStatus === "error"
-                ? "复制失败"
-                : styleTheme === "poster"
-                  ? "复制正文"
-                  : "复制 HTML"}
+          <motion.div whileTap={{ scale: 0.97 }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCopy}
+              className={cn(
+                "h-9 min-w-[100px] rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
+                copyStatus === "success"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-600"
+                  : copyStatus === "error"
+                    ? "border-red-200 bg-red-50 text-red-600"
+                    : "text-zinc-700 hover:bg-zinc-50",
+              )}
+            >
+            <AnimatePresence mode="wait">
+              {copyStatus === "success" ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.9, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="flex items-center text-emerald-600"
+                >
+                  <Check className="mr-1 size-3.5" />
+                  已复制！
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="idle"
+                  initial={{ opacity: 0, scale: 0.9, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="flex items-center"
+                >
+                  <Copy className="mr-1 size-3.5" />
+                  {styleTheme === "poster" ? "复制正文" : "复制 HTML"}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </Button>
+        </motion.div>
         </div>
       </div>
 
@@ -672,4 +723,4 @@ export const TopNav = ({
       </AnimatePresence>
     </nav>
   );
-};
+});

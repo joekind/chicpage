@@ -16,7 +16,7 @@ const STYLE_PROPERTIES = [
   'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
   'maxWidth',
   // Visual
-  'backgroundColor', 'backgroundImage',
+  'backgroundColor', 'backgroundImage', 'backgroundSize', 'backgroundRepeat', 'backgroundPosition',
   'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft',
   'borderRadius', 'borderCollapse',
   'boxShadow', 'opacity',
@@ -372,8 +372,15 @@ export async function getWeChatHtml(
       return `url(${quote}${new URL(path, window.location.origin).toString()}${quote})`;
     }
   );
-
+  
+  // 核心黑科技：微信对 background-color 比较友好，对 background-image 建议使用单独的 div 承载
   const style = await inlineStyleUrls(normalizedStyle);
 
-  return `<section style="${style}">${optimizedHtml}</section>`;
+  // 如果包含背景图，添加一些微信特有的容器属性
+  const isImageBg = style.includes('background-image');
+  const finalContainerStyle = isImageBg 
+    ? `${style};background-attachment:scroll;-webkit-background-size:cover;`
+    : style;
+
+  return `<section style="${finalContainerStyle}">${optimizedHtml}</section>`;
 }

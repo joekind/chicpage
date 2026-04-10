@@ -6,19 +6,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Download, FileCode, FileLineChart, Check, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
+import { useStore } from "@/store/use-store";
 import type { WechatTheme } from "@/lib/themes";
 
 interface ExportButtonProps {
   previewRef: React.RefObject<HTMLDivElement | null>;
-  markdown: string;
-   styleTheme: "wechat" | "poster";
-   activeWechatTheme?: WechatTheme;
+  styleTheme: "wechat" | "poster";
+  activeWechatTheme?: WechatTheme;
   fileName?: string;
 }
 
 export function ExportButton({
   previewRef,
-  markdown,
   styleTheme,
   activeWechatTheme,
   fileName = "document",
@@ -77,6 +76,7 @@ export function ExportButton({
 
   const exportToMarkdown = () => {
     try {
+      const markdown = useStore.getState().markdown;
       const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -151,14 +151,47 @@ export function ExportButton({
                 </div>
               </button>
 
-              {exportStatus !== 'idle' && (
-                <div className={cn(
-                  "mt-2 px-3 py-2 rounded-xl text-[10px] font-bold text-center flex items-center justify-center gap-2",
-                  exportStatus === 'success' ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
-                )}>
-                  {exportStatus === 'success' ? <><Check className="size-3" /> 导出成功</> : <><XCircle className="size-3" /> 导出失败</>}
-                </div>
-              )}
+              <AnimatePresence>
+                {exportStatus !== 'idle' && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ 
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 30,
+                      opacity: { duration: 0.2 }
+                    }}
+                    className="overflow-hidden"
+                  >
+                    <div className={cn(
+                      "mt-2 px-3 py-2 rounded-xl text-[10px] font-bold text-center flex items-center justify-center gap-2",
+                      exportStatus === 'success' ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                    )}>
+                      {exportStatus === 'success' ? (
+                        <motion.div 
+                          className="flex items-center gap-2"
+                          initial={{ scale: 0.5 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                        >
+                          <Check className="size-3" /> 导出成功
+                        </motion.div>
+                      ) : (
+                        <motion.div 
+                          className="flex items-center gap-2"
+                          initial={{ x: -5 }}
+                          animate={{ x: 0 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 10 }}
+                        >
+                          <XCircle className="size-3" /> 导出失败
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </>
         )}

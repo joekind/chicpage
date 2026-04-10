@@ -166,7 +166,7 @@ export interface PosterLayoutConfig {
 const POSTER_RATIO_HEIGHT_MAP: Record<PosterRatio, number> = {
   "3:4": 480,
   "9:16": 640,
-  "1:2": 720,
+  "1:1": 360,
 };
 
 export function getPosterLayoutConfig(
