@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Monitor,
   Smartphone,
@@ -88,6 +89,7 @@ export const TopNav = React.memo(({
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const themePickerRef = useRef<HTMLDivElement>(null);
   const fontPickerRef = useRef<HTMLDivElement>(null);
   const currentWechatTheme =
@@ -118,7 +120,110 @@ export const TopNav = React.memo(({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const changelogDialog = (
+    <AnimatePresence>
+      {showChangelog && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowChangelog(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="mx-4 max-h-[80vh] w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-indigo-100">
+                  <History className="size-5 text-indigo-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-zinc-900">更新日志</h2>
+                  <p className="text-xs text-zinc-500">查看新功能和改进</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowChangelog(false)}
+                className="size-8 rounded-lg hover:bg-zinc-100"
+              >
+                <ChevronDown className="size-4 rotate-180" />
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div className="max-h-[60vh] overflow-y-auto p-6 scroll-smooth no-scrollbar">
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute bottom-2 left-[15px] top-2 w-px bg-gradient-to-b from-indigo-500 via-indigo-300 to-transparent" />
+
+                {/* Timeline items */}
+                <div className="space-y-6">
+                  {CHANGELOG.map((entry, index) => (
+                    <div key={index} className="relative flex gap-4">
+                      <div className={cn(
+                        "z-10 flex size-8 shrink-0 items-center justify-center rounded-full shadow-lg",
+                        index === 0 ? "bg-indigo-500 shadow-indigo-200" : "bg-zinc-200"
+                      )}>
+                        <span className={cn(
+                          "text-xs font-bold",
+                          index === 0 ? "text-white" : "text-zinc-500"
+                        )}>
+                          {index === 0 ? '今' : `v${CHANGELOG.length - index}`}
+                        </span>
+                      </div>
+                      <div className="flex-1 pt-1">
+                        <div className={cn(
+                          "mb-1 text-xs font-semibold",
+                          index === 0 ? "text-indigo-600" : "text-zinc-400"
+                        )}>
+                          {entry.date}
+                        </div>
+                        <h4 className="mb-2 text-sm font-bold text-zinc-900">{entry.title}</h4>
+                        <ul className="space-y-1 text-xs text-zinc-600">
+                          {entry.items.map((item, i) => (
+                            <li key={i}>• {item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-zinc-200 bg-zinc-50 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-zinc-500">版本 1.0.0</span>
+                <Button
+                  onClick={() => setShowChangelog(false)}
+                  className="h-8 rounded-xl bg-zinc-900 px-4 text-xs font-bold text-white hover:bg-zinc-800"
+                >
+                  知道了
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
+    <>
     <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/70 backdrop-blur-xl px-4 py-3 md:px-6">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-3">
@@ -625,102 +730,8 @@ export const TopNav = React.memo(({
         </div>
       </div>
 
-      {/* 更新日志对话框 */}
-      <AnimatePresence>
-        {showChangelog && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowChangelog(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
-              className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-                    <History className="size-5 text-indigo-600" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-zinc-900">更新日志</h2>
-                    <p className="text-xs text-zinc-500">查看新功能和改进</p>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowChangelog(false)}
-                  className="size-8 rounded-lg hover:bg-zinc-100"
-                >
-                  <ChevronDown className="size-4 rotate-180" />
-                </Button>
-              </div>
-
-              {/* Content */}
-              <div className="p-6 overflow-y-auto max-h-[60vh] no-scrollbar scroll-smooth">
-                <div className="relative">
-                  {/* Timeline line */}
-                  <div className="absolute left-[15px] top-2 bottom-2 w-px bg-gradient-to-b from-indigo-500 via-indigo-300 to-transparent" />
-
-                  {/* Timeline items */}
-                  <div className="space-y-6">
-                    {CHANGELOG.map((entry, index) => (
-                      <div key={index} className="relative flex gap-4">
-                        <div className={cn(
-                          "size-8 rounded-full flex items-center justify-center shrink-0 shadow-lg z-10",
-                          index === 0 ? "bg-indigo-500 shadow-indigo-200" : "bg-zinc-200"
-                        )}>
-                          <span className={cn(
-                            "text-xs font-bold",
-                            index === 0 ? "text-white" : "text-zinc-500"
-                          )}>
-                            {index === 0 ? '今' : `v${CHANGELOG.length - index}`}
-                          </span>
-                        </div>
-                        <div className="flex-1 pt-1">
-                          <div className={cn(
-                            "text-xs font-semibold mb-1",
-                            index === 0 ? "text-indigo-600" : "text-zinc-400"
-                          )}>
-                            {entry.date}
-                          </div>
-                          <h4 className="text-sm font-bold text-zinc-900 mb-2">{entry.title}</h4>
-                          <ul className="space-y-1 text-xs text-zinc-600">
-                            {entry.items.map((item, i) => (
-                              <li key={i}>• {item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="px-6 py-4 border-t border-zinc-200 bg-zinc-50">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">版本 1.0.0</span>
-                  <Button
-                    onClick={() => setShowChangelog(false)}
-                    className="h-8 px-4 text-xs font-bold rounded-xl bg-zinc-900 text-white hover:bg-zinc-800"
-                  >
-                    知道了
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </nav>
+    {isMounted ? createPortal(changelogDialog, document.body) : null}
+    </>
   );
 });
