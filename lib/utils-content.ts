@@ -3,7 +3,7 @@
  */
 export function getCleanText(text: string) {
   return text
-    .replace(/<!--.*?-->/gs, '') // 移除 HTML 注释（如分页符）
+    .replace(/<!--[\s\S]*?-->/g, '') // 移除 HTML 注释（兼容低于 ES2018 的构建目标）
     .replace(/!\[.*?\]\(.*?\)/g, '') // 彻底移除图片
     .replace(/\[(.*?)\]\(.*?\)/g, '$1') // 链接保留文字
     .replace(/#+\s+(.*)/g, '$1') // 移除标题符号，保留文字
