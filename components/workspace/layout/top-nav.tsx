@@ -361,7 +361,7 @@ export const TopNav = React.memo(({
                     className={cn(
                       "h-8 rounded-xl px-3 text-[11px] font-bold transition-all",
                       posterRatio === option.value
-                        ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                        ? "bg-zinc-200 text-zinc-900 "
                         : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                     )}
                   >
