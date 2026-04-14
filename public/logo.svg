@@ -1,7 +1,6 @@
-<svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- C -->
-  <path d="M14 24C9.58172 24 6 20.4183 6 16C6 11.5817 9.58172 8 14 8C15.5 8 16.8 8.4 18 9.1" stroke="black" stroke-width="4.5" stroke-linecap="round"/>
-  <!-- P -->
-  <circle cx="26" cy="16" r="8" stroke="black" stroke-width="4.5"/>
-  <path d="M18 16V30" stroke="black" stroke-width="4.5" stroke-linecap="round"/>
+<svg width="154" height="144" viewBox="0 0 154 144" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M77 72C77 52 62 37 42 37C22 37 7 52 7 72C7 92 22 107 42 107C62 107 77 92 77 72Z" stroke="#202020" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M77 72C77 52 92 37 112 37C132 37 147 52 147 72C147 92 132 107 112 107C92 107 77 92 77 72Z" stroke="#202020" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M147 7V72" stroke="#202020" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M77 72V137" stroke="#202020" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

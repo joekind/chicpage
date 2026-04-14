@@ -229,7 +229,7 @@ export const TopNav = React.memo(({
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
             <Image
-              src="/wmremove-transformed.png"
+              src="/logo.svg"
               alt="Logo"
               width={32}
               height={32}
@@ -246,14 +246,14 @@ export const TopNav = React.memo(({
               variant="ghost"
               size="sm"
               onClick={() => setShowChangelog(true)}
-              className="h-9 gap-2 rounded-xl border border-zinc-200 px-3 text-zinc-600 transition-all hover:bg-zinc-50 hover:text-zinc-900"
+              className="h-9 gap-2 rounded-xl border border-zinc-200 px-3 text-zinc-600 transition-all hover:bg-zinc-50 hover:text-zinc-900 h-10"
             >
               <History className="size-4" />
               <span className="text-xs font-bold">更新日志</span>
             </Button>
           </motion.div>
 
-          <div className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1">
+          <div className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1 h-10">
             <Button
               variant="ghost"
               size="icon"
@@ -288,7 +288,7 @@ export const TopNav = React.memo(({
               onClick={() => setLayoutMode("preview")}
               title="纯预览模式"
               className={cn(
-                "size-8 rounded-xl transition-colors",
+                "size-8 rounded-xl transition-colors ",
                 layoutMode === "preview"
                   ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
@@ -302,13 +302,13 @@ export const TopNav = React.memo(({
 
           <motion.div 
             layout 
-            className="flex items-center gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1"
+            className="flex items-center gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1 max-h-10"
           >
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
+                " gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
                 styleTheme === "wechat"
                   ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
@@ -349,7 +349,7 @@ export const TopNav = React.memo(({
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: -20, scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1"
+                className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1 h-10"
               >
                 {POSTER_RATIO_OPTIONS.map((option) => (
                   <Button
@@ -359,7 +359,7 @@ export const TopNav = React.memo(({
                     title={`切换到 ${option.label} 比例`}
                     onClick={() => setPosterRatio(option.value)}
                     className={cn(
-                      "h-8 rounded-xl px-3 text-[11px] font-bold transition-all",
+                      "rounded-xl px-3 text-[11px] font-bold transition-all",
                       posterRatio === option.value
                         ? "bg-zinc-200 text-zinc-900 "
                         : "text-zinc-500 hover:bg-white hover:text-zinc-900",
@@ -377,7 +377,7 @@ export const TopNav = React.memo(({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 min-w-[120px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
+                "h-10 min-w-[120px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
                 showThemePicker ? "border-zinc-400 text-zinc-900" : "text-zinc-600",
               )}
               onClick={() => setShowThemePicker(!showThemePicker)}
@@ -504,7 +504,7 @@ export const TopNav = React.memo(({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "h-9 min-w-[100px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
+                    "h-10 min-w-[100px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
                     showFontPicker ? "border-zinc-400 text-zinc-900" : "text-zinc-600",
                   )}
                   onClick={() => setShowFontPicker(!showFontPicker)}
@@ -567,7 +567,7 @@ export const TopNav = React.memo(({
           )}
 
           {styleTheme !== "poster" && (
-            <div className="flex items-center gap-0.5 rounded-xl border border-zinc-200 bg-zinc-50 p-1">
+            <div className="flex items-center gap-0.5 rounded-xl border border-zinc-200 bg-zinc-50 p-1 h-10">
               <Button
                 variant="ghost"
                 size="icon"
@@ -603,7 +603,7 @@ export const TopNav = React.memo(({
                 onClick={() => setShowWordCount(!showWordCount)}
                 title={showWordCount ? "隐藏字数信息" : "显示字数信息"}
                 className={cn(
-                  "size-8 rounded-lg transition-colors",
+                  "size-8 rounded-lg transition-colors ",
                   showWordCount
                     ? "bg-zinc-200 text-zinc-900"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
@@ -621,9 +621,9 @@ export const TopNav = React.memo(({
               onClick={() => setShowWordCount(!showWordCount)}
               title={showWordCount ? "隐藏字数信息" : "显示字数信息"}
               className={cn(
-                "size-9 rounded-xl border border-zinc-200 bg-white transition-colors hover:bg-zinc-50 hover:border-zinc-300",
+                "size-10 rounded-xl border border-zinc-200 bg-white transition-colors hover:bg-zinc-50 hover:border-zinc-300",
                 showWordCount
-                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                  ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:text-zinc-900",
               )}
             >
@@ -640,7 +640,7 @@ export const TopNav = React.memo(({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 min-w-[100px] gap-2 rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
+                "h-10 min-w-[100px] gap-2 rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
                 "relative flex items-center justify-center overflow-hidden text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50",
               )}
             >
@@ -652,7 +652,7 @@ export const TopNav = React.memo(({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
                     transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                    className="flex items-center gap-2 whitespace-nowrap"
+                    className="h-10 flex items-center gap-2 whitespace-nowrap"
                   >
                     <Loader2 className="size-3.5 animate-spin text-indigo-500" />
                     <span className="tabular-nums">
@@ -668,7 +668,7 @@ export const TopNav = React.memo(({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -15 }}
                     transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                    className="flex items-center gap-2"
+                    className="h-10 flex items-center gap-2"
                   >
                     <Download className="size-3.5" />
                     <span>导出海报</span>
@@ -690,7 +690,7 @@ export const TopNav = React.memo(({
               size="sm"
               onClick={onCopy}
               className={cn(
-                "h-9 min-w-[100px] rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
+                "h-10 min-w-[100px] rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
                 copyStatus === "success"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-600"
                   : copyStatus === "error"

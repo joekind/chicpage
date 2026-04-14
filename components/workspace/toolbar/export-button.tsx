@@ -101,7 +101,7 @@ export function ExportButton({
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "h-9 gap-2 rounded-xl px-4 text-xs font-bold transition-all",
+          "h-10 gap-2 rounded-xl px-4 text-xs font-bold transition-all",
           isOpen ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-100"
         )}
       >

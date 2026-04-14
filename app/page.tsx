@@ -46,7 +46,7 @@ const Nav = () => {
       <div className="mx-auto max-w-screen-xl flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <Image
-            src="/wmremove-transformed.png"
+            src="/logo.svg"
             alt="Logo"
             width={32}
             height={32}
@@ -640,7 +640,7 @@ export default function LandingPage() {
             <motion.div whileHover={{ scale: 1.02 }} className="inline-block">
               <Link href="/" className="flex items-center gap-3">
                 <Image
-                  src="/wmremove-transformed.png"
+                  src="/logo.svg"
                   alt="Logo"
                   width={24}
                   height={24}
