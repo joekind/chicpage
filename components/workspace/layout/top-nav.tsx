@@ -262,7 +262,7 @@ export const TopNav = React.memo(({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "edit"
-                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                  ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -276,7 +276,7 @@ export const TopNav = React.memo(({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "split"
-                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                  ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -290,7 +290,7 @@ export const TopNav = React.memo(({
               className={cn(
                 "size-8 rounded-xl transition-colors",
                 layoutMode === "preview"
-                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                  ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
             >
@@ -310,7 +310,7 @@ export const TopNav = React.memo(({
               className={cn(
                 "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
                 styleTheme === "wechat"
-                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                  ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
               onClick={() => {
@@ -326,7 +326,7 @@ export const TopNav = React.memo(({
               className={cn(
                 "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
                 styleTheme === "poster"
-                  ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                  ? "bg-zinc-200 text-zinc-900 "
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
               )}
               onClick={() => {
@@ -576,7 +576,7 @@ export const TopNav = React.memo(({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   previewMode === "pc"
-                    ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                    ? "bg-zinc-200 text-zinc-900"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -590,7 +590,7 @@ export const TopNav = React.memo(({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   previewMode === "app"
-                    ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                    ? "bg-zinc-200 text-zinc-900"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
@@ -605,7 +605,7 @@ export const TopNav = React.memo(({
                 className={cn(
                   "size-8 rounded-lg transition-colors",
                   showWordCount
-                    ? "bg-zinc-200 text-zinc-900 shadow-sm"
+                    ? "bg-zinc-200 text-zinc-900"
                     : "text-zinc-500 hover:bg-white hover:text-zinc-900",
                 )}
               >
