@@ -55,6 +55,28 @@ const BASE_CSS = `
   #chicpage code { font-size: 85%; padding: 0.2em 0.4em; border-radius: 4px; font-family: Consolas, "Courier New", monospace; }
   #chicpage pre { margin: 1.5em 0; border-radius: 10px; overflow: hidden; }
   #chicpage pre code { display: block; padding: 1.2em; font-size: 13px; line-height: 1.6; }
+  #chicpage .hljs { color: #334155; }
+  #chicpage .hljs-keyword,
+  #chicpage .hljs-selector-tag,
+  #chicpage .hljs-literal,
+  #chicpage .hljs-title,
+  #chicpage .hljs-section,
+  #chicpage .hljs-doctag,
+  #chicpage .hljs-type,
+  #chicpage .hljs-name,
+  #chicpage .hljs-strong { color: #7c3aed; }
+  #chicpage .hljs-string,
+  #chicpage .hljs-attr,
+  #chicpage .hljs-template-tag,
+  #chicpage .hljs-template-variable,
+  #chicpage .hljs-bullet { color: #0d9488; }
+  #chicpage .hljs-number,
+  #chicpage .hljs-symbol,
+  #chicpage .hljs-variable,
+  #chicpage .hljs-params,
+  #chicpage .hljs-link { color: #2563eb; }
+  #chicpage .hljs-comment,
+  #chicpage .hljs-quote { color: #64748b; font-style: italic; }
   #chicpage kbd { display: inline-block; padding: 2px 6px; font-size: 12px; font-family: Consolas, "Courier New", monospace; line-height: 1.4; color: #444; background: #f6f8fa; border: 1px solid #d0d7de; border-bottom-width: 2px; border-radius: 4px; }
   #chicpage input[type="checkbox"] { margin-right: 6px; accent-color: #6366f1; pointer-events: none; }
 `;

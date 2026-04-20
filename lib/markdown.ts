@@ -117,12 +117,14 @@ function rehypeInlineHighlight() {
 
         node.properties = {
           ...node.properties,
+          className: [
+            ...classNames,
+            'hljs',
+          ],
           style: [
             'display:block',
             'overflow-x:auto',
             'padding:1em',
-            'background:#1e1e1e',
-            'color:#d4d4d4',
             'border-radius:6px',
             'font-size:13px',
             'line-height:1.6',
@@ -199,8 +201,8 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkDirective)
     .use(remarkDirectivePlugin)
     .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeRaw)
     .use(rehypeInlineHighlight)
+    .use(rehypeRaw)
     .use(rehypeCollapsibleCodeBlock)
     .use(rehypeStringify)
     .process(normalizedMarkdown);
