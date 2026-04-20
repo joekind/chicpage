@@ -6,7 +6,7 @@ import { EditorState } from "@codemirror/state";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
-import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
+import { syntaxHighlighting, defaultHighlightStyle, bracketMatching, foldGutter, foldKeymap } from "@codemirror/language";
 import { cn } from "@/lib/utils";
 
 export interface EditorMethods {
@@ -74,6 +74,20 @@ const chicpageTheme = EditorView.theme({
     color: "#d1d5db",
     paddingRight: "8px",
     minWidth: "40px",
+  },
+  ".cm-foldGutter": {
+    minWidth: "20px",
+  },
+  ".cm-foldGutter .cm-gutterElement": {
+    color: "#64748b",
+    fontSize: "18px",
+    fontWeight: "700",
+    lineHeight: "1",
+    opacity: "1",
+    cursor: "pointer",
+  },
+  ".cm-foldGutter .cm-gutterElement:hover": {
+    color: "#334155",
   },
   ".cm-activeLineGutter": {
     backgroundColor: "transparent",
@@ -258,6 +272,7 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         doc: initialMarkdown,
         extensions: [
           lineNumbers(),
+          foldGutter(),
           highlightActiveLine(),
           highlightActiveLineGutter(),
           drawSelection(),
@@ -268,7 +283,7 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
             base: markdownLanguage,
             codeLanguages: languages,
           }),
-          keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
+          keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap, indentWithTab]),
           chicpageTheme,
           EditorView.lineWrapping,
           EditorView.updateListener.of((update) => {

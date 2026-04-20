@@ -141,6 +141,50 @@ function rehypeInlineHighlight() {
   };
 }
 
+function rehypeCollapsibleCodeBlock() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName !== 'pre' || index == null || !parent) return;
+      if (parent.type !== 'root' && parent.type !== 'element') return;
+
+      const parentElement = parent as Parent;
+      const preElement = node as Element;
+
+      if (
+        parent.type === 'element' &&
+        (parent as Element).tagName === 'details'
+      ) {
+        return;
+      }
+
+      const codeNode = preElement.children.find(
+        (child): child is Element => child.type === 'element' && child.tagName === 'code'
+      );
+
+      const classNames = ((codeNode?.properties?.className as string[]) ?? []);
+      const langClass = classNames.find((c) => c.startsWith('language-'));
+      const lang = langClass?.replace('language-', '').toUpperCase() || '代码块';
+
+      const detailsNode: Element = {
+        type: 'element',
+        tagName: 'details',
+        properties: { className: ['code-fold'], open: true },
+        children: [
+          {
+            type: 'element',
+            tagName: 'summary',
+            properties: { className: ['code-fold-summary'] },
+            children: [{ type: 'text', value: `${lang}（点击折叠）` }],
+          },
+          preElement,
+        ],
+      };
+
+      parentElement.children[index] = detailsNode as Node;
+    });
+  };
+}
+
 export async function markdownToHtml(markdown: string): Promise<string> {
   // 专用分页标记：将 <!--pagebreak--> 转成可识别的分页节点
   const normalizedMarkdown = markdown.replace(
@@ -157,6 +201,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeInlineHighlight)
+    .use(rehypeCollapsibleCodeBlock)
     .use(rehypeStringify)
     .process(normalizedMarkdown);
 

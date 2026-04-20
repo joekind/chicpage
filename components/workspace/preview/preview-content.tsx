@@ -46,6 +46,32 @@ export const PreviewContent = ({
     >
       <style>{`
         ${styleTheme !== "poster" ? activeThemeCss : ""}
+        #chicpage details.code-fold {
+          margin: 1.2em 0;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          background: #f8fafc;
+          overflow: hidden;
+        }
+        #chicpage details.code-fold > summary.code-fold-summary {
+          cursor: pointer;
+          list-style: none;
+          padding: 10px 14px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #475569;
+          user-select: none;
+        }
+        #chicpage details.code-fold > summary.code-fold-summary::-webkit-details-marker {
+          display: none;
+        }
+        #chicpage details.code-fold > pre {
+          margin: 0;
+          border-radius: 0;
+        }
+        #chicpage details.code-fold[open] > summary.code-fold-summary {
+          border-bottom: 1px solid #e2e8f0;
+        }
         .poster-card-theme .poster-h1 { color:var(--foreground); font-size:1.15rem; font-weight:900; text-align:center; margin:1.5rem 1rem 0.25rem; }
         .poster-card-theme .poster-divider { text-align:center; color:var(--border); font-size:0.8rem; margin-bottom:1.5rem; }
         .poster-card-theme .poster-h2 { color:var(--foreground); font-size:1.05rem; font-weight:800; margin:1.25rem 1rem 0.75rem; }

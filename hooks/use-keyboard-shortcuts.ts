@@ -35,8 +35,8 @@ export function useKeyboardShortcuts({
 
       if (!cmdOrCtrl) return;
 
-      // Ctrl/Cmd + S - 复制到剪贴板
-      if (e.key === 's') {
+      // Ctrl/Cmd + Shift + C - 复制到剪贴板
+      if (e.shiftKey && (e.key === 'C' || e.key === 'c')) {
         e.preventDefault();
         onCopy();
         return;

@@ -29,7 +29,7 @@ const STYLE_PROPERTIES = [
 /**
  * Applies WeChat-specific optimizations to an element
  */
-function applyWeChatOptimizations(elem: HTMLElement): void {
+function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): void {
   const tag = elem.tagName;
 
   // 图片优化 - 确保图片在微信中正常显示
@@ -41,8 +41,8 @@ function applyWeChatOptimizations(elem: HTMLElement): void {
     elem.style.maxWidth = '100%';
     elem.style.height = 'auto';
     elem.style.display = 'block';
-    elem.style.margin = '1.5em auto'; // 增加垂直间距
-    elem.style.borderRadius = '8px'; // 默认圆角
+    elem.style.margin = '1.5em auto';
+    elem.style.borderRadius = `${imgRadius}px`; // 使用用户配置的圆角
 
     // 移除可能干扰的样式
     elem.style.border = 'none';
@@ -52,21 +52,32 @@ function applyWeChatOptimizations(elem: HTMLElement): void {
     if (isBase64) {
       elem.style.verticalAlign = 'middle';
     }
+    
+    // 添加暗黑模式适配
+    elem.setAttribute('data-darkmode-bgcolor', 'transparent');
+    elem.setAttribute('data-darkmode-original-bgcolor', 'transparent');
   }
 
   // 代码块优化 - 微信对 pre/code 的支持非常有限
   if (tag === 'PRE') {
     elem.style.margin = '1.5em 0';
     elem.style.padding = '1em';
-    // 使用 rgba 以在暗黑模式下有更好的适应性
-    elem.style.backgroundColor = 'rgba(40, 44, 52, 0.95)'; 
+    elem.style.backgroundColor = '#282c34';
     elem.style.borderRadius = '8px';
+    // 公众号端不支持真正折叠，这里用固定高度 + 滚动模拟“可收纳”
+    elem.style.maxHeight = '360px';
     elem.style.overflowX = 'auto';
-    elem.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+    elem.style.overflowY = 'auto';
+    elem.style.webkitOverflowScrolling = 'touch';
     elem.style.lineHeight = '1.5';
     elem.style.fontSize = '14px';
-    // 强制声明文字颜色，防止被微信暗黑模式反色导致看不清
     elem.style.color = '#abb2bf';
+    
+    // 添加暗黑模式适配属性
+    elem.setAttribute('data-darkmode-bgcolor', '#282c34');
+    elem.setAttribute('data-darkmode-original-bgcolor', '#282c34');
+    elem.setAttribute('data-darkmode-color', '#abb2bf');
+    elem.setAttribute('data-darkmode-original-color', '#abb2bf');
   }
 
   if (tag === 'CODE') {
@@ -74,16 +85,22 @@ function applyWeChatOptimizations(elem: HTMLElement): void {
     const isInline = !elem.parentElement || elem.parentElement.tagName !== 'PRE';
     
     if (isInline) {
-      elem.style.backgroundColor = 'rgba(27,31,35,0.05)';
+      elem.style.backgroundColor = '#f6f8fa';
       elem.style.color = '#e06c75';
       elem.style.padding = '0.2em 0.4em';
       elem.style.borderRadius = '3px';
       elem.style.fontSize = '85%';
-      elem.style.fontFamily = 'SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace';
+      elem.style.fontFamily = 'Consolas, Monaco, monospace';
+      
+      // 行内代码暗黑模式适配
+      elem.setAttribute('data-darkmode-bgcolor', '#2d2d2d');
+      elem.setAttribute('data-darkmode-original-bgcolor', '#2d2d2d');
+      elem.setAttribute('data-darkmode-color', '#e06c75');
+      elem.setAttribute('data-darkmode-original-color', '#e06c75');
     } else {
-      elem.style.fontFamily = 'Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace';
+      elem.style.fontFamily = 'Consolas, Monaco, monospace';
       elem.style.display = 'block';
-      elem.style.whiteSpace = 'pre'; // 保持原样换行
+      elem.style.whiteSpace = 'pre';
       elem.style.wordBreak = 'normal';
       elem.style.wordSpacing = 'normal';
       elem.style.color = 'inherit';
@@ -95,7 +112,15 @@ function applyWeChatOptimizations(elem: HTMLElement): void {
     elem.style.padding = '1em 1.2em';
     elem.style.margin = '1.5em 0';
     elem.style.fontSize = '0.95em';
-    elem.style.borderRadius = '0 8px 8px 0';
+    elem.style.borderRadius = '8px';
+    
+    // 添加暗黑模式适配
+    const bgColor = window.getComputedStyle(elem).backgroundColor;
+    if (bgColor && bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent') {
+      elem.setAttribute('data-darkmode-bgcolor', bgColor);
+      elem.setAttribute('data-darkmode-original-bgcolor', bgColor);
+    }
+    
     const innerPs = elem.querySelectorAll('p');
     innerPs.forEach(p => {
       (p as HTMLElement).style.margin = '0.5em 0';
@@ -178,9 +203,9 @@ function applyWeChatOptimizations(elem: HTMLElement): void {
  */
 export function getInlinedHtml(
   sourceElem: HTMLElement,
-  options: { wechatOptimized?: boolean } = {}
+  options: { wechatOptimized?: boolean; imgRadius?: number } = {}
 ): string {
-  const { wechatOptimized = true } = options;
+  const { wechatOptimized = true, imgRadius = 8 } = options;
 
   const clone = sourceElem.cloneNode(true) as HTMLElement;
 
@@ -202,7 +227,7 @@ export function getInlinedHtml(
 
     if (wechatOptimized) {
       // 应用微信优化
-      applyWeChatOptimizations(c);
+      applyWeChatOptimizations(c, imgRadius);
 
       // 内联基本样式
       STYLE_PROPERTIES.forEach(prop => {
@@ -224,7 +249,7 @@ export function getInlinedHtml(
 
   // 包装一层，确保样式应用
   const wrapper = document.createElement('div');
-  wrapper.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif';
+  wrapper.style.fontFamily = '"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
   wrapper.style.fontSize = '15px';
   wrapper.style.color = '#333';
   wrapper.style.lineHeight = '1.8';
@@ -311,9 +336,25 @@ async function inlineStyleUrls(style: string): Promise<string> {
 
     try {
       const dataUrl = await fetchAsDataUrl(rawUrl);
-      if (!dataUrl) continue;
+      if (!dataUrl) {
+        // 如果转换失败，移除背景图片（避免公众号显示异常）
+        console.warn(`Failed to convert background image: ${rawUrl}, removing it for WeChat compatibility`);
+        nextStyle = nextStyle.replace(match[0], 'none');
+        continue;
+      }
+      
+      // 检查 base64 大小（粗略估算）
+      const estimatedSize = dataUrl.length * 0.75; // base64 约为原文件的 1.33 倍
+      if (estimatedSize > 150 * 1024) {
+        console.warn(`Background image too large (${Math.round(estimatedSize / 1024)}KB): ${rawUrl}, removing for WeChat compatibility`);
+        nextStyle = nextStyle.replace(match[0], 'none');
+        continue;
+      }
+      
       nextStyle = nextStyle.replace(match[0], `url("${dataUrl}")`);
     } catch {
+      // 转换失败，移除背景图片
+      nextStyle = nextStyle.replace(match[0], 'none');
       continue;
     }
   }
@@ -362,25 +403,49 @@ export async function getWeChatHtml(
   );
   optimizedHtml = await inlineHtmlAssetUrls(optimizedHtml);
 
-  const normalizedStyle = (containerStyle || 'max-width:677px;margin:0 auto;font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;font-size:15px;color:#333;line-height:1.8;').replace(
-    /url\((['"]?)(\/[^)"]+)\1\)/gi,
-    (_match, quote, path) => {
+  // 简化字体回退链，提高公众号兼容性
+  let normalizedStyle = (containerStyle || 'max-width:677px;margin:0 auto;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:15px;color:#333;line-height:1.8;')
+    .replace(/-apple-system,\s*BlinkMacSystemFont,\s*"Segoe UI",\s*Roboto,\s*/gi, '')
+    .replace(/-apple-system,\s*BlinkMacSystemFont,\s*/gi, '')
+    .replace(/url\((['"]?)(\/[^)"]+)\1\)/gi, (_match, quote, path) => {
       if (typeof window === 'undefined') {
         return `url(${quote}${path}${quote})`;
       }
-
       return `url(${quote}${new URL(path, window.location.origin).toString()}${quote})`;
-    }
-  );
+    });
   
-  // 核心黑科技：微信对 background-color 比较友好，对 background-image 建议使用单独的 div 承载
+  // 移除公众号不支持的 CSS 属性
+  normalizedStyle = normalizedStyle
+    .replace(/backdrop-filter:[^;]+;?/gi, '')
+    .replace(/text-shadow:[^;]+;?/gi, '')
+    .replace(/box-shadow:\s*0\s+0\s+[^;]+;?/gi, '') // 移除发光效果的 box-shadow
+    .replace(/-webkit-background-clip:[^;]+;?/gi, '')
+    .replace(/-webkit-text-fill-color:[^;]+;?/gi, '')
+    .replace(/background-clip:[^;]+;?/gi, '');
+  
+  // 转换背景图片为 base64（如果有的话）
+  // 这个过程会自动处理背景图片，如果转换失败会移除背景图片
   const style = await inlineStyleUrls(normalizedStyle);
 
-  // 如果包含背景图，添加一些微信特有的容器属性
-  const isImageBg = style.includes('background-image');
+  // 如果包含背景图，添加微信特有的容器属性
+  const isImageBg = style.includes('background-image') && !style.includes('background-image:none');
   const finalContainerStyle = isImageBg 
-    ? `${style};background-attachment:scroll;-webkit-background-size:cover;`
+    ? `${style};background-attachment:scroll;background-size:cover;`
     : style;
 
-  return `<section style="${finalContainerStyle}">${optimizedHtml}</section>`;
+  // 添加暗黑模式适配
+  const section = document.createElement('section');
+  section.setAttribute('style', finalContainerStyle);
+  section.innerHTML = optimizedHtml;
+  
+  // 为容器添加暗黑模式属性
+  if (finalContainerStyle.includes('background-color')) {
+    const bgMatch = finalContainerStyle.match(/background-color:\s*([^;]+)/);
+    if (bgMatch) {
+      section.setAttribute('data-darkmode-bgcolor', bgMatch[1].trim());
+      section.setAttribute('data-darkmode-original-bgcolor', bgMatch[1].trim());
+    }
+  }
+
+  return section.outerHTML;
 }

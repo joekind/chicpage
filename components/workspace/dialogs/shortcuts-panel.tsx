@@ -91,9 +91,9 @@ export const ShortcutsPanel = () => {
 
                 <button
                   onClick={() => setIsCollapsed(!isCollapsed)}
-                  className="w-full py-3 border-t border-zinc-100 flex items-center justify-center gap-2 text-xs text-zinc-400 hover:text-zinc-900 transition-colors"
+                  className="w-full py-4 border-t border-zinc-100 flex items-center justify-center gap-2.5 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
                 >
-                  {isCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+                  {isCollapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
                   {isCollapsed ? '展开' : '收起'}
                 </button>
               </div>

@@ -120,15 +120,17 @@ export const PreviewSection = ({
                 {/* External Navigation Arrows */}
                 <button
                   onClick={() => posterSlideRef.current?.goPrev()}
-                  className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                  className="absolute left-[-76px] top-1/2 z-10 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-zinc-500 shadow-lg ring-1 ring-zinc-200/80 transition-all opacity-100 hover:scale-110 hover:text-zinc-900 hover:shadow-xl active:scale-95"
+                  aria-label="上一张"
                 >
-                  <ChevronLeft className="size-8 stroke-[2.5px]" />
+                  <ChevronLeft className="size-9 stroke-[2.75px]" />
                 </button>
                 <button
                   onClick={() => posterSlideRef.current?.goNext()}
-                  className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-3 text-zinc-400 hover:text-zinc-800 transition-all opacity-0 group-hover:opacity-100 hover:scale-110 active:scale-95"
+                  className="absolute right-[-76px] top-1/2 z-10 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-zinc-500 shadow-lg ring-1 ring-zinc-200/80 transition-all opacity-100 hover:scale-110 hover:text-zinc-900 hover:shadow-xl active:scale-95"
+                  aria-label="下一张"
                 >
-                  <ChevronRight className="size-8 stroke-[2.5px]" />
+                  <ChevronRight className="size-9 stroke-[2.75px]" />
                 </button>
               </div>
             ) : previewMode === "pc" ? (

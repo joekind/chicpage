@@ -288,7 +288,7 @@ export default function ChicEditor() {
         "#chicpage",
       ) as HTMLElement | null;
       const target = chicpageEl ?? previewRef.current;
-      const contentHtml = getInlinedHtml(target, { wechatOptimized: true });
+      const contentHtml = getInlinedHtml(target, { wechatOptimized: true, imgRadius });
       const finalHtml = await getWeChatHtml(contentHtml, activeTheme.containerStyle);
       const currentMarkdown = useStore.getState().markdown;
       const textToCopy = showWordCount ? injectReadInfo(currentMarkdown) : currentMarkdown;
@@ -307,7 +307,7 @@ export default function ChicEditor() {
       setCopyStatus("error");
       setTimeout(() => setCopyStatus("idle"), 2000);
     }
-  }, [styleTheme, showWordCount, activeTheme.containerStyle]);
+  }, [styleTheme, showWordCount, activeTheme.containerStyle, imgRadius]);
 
   const handleUndo = useCallback(() => {
     undo();

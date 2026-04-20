@@ -47,6 +47,11 @@ const BASE_CSS = `
   #chicpage table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 14.5px; }
   #chicpage th { font-weight: 700; padding: 10px 14px; text-align: left; }
   #chicpage td { padding: 10px 14px; }
+  #chicpage details { margin: 1.2em 0; border: 1px solid #e5e7eb; border-radius: 10px; background: #fafafa; overflow: hidden; }
+  #chicpage summary { cursor: pointer; list-style: none; padding: 10px 14px; font-weight: 600; user-select: none; }
+  #chicpage summary::-webkit-details-marker { display: none; }
+  #chicpage details > :not(summary) { padding: 0 14px 12px; }
+  #chicpage details[open] summary { border-bottom: 1px solid #e5e7eb; margin-bottom: 8px; }
   #chicpage code { font-size: 85%; padding: 0.2em 0.4em; border-radius: 4px; font-family: Consolas, "Courier New", monospace; }
   #chicpage pre { margin: 1.5em 0; border-radius: 10px; overflow: hidden; }
   #chicpage pre code { display: block; padding: 1.2em; font-size: 13px; line-height: 1.6; }
@@ -59,11 +64,11 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'default',
     name: '默认',
     description: '经典简约排版',
-    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color: #ffffff;',
+    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color:#ffffff;',
     css: BASE_CSS + `
       #chicpage {
         color: #333;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", Arial, sans-serif;
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
        
         }
       #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 1em 0; }
@@ -84,11 +89,11 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'linedpaper2',
     name: '纸质',
     description: '简约排版',
-    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color: #ffffff;background-image: url("/background/lined-paper-2.png");',
+    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color:#ffffff;background-image:url("/background/lined-paper-2.png");background-repeat:repeat;background-size:auto;',
     css: BASE_CSS + `
       #chicpage {
         color: #333;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft Yahei", Arial, sans-serif;
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
        
         }
       #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 1em 0; }
@@ -109,31 +114,28 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'elegant',
     name: '典雅',
     description: '典雅精致风格',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:Georgia, "Source Serif 4", "Noto Serif SC", "STSong", "SimSun", serif;color:#2c2c2c;background:#fdfaf6;padding:32px 24px;',
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:Georgia,"Noto Serif SC","STSong","SimSun",serif;color:#2c2c2c;background:#fdfaf6;padding:32px 24px;',
     css: BASE_CSS + `
-      #chicpage { color: #2c2c2c; font-family: Georgia, "Source Serif 4", "Noto Serif SC", "STSong", "SimSun", serif; line-height: 1.9; background: #fdfaf6; }
+      #chicpage { color: #2c2c2c; font-family: Georgia, "Noto Serif SC", "STSong", "SimSun", serif; line-height: 1.9; background: #fdfaf6; }
 
       /* 标题：居中 + 金色下划线装饰 */
       #chicpage h1 {
         color: #1a1a1a; text-align: center; font-size: 24px;
         font-weight: 400; letter-spacing: 0.15em;
         padding-bottom: 0.6em; margin-bottom: 0.4em;
-        background: linear-gradient(to right, transparent 20%, #c8a96e 20%, #c8a96e 80%, transparent 80%) bottom / 100% 1px no-repeat;
+        border-bottom: 1px solid #c8a96e;
       }
-      /* H1 下方小装饰符 */
-      #chicpage h1::after { content: '✦'; display: block; text-align: center; color: #c8a96e; font-size: 12px; margin-top: 8px; letter-spacing: 0.5em; }
 
       #chicpage h2 {
         color: #1a1a1a; font-size: 17px; font-weight: 600;
         letter-spacing: 0.08em;
-        padding: 0 0 6px 0;
+        padding: 0 0 6px 12px;
         border-bottom: 1px solid #e0cfa8;
+        border-left: 3px solid #c8a96e;
         margin: 2em 0 0.8em;
       }
-      #chicpage h2::before { content: '§ '; color: #c8a96e; font-weight: 400; }
 
-      #chicpage h3 { color: #3a3a3a; font-size: 15px; font-weight: 600; margin: 1.5em 0 0.5em; }
-      #chicpage h3::before { content: '◆ '; color: #c8a96e; font-size: 10px; vertical-align: middle; }
+      #chicpage h3 { color: #3a3a3a; font-size: 15px; font-weight: 600; margin: 1.5em 0 0.5em; padding-left: 12px; border-left: 2px solid #c8a96e; }
 
       /* 段落首行缩进，且保持非常紧致的段间距，模拟真书排版 */
       #chicpage p { text-indent: 2em; margin: 0.3em 0; line-height: 1.95; }
@@ -153,8 +155,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage a { color: #9a7040; text-decoration: underline; text-underline-offset: 3px; }
 
       /* 分割线：居中菱形 */
-      #chicpage hr { border: none; margin: 2.5em 0; text-align: center; }
-      #chicpage hr::after { content: '◇ ◆ ◇'; color: #c8a96e; font-size: 14px; letter-spacing: 0.4em; }
+      #chicpage hr { border: none; border-top: 1px dashed #c8a96e; margin: 2.5em 0; text-align: center; }
 
       #chicpage th { background: #f5ead6; border: 1px solid #e0cfa8; color: #5a4a2a; font-weight: 600; }
       #chicpage td { border: 1px solid #e8dcc0; color: #3a3a3a; }
@@ -169,11 +170,11 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'magazine',
     name: '杂志',
     description: '时尚杂志排版',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Optima", "Inter", "PingFang SC", sans-serif;color:#1a1a1a;background:#fff;',
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:"PingFang SC",sans-serif;color:#1a1a1a;background:#fff;',
     css: BASE_CSS + `
       #chicpage { 
         color: #1a1a1a; 
-        font-family: "Optima", -apple-system, "Source Serif 4", "Noto Serif SC", serif; 
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
         background: #fff; 
         line-height: 1.85; 
       }
@@ -226,18 +227,14 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage blockquote p::before { content: "“"; font-size: 1.6em; vertical-align: -0.4em; margin-right: 4px; color: #ccc; }
       #chicpage blockquote p::after { content: "”"; font-size: 1.6em; vertical-align: -0.4em; margin-left: 4px; color: #ccc; }
 
-      /* 首段首字下沉 */
-      #chicpage p:first-of-type::first-letter {
-        float: left; font-size: 3.8em; line-height: 0.8;
-        margin: 0.08em 0.1em 0 0;
-        font-weight: 900; color: #000;
-      }
+      /* 段落 */
+      #chicpage p { margin: 1em 0; line-height: 1.85; }
 
       /* 分割线：极简长线 */
       #chicpage hr { border: none; border-top: 1px solid #1a1a1a; margin: 3.5em 10%; }
 
       /* 强调样式 */
-      #chicpage strong { font-weight: 800; color: #000; background: linear-gradient(transparent 70%, #f0f0f0 70%); }
+      #chicpage strong { font-weight: 800; color: #000; background: #f0f0f0; padding: 0 0.2em; }
       #chicpage em { font-style: italic; color: #444; }
       #chicpage a { color: #000; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
       
@@ -256,17 +253,13 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'crimson',
     name: '赤红',
     description: '东方赤红美学',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Noto Serif SC","Source Han Serif SC",serif;color:#1a1a1a;background:#fef8f6;padding:40px 30px;',
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Noto Serif SC","STSong",serif;color:#1a1a1a;background:#fef8f6;padding:40px 30px;',
     css: BASE_CSS + `
       #chicpage {
         color: #1a1a1a;
-        font-family: "Noto Serif SC", "Source Han Serif SC", "STSong", serif;
+        font-family: "Noto Serif SC", "STSong", "SimSun", serif;
         line-height: 1.95;
         background: #fef8f6;
-        /* 宣纸纹理 */
-        background-image:
-          radial-gradient(circle at 20% 30%, rgba(196, 30, 58, 0.03) 0%, transparent 50%),
-          radial-gradient(circle at 80% 70%, rgba(196, 30, 58, 0.02) 0%, transparent 50%);
       }
 
       /* H1: 竖排印章风格 */
@@ -277,33 +270,9 @@ export const WECHAT_THEMES: WechatTheme[] = [
         text-align: center;
         letter-spacing: 0.5em;
         margin: 1.5em 0 1em;
-        position: relative;
         padding: 20px 0;
-      }
-      /* 红色边框装饰 */
-      #chicpage h1::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80%;
-        height: 100%;
-        border: 2px solid #c41e3a;
+        border: 2px solid rgba(196, 30, 58, 0.3);
         border-radius: 8px;
-        opacity: 0.3;
-      }
-      /* 底部装饰线 */
-      #chicpage h1::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 40px;
-        height: 2px;
-        background: #c41e3a;
-        border-radius: 1px;
       }
 
       /* H2: 红色装饰框 */
@@ -313,8 +282,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         color: #1a1a1a;
         margin: 2.5em 0 1.2em;
         padding: 12px 20px;
-        position: relative;
-        background: linear-gradient(to right, rgba(196, 30, 58, 0.05), transparent);
+        background: rgba(196, 30, 58, 0.05);
         border-left: 4px solid #c41e3a;
       }
 
@@ -325,19 +293,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         color: #333;
         margin: 1.8em 0 0.8em;
         padding-left: 16px;
-        position: relative;
-      }
-      #chicpage h3::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 8px;
-        height: 8px;
-        background: #c41e3a;
-        border-radius: 50%;
-        opacity: 0.6;
+        border-left: 3px solid #c41e3a;
       }
 
       /* 段落：两端对齐 */
@@ -358,19 +314,9 @@ export const WECHAT_THEMES: WechatTheme[] = [
         margin: 2.5em 0;
         padding: 20px 30px;
         border: none;
-        background: linear-gradient(135deg, rgba(196, 30, 58, 0.05) 0%, transparent 100%);
+        border-left: 4px solid #c41e3a;
+        background: rgba(196, 30, 58, 0.05);
         color: #5a3a3a;
-        position: relative;
-      }
-      #chicpage blockquote::before {
-        content: '"';
-        font-size: 48px;
-        color: #c41e3a;
-        opacity: 0.2;
-        position: absolute;
-        top: -10px;
-        left: 10px;
-        font-family: Georgia, serif;
       }
       #chicpage blockquote p {
         text-indent: 0;
@@ -404,8 +350,8 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage hr {
         border: none;
         margin: 3em 0;
-        height: 2px;
-        background: linear-gradient(to right, transparent, #c41e3a, transparent);
+        height: 1px;
+        background: #c41e3a;
         opacity: 0.3;
       }
 
@@ -461,21 +407,9 @@ export const WECHAT_THEMES: WechatTheme[] = [
         margin: 1.5em 0 1em;
         text-align: center;
         color: #e6e6e6;
-        position: relative;
         letter-spacing: 0.02em;
-        text-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
-      }
-      #chicpage h1::after {
-        content: '';
-        position: absolute;
-        bottom: -8px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60px;
-        height: 3px;
-        background: #6366f1;
-        border-radius: 2px;
-        box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        padding-bottom: 0.5em;
+        border-bottom: 3px solid #6366f1;
       }
 
       /* H2: 科技感卡片 */
@@ -485,11 +419,10 @@ export const WECHAT_THEMES: WechatTheme[] = [
         color: #e6e6e6;
         margin: 2.2em 0 1em;
         padding: 14px 20px;
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
+        background: rgba(99, 102, 241, 0.1);
         border: 1px solid rgba(99, 102, 241, 0.2);
         border-left: 4px solid #6366f1;
         border-radius: 8px;
-        backdrop-filter: blur(10px);
       }
 
       /* H3: 紫色强调 */
@@ -499,18 +432,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         color: #c4b5fd;
         margin: 1.8em 0 0.8em;
         padding-left: 16px;
-        position: relative;
-      }
-      #chicpage h3::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 16px;
-        background: linear-gradient(to bottom, #6366f1, #a855f7);
-        border-radius: 2px;
+        border-left: 4px solid #6366f1;
       }
 
       /* 段落 */
@@ -530,46 +452,24 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border-left: 4px solid #6366f1;
         color: #c4b5fd;
         border-radius: 8px;
-        position: relative;
-        overflow: hidden;
-      }
-      #chicpage blockquote::before {
-        content: '"';
-        position: absolute;
-        top: -10px;
-        left: 15px;
-        font-size: 48px;
-        color: #6366f1;
-        opacity: 0.1;
-        font-family: Georgia, serif;
       }
       #chicpage blockquote p {
         color: #c4b5fd;
         margin: 0;
-        position: relative;
-        z-index: 1;
       }
 
       /* 链接：渐变效果 */
       #chicpage a {
         color: #818cf8;
-        text-decoration: none;
-        border-bottom: 1px solid transparent;
-        transition: all 0.2s;
-        background: linear-gradient(135deg, #6366f1, #a855f7);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-      #chicpage a:hover {
-        border-bottom-color: #6366f1;
+        text-decoration: underline;
+        text-underline-offset: 3px;
       }
 
       /* 强调 */
       #chicpage strong {
         color: #e6e6e6;
         font-weight: 600;
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.1));
+        background: rgba(99, 102, 241, 0.2);
         padding: 0.1em 0.3em;
         border-radius: 4px;
       }
@@ -592,7 +492,6 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border-radius: 12px;
         padding: 20px;
         overflow-x: auto;
-        box-shadow: 0 0 40px rgba(99, 102, 241, 0.1);
       }
       #chicpage pre code {
         background: transparent;
@@ -606,7 +505,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border: none;
         margin: 3em 0;
         height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.5), transparent);
+        background: rgba(99, 102, 241, 0.5);
       }
 
       /* 列表 */
@@ -631,7 +530,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border: 1px solid rgba(99, 102, 241, 0.2);
       }
       #chicpage th {
-        background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.1));
+        background: rgba(99, 102, 241, 0.2);
         color: #e6e6e6;
         font-weight: 600;
         border: none;
@@ -654,7 +553,6 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage img {
         border-radius: 12px;
         border: 1px solid rgba(99, 102, 241, 0.1);
-        box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
       }
     `,
     preview: '#0a0a0f',
@@ -663,14 +561,12 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'sketch',
     name: '手绘',
     description: '手绘涂鸦风格',
-    containerStyle: 'max-width:677px;margin:0 auto;background:#fffef5;color:#333;padding:40px 30px;font-family: cursive, sans-serif;',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#fffef5;color:#333;padding:40px 30px;font-family:"PingFang SC",sans-serif;',
     css: BASE_CSS + `
       #chicpage { 
         background-color: #fffef5; 
-        background-image: radial-gradient(#e5e5e5 1px, transparent 1px);
-        background-size: 24px 24px;
         color: #1a1a1a; 
-        font-family:  "Avenir Next", "Hiragino Kaku Gothic Interface", "PingFang SC", cursive, sans-serif;
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         line-height: 1.85; 
         padding: 2em 1em;
       }
@@ -678,36 +574,21 @@ export const WECHAT_THEMES: WechatTheme[] = [
       /* H1：紧凑的手绘涂鸦背景 */
       #chicpage h1 {
         font-size: 30px; color: #000; text-align: center;
-        margin: 1.25em 0 1em; position: relative;
-        padding: 10px 0;
-        z-index: 1;
-        display: inline-block;
-        left: 50%;
-        transform: translateX(-50%) rotate(-1deg);
-      }
-      #chicpage h1::before {
-        content: ""; position: absolute; top: 15%; left: -5%; right: -5%; bottom: 15%;
+        margin: 1.25em 0 1em;
+        padding: 10px 20px;
         background: #fff;
         border: 2px solid #111;
-        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-        z-index: -1;
-        box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
-      }
-      #chicpage h1::after { 
-        content: ""; position: absolute; bottom: 0; left: 10%; right: 10%; height: 4px; 
-        background: #ff4757; opacity: 0.6; border-radius: 50%; 
+        border-radius: 15px;
       }
 
       /* H2：带涂鸦阴影的便签 */
       #chicpage h2 {
-        font-size: 22px; color: #111; position: relative;
+        font-size: 22px; color: #111;
         display: inline-block; padding: 8px 20px;
         margin: 2.5em 0 1.2em;
         border: 2px solid #333;
         background: #ffeb3b;
-        border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-        box-shadow: 6px 6px 0 #000;
-        transform: rotate(2deg);
+        border-radius: 15px;
       }
 
       /* H3：彩色蜡笔波浪线下划线 */
@@ -715,59 +596,39 @@ export const WECHAT_THEMES: WechatTheme[] = [
         font-size: 19px; color: #000; margin: 1.8em 0 0.8em;
         display: inline-block;
         border-bottom: 4px dotted #ff4081;
-        transform: rotate(-1deg);
       }
 
       /* 引用：四角贴了透明胶带的纸片 */
       #chicpage blockquote {
         margin: 3.5em 0; padding: 2em;
         background: #fff; border: 1px solid #ddd;
-        box-shadow: 5px 5px 15px rgba(0,0,0,0.05);
-        position: relative;
-        transform: rotate(-0.5deg);
+        border-radius: 4px;
       }
-      /* 四角胶带 */
-      #chicpage blockquote::before, #chicpage blockquote::after {
-        content: ""; position: absolute; width: 50px; height: 20px;
-        background: rgba(255, 255, 255, 0.5); border: 1px solid rgba(0,0,0,0.05);
-        backdrop-filter: blur(1px); z-index: 2;
-      }
-      #chicpage blockquote::before { top: -10px; left: -15px; transform: rotate(-35deg); }
-      #chicpage blockquote::after { bottom: -10px; right: -15px; transform: rotate(-35deg); }
 
       /* 强调样式：极其厚重的涂鸦高亮 */
       #chicpage strong { 
         font-weight: 900; color: #000; 
         background: #fff176;
         padding: 0 4px;
-        border-radius: 20% 80% 30% 70% / 70% 30% 80% 20%;
-        box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+        border-radius: 4px;
       }
       #chicpage em { font-style: italic; color: #2196f3; font-weight: 800; border-bottom: 2px solid #2196f3; }
       #chicpage a { color: #f44336; border-bottom: 3px double #f44336; text-decoration: none; }
 
       /* 分割线：大手绘波浪线 */
-      #chicpage hr { border: none; margin: 4em 0; background: none; height: 10px; position: relative; }
-      #chicpage hr::after { 
-        content: "〰〰〰〰〰〰〰〰〰"; font-size: 30px; color: #000;
-        position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-        letter-spacing: -2px; width: 100%; text-align: center; opacity: 0.2;
-      }
+      #chicpage hr { border: none; border-top: 2px dashed #ccc; margin: 4em 0; }
 
       /* 图片：像贴在墙上的照片 */
       #chicpage img { 
-        padding: 12px; border: 1px solid #fff; background: #fff;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        padding: 12px; border: 1px solid #ddd; background: #fff;
         border-radius: 2px;
-        transform: rotate(1deg);
         margin: 2.5em auto;
       }
       
-      #chicpage li { list-style: none; position: relative; padding-left: 25px; }
-      #chicpage li::before { content: "✔"; position: absolute; left: 0; color: #4caf50; font-weight: 900; font-size: 1.2em; }
+      #chicpage li { list-style: disc; padding-left: 0; }
       
       #chicpage code { background: #e1f5fe; color: #0277bd; border: 1px dashed #0277bd; border-radius: 10px; }
-      #chicpage pre { background: #1a1a1a; border: 3px solid #333; border-radius: 15px 50px 15px 50px; }
+      #chicpage pre { background: #1a1a1a; border: 3px solid #333; border-radius: 15px; }
     `,
     preview: '#ffeb3b',
   }
