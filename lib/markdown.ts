@@ -124,11 +124,13 @@ function rehypeInlineHighlight() {
           style: [
             'display:block',
             'overflow-x:auto',
-            'padding:1em',
-            'border-radius:6px',
-            'font-size:13px',
-            'line-height:1.6',
-            'font-family:Consolas,"Courier New",monospace',
+            'overflow-y:hidden',
+            'padding:0',
+            'border-radius:0',
+            'background:transparent',
+            'font-size:inherit',
+            'line-height:inherit',
+            'font-family:inherit',
           ].join(';'),
         };
 

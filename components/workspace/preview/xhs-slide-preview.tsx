@@ -669,6 +669,7 @@ export const XHSSlidePreview = forwardRef<
 
       let isMounted = true;
       const run = async () => {
+        const previousCurrent = current;
         const result = await splitIntoSlides(
           html,
           theme.css,
@@ -677,7 +678,7 @@ export const XHSSlidePreview = forwardRef<
         );
         if (isMounted) {
           setSlides(result);
-          setCurrent(0);
+          setCurrent((prev) => Math.min(previousCurrent ?? prev, Math.max(result.length - 1, 0)));
           setSelectedImage(null);
         }
       };

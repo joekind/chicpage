@@ -53,8 +53,8 @@ const BASE_CSS = `
   #chicpage details > :not(summary) { padding: 0 14px 12px; }
   #chicpage details[open] summary { border-bottom: 1px solid #e5e7eb; margin-bottom: 8px; }
   #chicpage code { font-size: 85%; padding: 0.2em 0.4em; border-radius: 4px; font-family: Consolas, "Courier New", monospace; }
-  #chicpage pre { margin: 1.5em 0; border-radius: 10px; overflow: hidden; }
-  #chicpage pre code { display: block; padding: 1.2em; font-size: 13px; line-height: 1.6; }
+  #chicpage pre { margin: 1.5em 0; border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #f8fafc; }
+  #chicpage pre code { display: block; padding: 1em 1.1em; font-size: 13px; line-height: 1.7; font-family: Consolas, "Courier New", monospace; background: transparent; color: inherit; }
   #chicpage .hljs { color: #334155; }
   #chicpage .hljs-keyword,
   #chicpage .hljs-selector-tag,
@@ -203,7 +203,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* H1：封面大标题，极简杂志风 */
       #chicpage h1 {
-        font-size: 32px; font-weight: 300; text-align: center;
+        font-size: 26px; font-weight: 300; text-align: center;
         letter-spacing: 0.3em; color: #000;
         padding: 0.8em 0;
         border-top: 5px solid #000;
@@ -286,7 +286,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* H1: 竖排印章风格 */
       #chicpage h1 {
-        font-size: 32px;
+        font-size: 26px;
         font-weight: 900;
         color: #1a1a1a;
         text-align: center;

@@ -69,7 +69,6 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
     elem.style.maxHeight = '360px';
     elem.style.overflowX = 'auto';
     elem.style.overflowY = 'auto';
-    elem.style.webkitOverflowScrolling = 'touch';
     elem.style.lineHeight = '1.6';
     elem.style.fontSize = '14px';
     elem.style.color = '#334155';
@@ -410,6 +409,28 @@ function flattenCollapsibleCodeBlocks(html: string): string {
   return doc.body.innerHTML;
 }
 
+function flattenCollapsibleCodeBlocksForWeChat(html: string): string {
+  if (typeof window === 'undefined') return html;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  const detailsNodes = Array.from(doc.querySelectorAll('details.code-fold'));
+  detailsNodes.forEach((details) => {
+    const pre = details.querySelector('pre');
+    if (pre) {
+      details.replaceWith(pre);
+      return;
+    }
+
+    details.remove();
+  });
+
+  doc.querySelectorAll('summary.code-fold-summary').forEach((summary) => summary.remove());
+
+  return doc.body.innerHTML;
+}
+
 /**
  * 生成微信公众号专用的HTML
  * 包含完整的样式包装，确保复制后样式不丢失
@@ -425,7 +446,7 @@ export async function getWeChatHtml(
     'src="" alt="[图片上传中，请稍后重新复制]"'
   );
   optimizedHtml = await inlineHtmlAssetUrls(optimizedHtml);
-  optimizedHtml = flattenCollapsibleCodeBlocks(optimizedHtml);
+  optimizedHtml = flattenCollapsibleCodeBlocksForWeChat(optimizedHtml);
 
   // 简化字体回退链，提高公众号兼容性
   let normalizedStyle = (containerStyle || 'max-width:677px;margin:0 auto;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:15px;color:#333;line-height:1.8;')
