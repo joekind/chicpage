@@ -13,31 +13,31 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   
-  --color-studio-bg: #F9FAFB;
-  --color-studio-card: #FFFFFF;
+  --color-studio-bg: #F4F5F7;
+  --color-studio-card: #FCFCFD;
   --color-studio-ink: #1A1A1A;
   --color-studio-accent: #6366F1;
 }
 
 :root {
-  --background: #F9FAFB;
+  --background: #F4F5F7;
   --foreground: #101112;
-  --card: #ffffff;
+  --card: #FCFCFD;
   --card-foreground: #101112;
-  --popover: #ffffff;
+  --popover: #FCFCFD;
   --popover-foreground: #101112;
   --primary: #6366f1;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
+  --secondary: #edeef1;
   --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
+  --muted: #edeef1;
   --muted-foreground: #71717a;
-  --accent: #f4f4f5;
+  --accent: #edeef1;
   --accent-foreground: #18181b;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
   --border: rgba(0,0,0,0.06);
-  --input: #e4e4e7;
+  --input: #dcdcde;
   --ring: #6366f1;
   --radius: 1.25rem;
 }@layer base {
@@ -69,10 +69,10 @@
 
 /* 玻璃拟态卡片 */
 .glass-card {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(252, 252, 253, 0.72);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
 /* 高级悬浮阴影 */
@@ -90,7 +90,7 @@
 
 /* 隐藏 MDXEditor 默认工具栏的生硬边框 */
 .mdxeditor-toolbar {
-  background: rgba(255, 255, 255, 0.8) !important;
+  background: rgba(252, 252, 253, 0.88) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
   border-radius: 16px !important;
@@ -99,7 +99,7 @@
   position: sticky !important;
   top: 10px;
   z-index: 50;
-  border: 1px solid rgba(0,0,0,0.05) !important;
+  border: 1px solid rgba(0,0,0,0.04) !important;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05) !important;
   transition: all 0.3s ease;
 }
@@ -117,12 +117,12 @@
 
 /* Mesh Gradient Background */
 .mesh-bg {
-  background-color: #f9fafb;
+  background-color: #f4f5f7;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.06) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.06) 0px, transparent 50%);
 }
 
 .text-shimmer {
@@ -150,7 +150,7 @@
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(252, 252, 253, 0.76);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.62);
 }

@@ -109,16 +109,16 @@ export const MarkdownToolbar = ({
 
   return (
     <div ref={toolbarRef} className="toolbar-root w-full flex flex-col border-b border-zinc-100 bg-white/95 backdrop-blur-md overflow-visible relative">
-      <div className="flex items-center justify-between px-6 py-1.5 flex-wrap gap-y-1 relative">
-        <div className="flex items-center flex-wrap gap-y-1">
+      <div className="flex items-center justify-between px-6 py-1.5 flex-wrap gap-y-1.5 relative">
+        <div className="flex items-center flex-wrap gap-y-1.5">
           {groups.map((group, i) => (
             <React.Fragment key={i}>
               <div className="flex gap-0.5">{group}</div>
-              {i < groups.length - 1 && <div className="w-px h-5 bg-zinc-100 mx-1.5" />}
+              {i < groups.length - 1 && <div className="w-px h-5 bg-zinc-100 mx-1.25" />}
             </React.Fragment>
           ))}
         </div>
-        <div className="flex items-center gap-2 ml-2">
+        <div className="flex items-center gap-2 ml-1">
         </div>
 
       </div>

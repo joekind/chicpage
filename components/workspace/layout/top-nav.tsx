@@ -133,9 +133,9 @@ export const TopNav = React.memo(({
 
   return (
     <>
-    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/70 backdrop-blur-xl px-4 py-3 md:px-6">
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex flex-wrap items-center gap-3">
+    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/70 backdrop-blur-xl px-4 py-2.5 md:px-6">
+      <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
             <Image
               src="/logo.svg"
@@ -151,7 +151,7 @@ export const TopNav = React.memo(({
           </Link>
 
 
-          <div className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1 h-10">
+          <div className="flex items-center rounded-2xl border border-zinc-200 bg-zinc-50 p-1 h-10 shrink-0">
             <Button
               variant="ghost"
               size="icon"
@@ -210,7 +210,7 @@ export const TopNav = React.memo(({
 
           <motion.div 
             layout 
-            className="flex items-center gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1 max-h-10"
+            className="flex items-center gap-1 rounded-2xl border border-zinc-200 bg-zinc-50 p-1 max-h-10 shrink-0"
           >
             <Button
               variant="ghost"
@@ -247,7 +247,7 @@ export const TopNav = React.memo(({
           </motion.div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+        <div className="flex flex-wrap items-center gap-1.5 xl:justify-end shrink-0">
 
           <AnimatePresence mode="popLayout">
             {styleTheme === "poster" && (
