@@ -138,8 +138,8 @@ export const WECHAT_THEMES: WechatTheme[] = [
         font-weight: 500;
         letter-spacing: -0.02em;
         margin: 1.8em 0 0.9em;
-        padding-left: 0.8em;
-        border-left: 4px solid #1b365d;
+        padding-left: 0;
+        border-left: none;
         line-height: 1.22;
       }
       #chicpage h3 {
@@ -178,7 +178,6 @@ export const WECHAT_THEMES: WechatTheme[] = [
         background: #faf9f5;
         color: #4d4c48;
         border: 1px solid #e8e6dc;
-        border-left: 4px solid #1b365d;
         border-radius: 16px;
         padding: 16px 18px;
         box-shadow: 0 0 0 1px #e8e6dc;
@@ -384,7 +383,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         margin: 2.5em 0 1.2em;
         padding: 12px 20px;
         background: rgba(196, 30, 58, 0.05);
-        border-left: 4px solid #c41e3a;
+        border-left: none;
       }
 
       /* H3 */
@@ -393,8 +392,8 @@ export const WECHAT_THEMES: WechatTheme[] = [
         font-weight: 600;
         color: #333;
         margin: 1.8em 0 0.8em;
-        padding-left: 16px;
-        border-left: 3px solid #c41e3a;
+        padding-left: 0;
+        border-left: none;
       }
 
       /* 段落：两端对齐 */
@@ -415,7 +414,6 @@ export const WECHAT_THEMES: WechatTheme[] = [
         margin: 2.5em 0;
         padding: 20px 30px;
         border: none;
-        border-left: 4px solid #c41e3a;
         background: rgba(196, 30, 58, 0.05);
         color: #5a3a3a;
       }
@@ -522,7 +520,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         padding: 14px 20px;
         background: rgba(99, 102, 241, 0.1);
         border: 1px solid rgba(99, 102, 241, 0.2);
-        border-left: 4px solid #6366f1;
+        border-left: none;
         border-radius: 8px;
       }
 
@@ -532,8 +530,8 @@ export const WECHAT_THEMES: WechatTheme[] = [
         font-weight: 600;
         color: #c4b5fd;
         margin: 1.8em 0 0.8em;
-        padding-left: 16px;
-        border-left: 4px solid #6366f1;
+        padding-left: 0;
+        border-left: none;
       }
 
       /* 段落 */
@@ -550,7 +548,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         padding: 20px 24px;
         background: rgba(99, 102, 241, 0.05);
         border: 1px solid rgba(99, 102, 241, 0.15);
-        border-left: 4px solid #6366f1;
+        border-left: none;
         color: #c4b5fd;
         border-radius: 8px;
       }

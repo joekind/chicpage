@@ -109,10 +109,15 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
 
   // 引用块优化 - 只处理间距，颜色由主题 CSS 决定
   if (tag === 'BLOCKQUOTE') {
-    elem.style.padding = '1em 1.2em';
-    elem.style.margin = '1.5em 0';
+    elem.style.padding = '0.9em 1.1em';
+    elem.style.margin = '1.2em 0';
     elem.style.fontSize = '0.95em';
-    elem.style.borderRadius = '8px';
+    elem.style.borderRadius = '12px';
+    elem.style.borderLeft = 'none';
+    elem.style.borderTop = 'none';
+    elem.style.borderRight = 'none';
+    elem.style.borderBottom = 'none';
+    elem.style.backgroundColor = '#f8fafc';
     
     // 添加暗黑模式适配
     const bgColor = window.getComputedStyle(elem).backgroundColor;
@@ -163,8 +168,9 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
   // 分割线优化
   if (tag === 'HR') {
     elem.style.border = 'none';
-    elem.style.borderTop = '1px dashed #e5e7eb';
-    elem.style.margin = '2.5em 0';
+    elem.style.height = '1px';
+    elem.style.backgroundColor = '#dde1e6';
+    elem.style.margin = '2em 0';
   }
 
   // 表格优化
