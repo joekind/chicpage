@@ -15,6 +15,7 @@ import {
   ChevronDown,
   Palette,
   Image as ImageIconLucide,
+  Github,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -181,6 +182,16 @@ export const TopNav = React.memo(({
           </div>
 
           <div className="mx-1 h-5 w-px bg-zinc-200 hidden md:block" />
+
+          <Link
+            href="https://github.com/joekind/chicpage"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 h-10 text-[11px] font-black text-zinc-600 transition-all hover:bg-white hover:text-zinc-900"
+          >
+            <Github className="size-4" />
+            GitHub
+          </Link>
 
           <motion.div 
             layout 

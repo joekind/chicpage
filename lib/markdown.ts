@@ -87,106 +87,76 @@ function remarkDirectivePlugin() {
   };
 }
 
-function rehypeInlineHighlight() {
-  return (tree: Root) => {
-    visit(tree, 'element', (node, _index, parent) => {
-      if (
-        node.tagName === 'code' &&
-        (parent as Parent | undefined)?.type === 'element' &&
-        (parent as Element).tagName === 'pre'
-      ) {
-        const classNames: string[] = (node.properties?.className as string[]) ?? [];
-        const langClass = classNames.find((c) => c.startsWith('language-'));
-        const lang = langClass?.replace('language-', '');
-
-        const raw = node.children
-          .filter((c): c is { type: 'text'; value: string } => c.type === 'text')
-          .map((c) => c.value)
-          .join('');
-
-        let highlighted: string;
-        try {
-          highlighted = lang && hljs.getLanguage(lang)
-            ? hljs.highlight(raw, { language: lang }).value
-            : hljs.highlightAuto(raw).value;
-        } catch {
-          highlighted = raw;
-        }
-
-        node.children = [{ type: 'raw', value: highlighted }];
-
-        node.properties = {
-          ...node.properties,
-          className: [
-            ...classNames,
-            'hljs',
-          ],
-          style: [
-            'display:block',
-            'overflow-x:auto',
-            'overflow-y:hidden',
-            'padding:0',
-            'border-radius:0',
-            'background:transparent',
-            'font-size:inherit',
-            'line-height:inherit',
-            'font-family:inherit',
-          ].join(';'),
-        };
-
-        if (parent && (parent as Element).tagName) {
-          (parent as Element).properties = {
-            ...(parent as Element).properties,
-            style: 'margin:1.2em 0;border-radius:8px;overflow:hidden;',
-          };
-        }
-      }
-    });
-  };
-}
-
-function rehypeCollapsibleCodeBlock() {
+function rehypeHighlightedCodeBlock() {
   return (tree: Root) => {
     visit(tree, 'element', (node, index, parent) => {
       if (node.tagName !== 'pre' || index == null || !parent) return;
       if (parent.type !== 'root' && parent.type !== 'element') return;
 
-      const parentElement = parent as Parent;
       const preElement = node as Element;
-
-      if (
-        parent.type === 'element' &&
-        (parent as Element).tagName === 'details'
-      ) {
-        return;
-      }
-
       const codeNode = preElement.children.find(
         (child): child is Element => child.type === 'element' && child.tagName === 'code'
       );
+      if (!codeNode) return;
 
       const classNames = ((codeNode?.properties?.className as string[]) ?? []);
       const langClass = classNames.find((c) => c.startsWith('language-'));
-      const lang = langClass?.replace('language-', '').toUpperCase() || '代码块';
 
-      const detailsNode: Element = {
-        type: 'element',
-        tagName: 'details',
-        properties: { className: ['code-fold'], open: true },
-        children: [
-          {
-            type: 'element',
-            tagName: 'summary',
-            properties: { className: ['code-fold-summary'] },
-            children: [{ type: 'text', value: `${lang}（点击折叠）` }],
-          },
-          preElement,
-        ],
+      const rawText = codeNode?.children
+        .map((child) => {
+          if (child.type === 'text') return child.value;
+          if (child.type === 'raw') return child.value;
+          return '';
+        })
+        .join('') ?? '';
+
+      const highlighted = highlightCode(rawText, langClass?.replace('language-', ''));
+
+      codeNode.children = [{ type: 'raw', value: highlighted }];
+      codeNode.properties = {
+        ...codeNode.properties,
+        className: [...classNames, 'hljs'],
+        style: [
+          'display:block',
+          'overflow-x:auto',
+          'overflow-y:hidden',
+          'padding:0',
+          'border-radius:0',
+          'background:transparent',
+          'font-size:inherit',
+          'line-height:inherit',
+          'font-family:inherit',
+        ].join(';'),
       };
 
-      parentElement.children[index] = detailsNode as Node;
+      preElement.properties = {
+        ...(preElement.properties ?? {}),
+        style: [
+          'margin:1.2em 0',
+          'border-radius:10px',
+          'overflow:auto',
+          'max-height:50vh',
+          'max-height:50dvh',
+          'background:#f8fafc',
+          'border:1px solid #e5e7eb',
+        ].join(';'),
+      };
+
+      (parent as Parent).children[index] = preElement as Node;
     });
   };
+}
+
+function highlightCode(raw: string, language?: string): string {
+  try {
+    const normalizedLanguage = language?.toLowerCase();
+    if (normalizedLanguage && hljs.getLanguage(normalizedLanguage)) {
+      return hljs.highlight(raw, { language: normalizedLanguage }).value;
+    }
+    return hljs.highlightAuto(raw).value;
+  } catch {
+    return raw;
+  }
 }
 
 export async function markdownToHtml(markdown: string): Promise<string> {
@@ -203,9 +173,8 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkDirective)
     .use(remarkDirectivePlugin)
     .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeInlineHighlight)
     .use(rehypeRaw)
-    .use(rehypeCollapsibleCodeBlock)
+    .use(rehypeHighlightedCodeBlock)
     .use(rehypeStringify)
     .process(normalizedMarkdown);
 
