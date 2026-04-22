@@ -13,32 +13,32 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   
-  --color-studio-bg: #F4F5F7;
-  --color-studio-card: #FCFCFD;
-  --color-studio-ink: #1A1A1A;
-  --color-studio-accent: #6366F1;
+  --color-studio-bg: #f3f4f6;
+  --color-studio-card: #fbfbfc;
+  --color-studio-ink: #111827;
+  --color-studio-accent: #2563eb;
 }
 
 :root {
-  --background: #F4F5F7;
-  --foreground: #101112;
-  --card: #FCFCFD;
-  --card-foreground: #101112;
-  --popover: #FCFCFD;
-  --popover-foreground: #101112;
-  --primary: #6366f1;
+  --background: #f3f4f6;
+  --foreground: #111827;
+  --card: #fbfbfc;
+  --card-foreground: #111827;
+  --popover: #fbfbfc;
+  --popover-foreground: #111827;
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --secondary: #edeef1;
-  --secondary-foreground: #18181b;
-  --muted: #edeef1;
-  --muted-foreground: #71717a;
-  --accent: #edeef1;
-  --accent-foreground: #18181b;
+  --secondary: #e5e7eb;
+  --secondary-foreground: #1f2937;
+  --muted: #e5e7eb;
+  --muted-foreground: #6b7280;
+  --accent: #e5e7eb;
+  --accent-foreground: #1f2937;
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
-  --border: rgba(0,0,0,0.06);
-  --input: #dcdcde;
-  --ring: #6366f1;
+  --border: rgba(17, 24, 39, 0.08);
+  --input: #d1d5db;
+  --ring: #2563eb;
   --radius: 1.25rem;
 }@layer base {
   * {
@@ -83,7 +83,7 @@
 
 /* 渐变文本 */
 .text-gradient {
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -117,12 +117,12 @@
 
 /* Mesh Gradient Background */
 .mesh-bg {
-  background-color: #f4f5f7;
+  background-color: #f3f4f6;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.06) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.06) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(148, 163, 184, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(37, 99, 235, 0.04) 0px, transparent 50%);
 }
 
 .text-shimmer {

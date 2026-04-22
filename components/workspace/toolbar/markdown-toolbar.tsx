@@ -74,23 +74,23 @@ export const MarkdownToolbar = ({
     btn(<Quote className="size-4" />,         "引用",       () => onQuote()),
     btn(<List className="size-4" />,          "无序列表",    () => onInsertAtLineStart('- ')),
     btn(<ListOrdered className="size-4" />,   "有序列表",    () => onInsertAtLineStart('1. ')),
-    btn(<CheckSquare className="size-4" />,   "任务清单",    () => onInsertAtLineStart('- [ ] '), "hover:bg-green-50 text-green-600"),
+    btn(<CheckSquare className="size-4" />,   "任务清单",    () => onInsertAtLineStart('- [ ] ')),
     btn(<Minus className="size-4" />,         "装饰分隔线",      () => onSeparator()),
-    btn(<SeparatorHorizontal className="size-4" />, "强制分页符（<!--pagebreak-->）", () => onInsertPageBreak?.(), "hover:bg-amber-50 text-amber-600"),
-    btn(<Code2 className="size-4" />,         "代码块",      () => onInsertText('\n```js\n\n```\n'), "hover:bg-violet-50 text-violet-600"),
+    btn(<SeparatorHorizontal className="size-4" />, "强制分页符（<!--pagebreak-->）", () => onInsertPageBreak?.()),
+    btn(<Code2 className="size-4" />,         "代码块",      () => onInsertText('\n```js\n\n```\n')),
     btn(
       <ChevronsUpDown className="size-4" />,
       "折叠块（details/summary）",
       () => onInsertText('\n<details>\n<summary>点击展开</summary>\n\n这里写可折叠内容\n\n</details>\n'),
-      "hover:bg-cyan-50 text-cyan-600"
+      ""
     ),
   ];
 
   const groupMedia = [
-    btn(<ImageIcon className="size-4" />,    "插入图片", () => onInsertImage?.(), "hover:bg-indigo-50 text-indigo-600"),
-    btn(<FolderUp className="size-4" />, "导入 Markdown", () => onImportMarkdown?.(), "hover:bg-indigo-50 text-indigo-600"),
+    btn(<ImageIcon className="size-4" />,    "插入图片", () => onInsertImage?.()),
+    btn(<FolderUp className="size-4" />, "导入 Markdown", () => onImportMarkdown?.()),
     <Button key="table" variant="ghost" size="icon" title="插入表格"
-      className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-indigo-50 text-indigo-600 border border-indigo-100" : "hover:bg-zinc-100 text-zinc-600")}
+      className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-zinc-900 text-white border border-zinc-800" : "hover:bg-zinc-100 text-zinc-600")}
       onMouseDown={(e) => {
         e.preventDefault();
         setActivePopup(activePopup === 'table' ? null : 'table');
@@ -100,9 +100,9 @@ export const MarkdownToolbar = ({
   ];
 
   const groupCallouts = [
-    btn(<Info className="size-4" />,          "提示盒 tip",     () => onInsertText('\n:::tip\n在这输入提示内容\n:::\n'), "hover:bg-blue-50 text-blue-600"),
-    btn(<AlertCircle className="size-4" />,   "警告盒 warning", () => onInsertText('\n:::warning\n在这输入警告内容\n:::\n'), "hover:bg-orange-50 text-orange-500"),
-    btn(<AlertTriangle className="size-4" />, "危险盒 danger",  () => onInsertText('\n:::danger\n在这输入危险内容\n:::\n'), "hover:bg-red-50 text-red-600"),
+    btn(<Info className="size-4" />,          "提示盒 tip",     () => onInsertText('\n:::tip\n在这输入提示内容\n:::\n')),
+    btn(<AlertCircle className="size-4" />,   "警告盒 warning", () => onInsertText('\n:::warning\n在这输入警告内容\n:::\n')),
+    btn(<AlertTriangle className="size-4" />, "危险盒 danger",  () => onInsertText('\n:::danger\n在这输入危险内容\n:::\n')),
   ];
 
   const groups = [groupHeadings, groupInline, groupBlock, groupMedia, groupCallouts];
@@ -146,14 +146,14 @@ export const MarkdownToolbar = ({
                       onClick={() => onInsertTable(r, c)}
                       className={cn(
                         "size-4 cursor-pointer rounded-sm border transition-all duration-200",
-                        r <= hoverGrid.r && c <= hoverGrid.c ? "bg-indigo-500 border-indigo-600" : "border-zinc-200"
+                        r <= hoverGrid.r && c <= hoverGrid.c ? "bg-[var(--primary)] border-[var(--primary)]" : "border-zinc-200"
                       )} />
                   );
                 })}
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">表格规模</span>
-                <span className="text-2xl font-black text-indigo-500 tabular-nums">{hoverGrid.r} <span className="text-zinc-300 text-sm">×</span> {hoverGrid.c}</span>
+                <span className="text-2xl font-black text-zinc-900 tabular-nums">{hoverGrid.r} <span className="text-zinc-300 text-sm">×</span> {hoverGrid.c}</span>
               </div>
             </div>
           </motion.div>

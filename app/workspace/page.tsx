@@ -425,7 +425,7 @@ export default function ChicEditor() {
 
   return (
     <div
-      className="flex h-screen flex-col bg-[var(--background)] overflow-hidden selection:bg-indigo-200 selection:text-zinc-900"
+      className="flex h-screen flex-col bg-[var(--background)] overflow-hidden selection:bg-blue-100 selection:text-zinc-900"
       onDragOver={(e) => e.preventDefault()}
     >
       <style jsx global>{`

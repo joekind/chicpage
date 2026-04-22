@@ -63,7 +63,7 @@ export const PreviewSection = ({
       exit={{ opacity: 0, x: 20, scale: 0.95 }}
       transition={{ duration: 0.4, ease: [0.2, 0, 0, 1] }}
       className={cn(
-        "flex-1 overflow-y-auto bg-white/20 backdrop-blur-sm rounded-3xl border border-white/40 flex flex-col items-center justify-center p-4 no-scrollbar relative",
+        "flex-1 overflow-y-auto bg-[rgba(252,252,253,0.62)] backdrop-blur-sm rounded-3xl border border-zinc-200/70 flex flex-col items-center justify-center p-4 no-scrollbar relative",
         layoutMode === "preview" ? "w-full" : "",
       )}
     >
@@ -74,7 +74,7 @@ export const PreviewSection = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white/90 backdrop-blur-xl px-4 py-2 rounded-2xl shadow-lg border border-zinc-100 text-[12px] font-semibold text-indigo-500"
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-[rgba(252,252,253,0.92)] backdrop-blur-xl px-4 py-2 rounded-2xl shadow-lg border border-zinc-200 text-[12px] font-semibold text-zinc-700"
           >
             <Loader2 className="size-3.5 animate-spin" />
             图片处理中...
@@ -93,9 +93,9 @@ export const PreviewSection = ({
           >
             {styleTheme === "poster" ? (
               <div className="relative group flex items-center justify-center">
-                <div className="rounded-[32px] border border-zinc-200 bg-white p-3 shadow-[0_14px_34px_rgba(15,23,42,0.10)]">
-                  <div className="rounded-[28px] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(244,244,245,0.96)_100%)] p-[3px] shadow-[0_14px_34px_rgba(15,23,42,0.10)] ring-1 ring-black/5">
-                    <div className="rounded-[24px] border border-white/85 bg-[linear-gradient(180deg,#ffffff_0%,#fafafa_100%)] p-[4px] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                <div className="rounded-[32px] border border-zinc-200 bg-[var(--card)] p-3 shadow-[0_14px_34px_rgba(15,23,42,0.08)]">
+                  <div className="rounded-[28px] bg-[linear-gradient(180deg,rgba(252,252,253,0.96)_0%,rgba(244,245,247,0.96)_100%)] p-[3px] shadow-[0_14px_34px_rgba(15,23,42,0.08)] ring-1 ring-black/5">
+                    <div className="rounded-[24px] border border-white/85 bg-[linear-gradient(180deg,#fcfcfd_0%,#f7f7f8_100%)] p-[4px] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
                       <div
                         style={{
                           transform: "scale(1.14)",
@@ -120,14 +120,14 @@ export const PreviewSection = ({
                 {/* External Navigation Arrows */}
                 <button
                   onClick={() => posterSlideRef.current?.goPrev()}
-                  className="absolute left-[-76px] top-1/2 z-10 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-zinc-500 shadow-lg ring-1 ring-zinc-200/80 transition-all opacity-100 hover:scale-110 hover:text-zinc-900 hover:shadow-xl active:scale-95"
+                  className="absolute left-[-76px] top-1/2 z-10 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(252,252,253,0.95)] text-zinc-500 shadow-lg ring-1 ring-zinc-200/80 transition-all opacity-100 hover:scale-110 hover:text-zinc-900 hover:shadow-xl active:scale-95"
                   aria-label="上一张"
                 >
                   <ChevronLeft className="size-9 stroke-[2.75px]" />
                 </button>
                 <button
                   onClick={() => posterSlideRef.current?.goNext()}
-                  className="absolute right-[-76px] top-1/2 z-10 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-zinc-500 shadow-lg ring-1 ring-zinc-200/80 transition-all opacity-100 hover:scale-110 hover:text-zinc-900 hover:shadow-xl active:scale-95"
+                  className="absolute right-[-76px] top-1/2 z-10 flex size-14 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(252,252,253,0.95)] text-zinc-500 shadow-lg ring-1 ring-zinc-200/80 transition-all opacity-100 hover:scale-110 hover:text-zinc-900 hover:shadow-xl active:scale-95"
                   aria-label="下一张"
                 >
                   <ChevronRight className="size-9 stroke-[2.75px]" />

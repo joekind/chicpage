@@ -51,7 +51,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
             transform: "translateX(-50%)",
             zIndex: 120,
           }}
-          className="flex items-center gap-1 bg-zinc-900 text-white rounded-full p-1.5 shadow-2xl border border-white/10 backdrop-blur-md"
+          className="flex items-center gap-1 bg-[rgba(39,39,42,0.96)] text-white rounded-full p-1.5 shadow-2xl border border-white/10 backdrop-blur-md"
         >
           {!showColors ? (
             <div className="flex items-center">

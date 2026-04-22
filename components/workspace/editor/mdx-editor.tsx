@@ -52,7 +52,7 @@ const chicpageTheme = EditorView.theme({
   },
   ".cm-content": {
     padding: "24px 32px 80px",
-    caretColor: "#6366f1",
+    caretColor: "#2563eb",
     lineHeight: "1.75",
   },
   ".cm-line": {
@@ -94,22 +94,22 @@ const chicpageTheme = EditorView.theme({
     color: "#9ca3af",
   },
   ".cm-activeLine": {
-    backgroundColor: "rgba(99,102,241,0.04)",
+    backgroundColor: "rgba(37,99,235,0.06)",
     borderRadius: "4px",
   },
   ".cm-selectionBackground, ::selection": {
-    backgroundColor: "#e0e7ff !important",
+    backgroundColor: "#dbeafe !important",
   },
   // Markdown 语法高亮
-  ".cm-heading": { fontWeight: "700", color: "#1e1b4b" },
-  ".cm-heading1": { fontSize: "1.3em", color: "#312e81" },
-  ".cm-heading2": { fontSize: "1.15em", color: "#3730a3" },
+  ".cm-heading": { fontWeight: "700", color: "#111827" },
+  ".cm-heading1": { fontSize: "1.3em", color: "#0f172a" },
+  ".cm-heading2": { fontSize: "1.15em", color: "#1e293b" },
   ".cm-strong": { fontWeight: "700", color: "#1f2937" },
   ".cm-emphasis": { fontStyle: "italic", color: "#374151" },
-  ".cm-link": { color: "#6366f1", textDecoration: "underline" },
-  ".cm-url": { color: "#818cf8" },
+  ".cm-link": { color: "#1d4ed8", textDecoration: "underline" },
+  ".cm-url": { color: "#2563eb" },
   ".cm-quote": { color: "#6b7280", borderLeft: "3px solid #e5e5eb", paddingLeft: "8px" },
-  ".cm-monospace": { fontFamily: 'Consolas, "Courier New", monospace', backgroundColor: "rgba(99,102,241,0.08)", borderRadius: "3px", padding: "0 3px", color: "#e06c75" },
+  ".cm-monospace": { fontFamily: 'Consolas, "Courier New", monospace', backgroundColor: "rgba(148,163,184,0.16)", borderRadius: "3px", padding: "0 3px", color: "#0f172a" },
 });
 
 const EditorWrapper = forwardRef<EditorMethods, EditorProps>(

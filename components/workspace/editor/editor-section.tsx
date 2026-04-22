@@ -81,8 +81,8 @@ export const EditorSection = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       className={cn(
-        "flex flex-col bg-white rounded-none border border-zinc-900/10 shadow-2xl shadow-zinc-200/50 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] overflow-visible relative",
-        isDragOver && "border-zinc-900 shadow-[0_0_0_4px_rgba(24,24,27,0.06)]",
+        "flex flex-col bg-[var(--card)] rounded-none border border-zinc-900/8 shadow-2xl shadow-zinc-200/35 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] overflow-visible relative",
+        isDragOver && "border-zinc-900/15 shadow-[0_0_0_4px_rgba(24,24,27,0.04)]",
         layoutMode === "split"
           ? "flex-1"
           : layoutMode === "edit"
@@ -94,8 +94,8 @@ export const EditorSection = ({
 
       <div
         className={cn(
-          "flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-10 py-10 transition-colors",
-          isDragOver && "bg-zinc-50/80",
+          "flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-10 py-10 transition-colors bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(250,250,251,0.72)_100%)]",
+          isDragOver && "bg-zinc-50/70",
         )}
         onDragEnter={(e) => {
           e.preventDefault();
@@ -137,15 +137,15 @@ export const EditorSection = ({
         </AnimatePresence>
 
         {styleTheme === "poster" && showPageBreakTip && (
-          <div className="mb-4 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-700">
+          <div className="mb-4 rounded-xl border border-zinc-200 bg-[var(--muted)] px-4 py-3 text-sm text-zinc-700">
             <div className="flex items-center justify-between gap-3">
               <p className="leading-6">
-                输入 <code className="rounded bg-white px-1.5 py-0.5 text-zinc-900">&lt;!--pagebreak--&gt;</code> 可强制分页。
+                输入 <code className="rounded bg-[var(--card)] px-1.5 py-0.5 text-zinc-900">&lt;!--pagebreak--&gt;</code> 可强制分页。
               </p>
               <button
                 type="button"
                 onClick={() => onInsertPageBreak?.()}
-                className="shrink-0 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-zinc-700 transition-colors"
+                className="shrink-0 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-bold text-white hover:bg-zinc-700 transition-colors"
               >
                 插入分页符
               </button>
@@ -185,10 +185,10 @@ export const EditorSection = ({
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-zinc-300 bg-white/85 backdrop-blur-[1px]"
+                className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-zinc-300 bg-[rgba(252,252,253,0.9)] backdrop-blur-[1px]"
               >
                 <div className="flex flex-col items-center gap-3 text-center text-zinc-700">
-                  <div className="flex size-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg">
+                  <div className="flex size-14 items-center justify-center rounded-full bg-zinc-800 text-white shadow-lg">
                     <ImagePlus className="size-6" />
                   </div>
                   <div>
@@ -203,20 +203,20 @@ export const EditorSection = ({
         {floatingToolbar}
       </div>
 
-      <div className="flex items-center justify-between px-8 py-3.5 bg-white/50 backdrop-blur-md border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
+      <div className="flex items-center justify-between px-8 py-3.5 bg-[rgba(252,252,253,0.65)] backdrop-blur-md border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
         <div className="flex items-center gap-6">
           {isUploading && (
-            <div className="flex items-center gap-2 text-zinc-900 animate-pulse">
+            <div className="flex items-center gap-2 text-zinc-800 animate-pulse">
               <Loader2 className="size-3 animate-spin" />
               <span>Processing Media</span>
             </div>
           )}
           <div className="flex items-center gap-2">
-            <span className="text-zinc-900 font-black">字数统计:</span>
+            <span className="text-zinc-800 font-black">字数统计:</span>
             <span>{wordCount}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-zinc-900 font-black">预计阅读:</span>
+            <span className="text-zinc-800 font-black">预计阅读:</span>
             <span>{readTime} 分钟</span>
           </div>
         </div>

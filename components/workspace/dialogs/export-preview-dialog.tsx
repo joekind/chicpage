@@ -130,9 +130,9 @@ export function ExportPreviewDialog({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <style>{scopedCSS}</style>
-      <div ref={containerRef} className="relative w-[90vw] max-w-5xl h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <div ref={containerRef} className="relative w-[90vw] max-w-5xl h-[85vh] bg-[var(--card)] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 bg-[rgba(252,252,253,0.95)]">
           <div>
             <h2 className="text-lg font-bold text-zinc-900">导出预览</h2>
             <p className="text-xs text-zinc-500 mt-0.5">
@@ -149,7 +149,7 @@ export function ExportPreviewDialog({
         </div>
 
         {/* Preview Grid */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 bg-[rgba(248,248,249,0.72)]">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {slides.map((slide, idx) => (
               <div
@@ -182,7 +182,7 @@ export function ExportPreviewDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-200 bg-zinc-50">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-zinc-200 bg-[rgba(248,248,249,0.92)]">
           <Button
             variant="ghost"
             onClick={onClose}
@@ -216,7 +216,7 @@ export function ExportPreviewDialog({
           onClick={() => setActiveSlideIndex(null)}
         >
           <div
-            className="relative rounded-xl bg-white/95 p-3 backdrop-blur-sm"
+            className="relative rounded-xl bg-[rgba(252,252,253,0.96)] p-3 backdrop-blur-sm"
             onClick={(e) => e.stopPropagation()}
           >
             <button
