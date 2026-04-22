@@ -54,7 +54,7 @@ export const MarkdownToolbar = ({
 
   const btn = (icon: React.ReactNode, title: string, onClick: () => void, extra = "") =>
     <Button key={title} variant="ghost" size="icon" title={title}
-      className={cn("size-8 rounded-xl hover:bg-zinc-100/80 text-zinc-600 hover:scale-110 active:scale-90 transition-all duration-300", extra)}
+      className={cn("size-8 rounded-xl hover:bg-slate-100 text-slate-600 hover:text-slate-900 hover:scale-110 active:scale-90 transition-all duration-300", extra)}
       onMouseDown={(e) => e.preventDefault()} onClick={onClick}>
       {icon}
     </Button>;
@@ -83,7 +83,7 @@ export const MarkdownToolbar = ({
     btn(<ImageIcon className="size-4" />,    "插入图片", () => onInsertImage?.()),
     btn(<FolderUp className="size-4" />, "导入 Markdown", () => onImportMarkdown?.()),
     <Button key="table" variant="ghost" size="icon" title="插入表格"
-      className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-zinc-900 text-white border border-zinc-800" : "hover:bg-zinc-100 text-zinc-600")}
+      className={cn("size-8 rounded-lg transition-all", activePopup === 'table' ? "bg-primary text-white border border-primary hover:bg-primary/90" : "hover:bg-slate-100 text-slate-600")}
       onMouseDown={(e) => {
         e.preventDefault();
         setActivePopup(activePopup === 'table' ? null : 'table');
@@ -101,13 +101,13 @@ export const MarkdownToolbar = ({
   const groups = [groupHeadings, groupInline, groupBlock, groupMedia, groupCallouts];
 
   return (
-    <div ref={toolbarRef} className="toolbar-root w-full flex flex-col border-b border-zinc-100 bg-white/95 backdrop-blur-md overflow-visible relative">
+    <div ref={toolbarRef} className="toolbar-root w-full flex flex-col border-b border-[var(--border)] bg-[rgba(251,251,252,0.96)] backdrop-blur-md overflow-visible relative text-[var(--foreground)]">
       <div className="flex items-center justify-between px-6 py-1.5 flex-wrap gap-y-1.5 relative">
         <div className="flex items-center flex-wrap gap-y-1.5">
           {groups.map((group, i) => (
             <React.Fragment key={i}>
               <div className="flex gap-0.5">{group}</div>
-              {i < groups.length - 1 && <div className="w-px h-5 bg-zinc-100 mx-1.25" />}
+              {i < groups.length - 1 && <div className="w-px h-5 bg-[var(--border)] mx-1.25" />}
             </React.Fragment>
           ))}
         </div>
@@ -124,10 +124,10 @@ export const MarkdownToolbar = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="bg-zinc-50/50 px-4 py-3 border-t border-zinc-100"
+            className="bg-[var(--background)] px-4 py-3 border-t border-[var(--border)]"
           >
             <div className="flex items-center gap-6">
-              <div className="grid grid-cols-10 gap-1 bg-white p-2 rounded-xl border border-zinc-100 shadow-sm"
+              <div className="grid grid-cols-10 gap-1 bg-white p-2 rounded-xl border border-[var(--border)] shadow-sm"
                 onMouseLeave={() => setHoverGrid({ r: 0, c: 0 })}>
                 {Array.from({ length: 50 }).map((_, i) => {
                   const r = Math.floor(i / 10) + 1;
@@ -139,14 +139,14 @@ export const MarkdownToolbar = ({
                       onClick={() => onInsertTable(r, c)}
                       className={cn(
                         "size-4 cursor-pointer rounded-sm border transition-all duration-200",
-                        r <= hoverGrid.r && c <= hoverGrid.c ? "bg-[var(--primary)] border-[var(--primary)]" : "border-zinc-200"
+                        r <= hoverGrid.r && c <= hoverGrid.c ? "bg-[var(--primary)] border-[var(--primary)]" : "border-[var(--border)]"
                       )} />
                   );
                 })}
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black uppercase tracking-wider text-zinc-400">表格规模</span>
-                <span className="text-2xl font-black text-zinc-900 tabular-nums">{hoverGrid.r} <span className="text-zinc-300 text-sm">×</span> {hoverGrid.c}</span>
+                <span className="text-[10px] font-black uppercase tracking-wider text-[var(--muted-foreground)]">表格规模</span>
+                <span className="text-2xl font-black text-[var(--foreground)] tabular-nums">{hoverGrid.r} <span className="text-[var(--muted-foreground)] text-sm">×</span> {hoverGrid.c}</span>
               </div>
             </div>
           </motion.div>

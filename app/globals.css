@@ -15,7 +15,9 @@
   
   --color-studio-bg: #f3f4f6;
   --color-studio-card: #fbfbfc;
+  --color-studio-line: #dde1e6;
   --color-studio-ink: #111827;
+  --color-studio-subtext: #6b7280;
   --color-studio-accent: #2563eb;
 }
 
@@ -28,16 +30,16 @@
   --popover-foreground: #111827;
   --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --secondary: #e5e7eb;
+  --secondary: #dde1e6;
   --secondary-foreground: #1f2937;
-  --muted: #e5e7eb;
+  --muted: #f3f4f6;
   --muted-foreground: #6b7280;
-  --accent: #e5e7eb;
+  --accent: #dbeafe;
   --accent-foreground: #1f2937;
-  --destructive: #ef4444;
+  --destructive: #dc2626;
   --destructive-foreground: #fafafa;
-  --border: rgba(17, 24, 39, 0.08);
-  --input: #d1d5db;
+  --border: #dde1e6;
+  --input: #dde1e6;
   --ring: #2563eb;
   --radius: 1.25rem;
 }@layer base {
