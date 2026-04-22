@@ -20,40 +20,40 @@ const BASE_CSS = `
   #chicpage, #chicpage * { box-sizing: border-box; }
   #chicpage { 
     font-size: 16px; 
-    line-height: 1.75; 
+    line-height: 1.8; 
     word-break: break-word; 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
   }
-  #chicpage h1 { font-size: 1.9em; font-weight: 700; line-height: 1.28; margin: 1.2em 0 0.8em; }
-  #chicpage h2 { font-size: 1.55em; font-weight: 700; margin: 1.5em 0 0.7em; line-height: 1.3; }
-  #chicpage h3 { font-size: 1.28em; font-weight: 700; margin: 1.3em 0 0.6em; line-height: 1.32; }
-  #chicpage h4, #chicpage h5, #chicpage h6 { font-size: 1.08em; font-weight: 700; margin: 1.1em 0 0.5em; line-height: 1.35; }
-  #chicpage p { margin: 1em 0; line-height: 1.75; font-size: 1em; }
-  #chicpage ul, #chicpage ol { padding-left: 1.8em; margin: 1em 0; }
-  #chicpage li { margin: 0.45em 0; line-height: 1.75; font-size: 1em; }
-  #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 0; }
-  #chicpage blockquote p { margin: 0.5em 0; }
+  #chicpage h1 { font-size: 1.85em; font-weight: 700; line-height: 1.25; margin: 1.35em 0 0.75em; letter-spacing: -0.01em; }
+  #chicpage h2 { font-size: 1.5em; font-weight: 700; margin: 1.45em 0 0.7em; line-height: 1.28; letter-spacing: -0.005em; }
+  #chicpage h3 { font-size: 1.22em; font-weight: 700; margin: 1.2em 0 0.55em; line-height: 1.32; }
+  #chicpage h4, #chicpage h5, #chicpage h6 { font-size: 1.06em; font-weight: 700; margin: 1em 0 0.45em; line-height: 1.34; }
+  #chicpage p { margin: 0.95em 0; line-height: 1.8; font-size: 1em; }
+  #chicpage ul, #chicpage ol { padding-left: 1.7em; margin: 0.95em 0; }
+  #chicpage li { margin: 0.35em 0; line-height: 1.8; font-size: 1em; }
+  #chicpage blockquote { margin: 1.6em 0; padding: 14px 18px; font-style: normal; border-radius: 12px; }
+  #chicpage blockquote p { margin: 0.4em 0; }
   #chicpage blockquote p:first-child { margin-top: 0; }
   #chicpage blockquote p:last-child { margin-bottom: 0; }
   #chicpage strong { font-weight: 700; }
   #chicpage em { font-style: italic; }
   #chicpage a { text-decoration: none; }
-  #chicpage hr { border: none; margin: 2.5em 0; }
-  #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 12px; }
-  #chicpage table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 0.94em; }
-  #chicpage th { font-weight: 700; padding: 10px 14px; text-align: left; }
-  #chicpage td { padding: 10px 14px; }
-  #chicpage details { margin: 1.2em 0; border: 1px solid #e5e7eb; border-radius: 10px; background: #fafafa; overflow: hidden; }
-  #chicpage summary { cursor: pointer; list-style: none; padding: 10px 14px; font-weight: 600; user-select: none; }
+  #chicpage hr { border: none; margin: 2.8em 0; opacity: 0.9; }
+  #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 14px; }
+  #chicpage table { width: 100%; border-collapse: collapse; margin: 1.6em 0; font-size: 0.94em; }
+  #chicpage th { font-weight: 700; padding: 11px 14px; text-align: left; }
+  #chicpage td { padding: 11px 14px; }
+  #chicpage details { margin: 1.25em 0; border: 1px solid #e5e7eb; border-radius: 14px; background: #fafafa; overflow: hidden; }
+  #chicpage summary { cursor: pointer; list-style: none; padding: 11px 14px; font-weight: 600; user-select: none; }
   #chicpage summary::-webkit-details-marker { display: none; }
   #chicpage details > :not(summary) { padding: 0 14px 12px; }
   #chicpage details[open] summary { border-bottom: 1px solid #e5e7eb; margin-bottom: 8px; }
-  #chicpage code { font-size: 0.88em; padding: 0.2em 0.4em; border-radius: 4px; font-family: Consolas, "Courier New", monospace; }
-  #chicpage pre { margin: 1.5em 0; border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #f8fafc; }
-  #chicpage pre code { display: block; padding: 1em 1.1em; font-size: 0.9em; line-height: 1.7; font-family: Consolas, "Courier New", monospace; background: transparent; color: inherit; }
+  #chicpage code { font-size: 0.88em; padding: 0.18em 0.42em; border-radius: 5px; font-family: Consolas, "Courier New", monospace; }
+  #chicpage pre { margin: 1.6em 0; border-radius: 14px; overflow-x: auto; overflow-y: hidden; background: #f8fafc; }
+  #chicpage pre code { display: block; padding: 1.05em 1.15em; font-size: 0.9em; line-height: 1.75; font-family: Consolas, "Courier New", monospace; background: transparent; color: inherit; }
   #chicpage .hljs { color: #334155; }
   #chicpage .hljs-keyword,
   #chicpage .hljs-selector-tag,
@@ -76,7 +76,7 @@ const BASE_CSS = `
   #chicpage .hljs-link { color: #2563eb; }
   #chicpage .hljs-comment,
   #chicpage .hljs-quote { color: #64748b; font-style: italic; }
-  #chicpage kbd { display: inline-block; padding: 2px 6px; font-size: 12px; font-family: Consolas, "Courier New", monospace; line-height: 1.4; color: #444; background: #f6f8fa; border: 1px solid #d0d7de; border-bottom-width: 2px; border-radius: 4px; }
+  #chicpage kbd { display: inline-block; padding: 2px 6px; font-size: 12px; font-family: Consolas, "Courier New", monospace; line-height: 1.4; color: #444; background: #f6f8fa; border: 1px solid #d0d7de; border-bottom-width: 2px; border-radius: 5px; }
   #chicpage input[type="checkbox"] { margin-right: 6px; accent-color: #6366f1; pointer-events: none; }
 `;
 
@@ -92,17 +92,17 @@ export const WECHAT_THEMES: WechatTheme[] = [
         font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
        
         }
-      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 1em 0; }
-      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 1.2em 0 1em 0; }
-      #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.2em 0 1em 0; }
-      #chicpage p { font-size: 17px; margin: 1em 0; line-height: 1.8; color: #374151; }
-      #chicpage blockquote { background: #f9fafb;  color: #4b5563; padding: 1.2em 1.5em; }
-      #chicpage li { list-style: disc; margin: 0.6em 0;}
-      #chicpage ul, #chicpage ol { margin: 1.2em 0;padding-left: 1em; }
+      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 0.9em 0; letter-spacing: -0.02em; }
+      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 1.25em 0 0.85em 0; letter-spacing: -0.01em; }
+      #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.15em 0 0.8em 0; }
+      #chicpage p { font-size: 17px; margin: 0.95em 0; line-height: 1.82; color: #374151; }
+      #chicpage blockquote { background: #f9fafb;  color: #4b5563; padding: 1.15em 1.45em; border-radius: 14px; }
+      #chicpage li { list-style: disc; margin: 0.5em 0;}
+      #chicpage ul, #chicpage ol { margin: 1.05em 0;padding-left: 1.1em; }
       #chicpage a { color: #2563eb; text-decoration: underline; text-underline-offset: 4px; }
-      #chicpage hr { border-top: 1px solid #f3f4f6; margin: 3em 0; }
-      #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 0px; }
-      #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 8px;border-left:0px}
+      #chicpage hr { border-top: 1px solid #f3f4f6; margin: 2.8em 0; }
+      #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 10px; }
+      #chicpage blockquote { margin: 1.45em 0; padding: 12px 20px; font-style: normal; border-radius: 14px;border-left:0px}
     `,
     preview: '#ffffff',
   },
