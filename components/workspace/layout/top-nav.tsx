@@ -86,6 +86,7 @@ export const TopNav = React.memo(({
 }: TopNavProps) => {
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showFontPicker, setShowFontPicker] = useState(false);
+  const [showFeedbackQr, setShowFeedbackQr] = useState(false);
   const themePickerRef = useRef<HTMLDivElement>(null);
   const fontPickerRef = useRef<HTMLDivElement>(null);
   const currentWechatTheme =
@@ -115,6 +116,20 @@ export const TopNav = React.memo(({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowFeedbackQr(false);
+      }
+    };
+
+    if (showFeedbackQr) {
+      window.addEventListener("keydown", onKeyDown);
+    }
+
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showFeedbackQr]);
 
   return (
     <>
@@ -187,7 +202,7 @@ export const TopNav = React.memo(({
             href="https://github.com/joekind/chicpage"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 px-4 h-10 text-[11px] font-black text-zinc-600 transition-all hover:bg-white hover:text-zinc-900"
+            className="inline-flex h-10 items-center gap-2 rounded-2xl border border-zinc-200 bg-zinc-50 px-3.5 text-[11px] font-black text-zinc-600 transition-all hover:bg-white hover:text-zinc-900"
           >
             <Github className="size-4" />
             GitHub
@@ -201,7 +216,7 @@ export const TopNav = React.memo(({
               variant="ghost"
               size="sm"
               className={cn(
-                " gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
+                "gap-1.5 rounded-xl px-3 text-[11px] font-black transition-all",
                 styleTheme === "wechat"
                   ? "bg-zinc-200 text-zinc-900"
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
@@ -217,7 +232,7 @@ export const TopNav = React.memo(({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-9 gap-2 rounded-xl px-4 text-[11px] font-black transition-all",
+                "h-9 gap-1.5 rounded-xl px-3 text-[11px] font-black transition-all",
                 styleTheme === "poster"
                   ? "bg-zinc-200 text-zinc-900 "
                   : "text-zinc-500 hover:bg-white hover:text-zinc-900",
@@ -270,7 +285,7 @@ export const TopNav = React.memo(({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-10 min-w-[120px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
+                "h-10 min-w-[108px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
                 showThemePicker ? "border-zinc-400 text-zinc-900" : "text-zinc-600",
               )}
               onClick={() => setShowThemePicker(!showThemePicker)}
@@ -397,7 +412,7 @@ export const TopNav = React.memo(({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "h-10 min-w-[100px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
+                      "h-10 min-w-[92px] justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-3 transition-all hover:bg-zinc-50 hover:border-zinc-300",
                     showFontPicker ? "border-zinc-400 text-zinc-900" : "text-zinc-600",
                   )}
                   onClick={() => setShowFontPicker(!showFontPicker)}
@@ -526,6 +541,18 @@ export const TopNav = React.memo(({
 
           <div className="h-5 w-px bg-zinc-200" />
 
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowFeedbackQr(true)}
+            className="h-10 gap-1.5 rounded-2xl border border-zinc-200 bg-zinc-50 px-3 text-[11px] font-black text-zinc-600 transition-all hover:bg-white hover:text-zinc-900"
+          >
+            <MessageCircle className="size-4" />
+            反馈
+          </Button>
+
+          <div className="h-5 w-px bg-zinc-200" />
+
           {styleTheme === "poster" ? (
             <Button
               onClick={onExportPoster}
@@ -533,7 +560,7 @@ export const TopNav = React.memo(({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-10 min-w-[100px] gap-2 rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
+                "h-10 min-w-[88px] gap-1.5 rounded-xl border border-zinc-200 px-3 text-xs font-bold transition-all",
                 "relative flex items-center justify-center overflow-hidden text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50",
               )}
             >
@@ -583,7 +610,7 @@ export const TopNav = React.memo(({
               size="sm"
               onClick={onCopy}
               className={cn(
-                "h-10 min-w-[100px] rounded-xl border border-zinc-200 px-4 text-xs font-bold transition-all",
+                "h-10 min-w-[88px] rounded-xl border border-zinc-200 px-3 text-xs font-bold transition-all",
                 copyStatus === "success"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-600"
                   : copyStatus === "error"
@@ -622,8 +649,57 @@ export const TopNav = React.memo(({
         </motion.div>
         </div>
       </div>
-
     </nav>
+
+    <AnimatePresence>
+      {showFeedbackQr && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/35 px-4"
+          onClick={() => setShowFeedbackQr(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 10 }}
+            transition={{ type: "spring", stiffness: 280, damping: 24 }}
+            className="w-full max-w-sm overflow-hidden rounded-[28px] border border-zinc-200 bg-[#faf9f5] p-5 shadow-[0_24px_80px_rgba(20,20,19,0.16)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 text-center">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-zinc-400">
+                Feedback
+              </div>
+              <div className="mt-2 font-serif text-xl font-medium text-zinc-900">
+                扫码关注 / 提交反馈
+              </div>
+              <div className="mt-2 text-sm leading-6 text-zinc-600">
+                直接用微信扫码，即可关注并发消息反馈。
+              </div>
+            </div>
+            <div className="rounded-[24px] bg-white p-4 ring-1 ring-[#e8e6dc]">
+              <Image
+                src="/6.png"
+                alt="意见反馈二维码"
+                width={520}
+                height={520}
+                className="h-auto w-full rounded-[18px] object-contain"
+                priority
+              />
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => setShowFeedbackQr(false)}
+              className="mt-4 h-10 w-full rounded-2xl bg-[#e8e6dc] text-[11px] font-black text-zinc-700 transition-all hover:bg-[#ddd9cd]"
+            >
+              关闭
+            </Button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
     </>
   );
 });

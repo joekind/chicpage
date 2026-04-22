@@ -123,7 +123,7 @@ export function ExportButton({
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="absolute right-0 top-full mt-2 z-50 w-56 bg-white/80 backdrop-blur-2xl rounded-2xl shadow-2xl border border-zinc-200/50 overflow-hidden p-2"
+              className="absolute right-0 top-full mt-2 z-50 w-56 rounded-2xl border border-zinc-200 bg-[#fbfaf7] shadow-[0_18px_50px_rgba(0,0,0,0.12)] overflow-hidden p-2"
             >
               <button
                 onClick={async () => { await exportToHTML(); setIsOpen(false); }}

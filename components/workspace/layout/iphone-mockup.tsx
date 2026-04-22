@@ -138,7 +138,7 @@ export const IPhoneMockup = ({
           <div
             className={cn(
               "relative h-full w-full overflow-hidden rounded-[47px] transition-colors duration-500",
-              !screenStyle?.background && (mode === "app" ? "bg-[#f8f9fa]" : "bg-white")
+              !screenStyle?.background && (mode === "app" ? "bg-[rgba(255,250,241,0.92)]" : "bg-[rgba(255,252,246,0.94)]")
             )}
             style={screenStyle}
           >

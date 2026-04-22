@@ -144,9 +144,6 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
     elem.style.margin = '1.8em 0 0.8em';
     elem.style.fontWeight = 'bold';
     elem.style.lineHeight = '1.3';
-    if (tag === 'H1') elem.style.fontSize = '1.6em';
-    if (tag === 'H2') elem.style.fontSize = '1.4em';
-    if (tag === 'H3') elem.style.fontSize = '1.2em';
   }
 
   // 段落优化 - 颜色由主题决定

@@ -19,22 +19,21 @@ export interface WechatTheme {
 const BASE_CSS = `
   #chicpage, #chicpage * { box-sizing: border-box; }
   #chicpage { 
-    font-size: 15px; 
-    line-height: 1.8; 
+    font-size: 16px; 
+    line-height: 1.75; 
     word-break: break-word; 
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
-    
   }
-  #chicpage h1 { font-size: 24px; font-weight: 700; line-height: 1.3; }
-  #chicpage h2 { font-size: 20px; font-weight: 700; margin: 1.8em 0 0.8em; line-height: 1.3; }
-  #chicpage h3 { font-size: 18px; font-weight: 700; margin: 1.6em 0 0.6em; line-height: 1.3; }
-  #chicpage h4, #chicpage h5, #chicpage h6 { font-size: 16px; font-weight: 700; margin: 1.4em 0 0.5em; }
-  #chicpage p { margin: 1em 0; line-height: 1.75; }
+  #chicpage h1 { font-size: 1.9em; font-weight: 700; line-height: 1.28; margin: 1.2em 0 0.8em; }
+  #chicpage h2 { font-size: 1.55em; font-weight: 700; margin: 1.5em 0 0.7em; line-height: 1.3; }
+  #chicpage h3 { font-size: 1.28em; font-weight: 700; margin: 1.3em 0 0.6em; line-height: 1.32; }
+  #chicpage h4, #chicpage h5, #chicpage h6 { font-size: 1.08em; font-weight: 700; margin: 1.1em 0 0.5em; line-height: 1.35; }
+  #chicpage p { margin: 1em 0; line-height: 1.75; font-size: 1em; }
   #chicpage ul, #chicpage ol { padding-left: 1.8em; margin: 1em 0; }
-  #chicpage li { margin: 0.5em 0; line-height: 1.75; }
+  #chicpage li { margin: 0.45em 0; line-height: 1.75; font-size: 1em; }
   #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 0; }
   #chicpage blockquote p { margin: 0.5em 0; }
   #chicpage blockquote p:first-child { margin-top: 0; }
@@ -44,7 +43,7 @@ const BASE_CSS = `
   #chicpage a { text-decoration: none; }
   #chicpage hr { border: none; margin: 2.5em 0; }
   #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 12px; }
-  #chicpage table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 14.5px; }
+  #chicpage table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 0.94em; }
   #chicpage th { font-weight: 700; padding: 10px 14px; text-align: left; }
   #chicpage td { padding: 10px 14px; }
   #chicpage details { margin: 1.2em 0; border: 1px solid #e5e7eb; border-radius: 10px; background: #fafafa; overflow: hidden; }
@@ -52,9 +51,9 @@ const BASE_CSS = `
   #chicpage summary::-webkit-details-marker { display: none; }
   #chicpage details > :not(summary) { padding: 0 14px 12px; }
   #chicpage details[open] summary { border-bottom: 1px solid #e5e7eb; margin-bottom: 8px; }
-  #chicpage code { font-size: 85%; padding: 0.2em 0.4em; border-radius: 4px; font-family: Consolas, "Courier New", monospace; }
+  #chicpage code { font-size: 0.88em; padding: 0.2em 0.4em; border-radius: 4px; font-family: Consolas, "Courier New", monospace; }
   #chicpage pre { margin: 1.5em 0; border-radius: 10px; overflow-x: auto; overflow-y: hidden; background: #f8fafc; }
-  #chicpage pre code { display: block; padding: 1em 1.1em; font-size: 13px; line-height: 1.7; font-family: Consolas, "Courier New", monospace; background: transparent; color: inherit; }
+  #chicpage pre code { display: block; padding: 1em 1.1em; font-size: 0.9em; line-height: 1.7; font-family: Consolas, "Courier New", monospace; background: transparent; color: inherit; }
   #chicpage .hljs { color: #334155; }
   #chicpage .hljs-keyword,
   #chicpage .hljs-selector-tag,
@@ -96,7 +95,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 1em 0; }
       #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 1.2em 0 1em 0; }
       #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.2em 0 1em 0; }
-      #chicpage p { font-size: 16px; margin: 1em 0; line-height: 1.8; color: #374151; }
+      #chicpage p { font-size: 17px; margin: 1em 0; line-height: 1.8; color: #374151; }
       #chicpage blockquote { background: #f9fafb;  color: #4b5563; padding: 1.2em 1.5em; }
       #chicpage li { list-style: disc; margin: 0.6em 0;}
       #chicpage ul, #chicpage ol { margin: 1.2em 0;padding-left: 1em; }
@@ -106,6 +105,142 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 8px;border-left:0px}
     `,
     preview: '#ffffff',
+  },
+  {
+    id: '暖纸',
+    name: '暖纸',
+    description: '极简高对比排版',
+    containerStyle: 'max-width:677px;margin:0 auto;padding:28px 22px 32px;color:#3d3d3a;font-family:"Source Han Sans","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#f5f4ed;',
+    css: BASE_CSS + `
+      #chicpage {
+        color: #3d3d3a;
+        font-family: "Source Han Sans", "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background: #f5f4ed;
+        padding: 28px 22px 32px;
+        line-height: 1.55;
+      }
+      #chicpage, #chicpage * {
+        font-weight: 400;
+      }
+      #chicpage h1 {
+        color: #141413;
+        font-family: Georgia, "Noto Serif SC", "Songti SC", "TsangerJinKai02", serif;
+        font-size: 34px;
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        margin: 0.2em 0 0.8em;
+        line-height: 1.18;
+      }
+      #chicpage h2 {
+        color: #141413;
+        font-family: Georgia, "Noto Serif SC", "Songti SC", "TsangerJinKai02", serif;
+        font-size: 24px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin: 1.8em 0 0.9em;
+        padding-left: 0.8em;
+        border-left: 4px solid #1b365d;
+        line-height: 1.22;
+      }
+      #chicpage h3 {
+        color: #141413;
+        font-family: Georgia, "Noto Serif SC", "Songti SC", "TsangerJinKai02", serif;
+        font-size: 20px;
+        font-weight: 500;
+        margin: 1.4em 0 0.6em;
+        line-height: 1.25;
+      }
+      #chicpage p {
+        color: #4d4c48;
+        font-size: 17px;
+        line-height: 1.55;
+        margin: 1em 0;
+      }
+      #chicpage li {
+        color: #4d4c48;
+        line-height: 1.55;
+        margin: 0.45em 0;
+      }
+      #chicpage strong {
+        font-weight: 500;
+        color: #141413;
+      }
+      #chicpage em {
+        color: #5e5d59;
+      }
+      #chicpage a {
+        color: #1b365d;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 3px;
+      }
+      #chicpage blockquote {
+        background: #faf9f5;
+        color: #4d4c48;
+        border: 1px solid #e8e6dc;
+        border-left: 4px solid #1b365d;
+        border-radius: 16px;
+        padding: 16px 18px;
+        box-shadow: 0 0 0 1px #e8e6dc;
+      }
+      #chicpage hr {
+        border-top: 1px solid #e4ddcf;
+        margin: 3em 0;
+      }
+      #chicpage img {
+        border-radius: 16px;
+        box-shadow: 0 0 0 1px #e8e6dc;
+      }
+      #chicpage pre {
+        background: #faf9f5;
+        border: 1px solid #e8e6dc;
+        border-radius: 16px;
+      }
+      #chicpage pre code {
+        color: #3d3d3a;
+        background: transparent;
+        font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      }
+      #chicpage code {
+        background: #e8e6dc;
+        color: #1b365d;
+        border-radius: 6px;
+        font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      }
+      #chicpage table {
+        border: 1px solid #e4ddcf;
+        border-radius: 16px;
+        overflow: hidden;
+      }
+      #chicpage th {
+        background: #1b365d;
+        color: #ffffff;
+        font-weight: 500;
+        line-height: 1.35;
+      }
+      #chicpage td {
+        border-top: 1px solid #e4ddcf;
+        line-height: 1.45;
+      }
+      #chicpage details {
+        background: #faf9f5;
+        border-radius: 16px;
+        border: 1px solid #e4ddcf;
+      }
+      #chicpage summary {
+        font-family: Georgia, "Noto Serif SC", "Songti SC", "TsangerJinKai02", serif;
+        font-weight: 500;
+        color: #141413;
+        line-height: 1.3;
+      }
+      #chicpage kbd {
+        background: #e8e6dc;
+        color: #3d3d3a;
+        border: 1px solid #d4d0c1;
+        border-bottom-width: 1px;
+      }
+    `,
+    preview: '#f5f4ed',
   },
   {
     id: 'linedpaper2',
@@ -133,62 +268,6 @@ export const WECHAT_THEMES: WechatTheme[] = [
     preview: '#ffffff',
   },
   {
-    id: 'elegant',
-    name: '典雅',
-    description: '典雅精致风格',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:Georgia,"Noto Serif SC","STSong","SimSun",serif;color:#2c2c2c;background:#fdfaf6;padding:32px 24px;',
-    css: BASE_CSS + `
-      #chicpage { color: #2c2c2c; font-family: Georgia, "Noto Serif SC", "STSong", "SimSun", serif; line-height: 1.9; background: #fdfaf6; }
-
-      /* 标题：居中 + 金色下划线装饰 */
-      #chicpage h1 {
-        color: #1a1a1a; text-align: center; font-size: 24px;
-        font-weight: 400; letter-spacing: 0.15em;
-        padding-bottom: 0.6em; margin-bottom: 0.4em;
-        border-bottom: 1px solid #c8a96e;
-      }
-
-      #chicpage h2 {
-        color: #1a1a1a; font-size: 17px; font-weight: 600;
-        letter-spacing: 0.08em;
-        padding: 0 0 6px 12px;
-        border-bottom: 1px solid #e0cfa8;
-        border-left: 3px solid #c8a96e;
-        margin: 2em 0 0.8em;
-      }
-
-      #chicpage h3 { color: #3a3a3a; font-size: 15px; font-weight: 600; margin: 1.5em 0 0.5em; padding-left: 12px; border-left: 2px solid #c8a96e; }
-
-      /* 段落首行缩进，且保持非常紧致的段间距，模拟真书排版 */
-      #chicpage p { text-indent: 2em; margin: 0.3em 0; line-height: 1.95; }
-
-      /* 引用：右侧竖线 + 斜体 + 淡金背景 */
-      #chicpage blockquote {
-        margin: 1.8em 0; padding: 14px 20px 14px 24px;
-        border-left: none; border-right: 3px solid #c8a96e;
-        background: #fdf6e8; color: #5a4a2a;
-        font-style: italic; text-align: right;
-      }
-      #chicpage blockquote p { text-indent: 0; margin: 0; }
-
-      #chicpage li::marker { color: #c8a96e; }
-      #chicpage strong { color: #1a1a1a; font-weight: 700; }
-      #chicpage em { color: #7a6040; }
-      #chicpage a { color: #9a7040; text-decoration: underline; text-underline-offset: 3px; }
-
-      /* 分割线：居中菱形 */
-      #chicpage hr { border: none; border-top: 1px dashed #c8a96e; margin: 2.5em 0; text-align: center; }
-
-      #chicpage th { background: #f5ead6; border: 1px solid #e0cfa8; color: #5a4a2a; font-weight: 600; }
-      #chicpage td { border: 1px solid #e8dcc0; color: #3a3a3a; }
-      #chicpage tr:nth-child(even) td { background: #fdf9f0; }
-      #chicpage code { background: #f5ead6; color: #8a5c20; border-radius: 3px; font-size: 85%; }
-      #chicpage pre code { background: #1e1e1e; color: #d4d4d4; }
-      #chicpage kbd { background: #f5ead6; border-color: #c8a96e; color: #5a4a2a; }
-    `,
-    preview: '#fdfaf6',
-  },
-  {
     id: 'magazine',
     name: '杂志',
     description: '时尚杂志排版',
@@ -203,7 +282,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* H1：封面大标题，极简杂志风 */
       #chicpage h1 {
-        font-size: 26px; font-weight: 300; text-align: center;
+        font-size: 28px; font-weight: 300; text-align: center;
         letter-spacing: 0.3em; color: #000;
         padding: 0.8em 0;
         border-top: 5px solid #000;
@@ -217,7 +296,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage h2 {
         display: inline-block;
         background: #000; color: #fff;
-        font-size: 12px; font-weight: 700;
+        font-size: 13px; font-weight: 700;
         letter-spacing: 0.25em;
         padding: 6px 18px;
         margin: 2.2em 0 1.2em;
@@ -227,7 +306,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* H3：斜杠序列号感 */
       #chicpage h3 {
-        font-size: 18px; font-weight: 700;
+        font-size: 20px; font-weight: 700;
         color: #1a1a1a; margin: 1.8em 0 0.8em;
         padding-bottom: 6px;
         border-bottom: 3px solid #f0f0f0;
@@ -242,7 +321,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border-bottom: 1px solid #eee;
       }
       #chicpage blockquote p {
-        font-size: 19px; font-family: Georgia, serif;
+        font-size: 20px; font-family: Georgia, serif;
         font-style: italic; line-height: 1.6; color: #333;
         text-indent: 0; margin: 0;
       }
@@ -461,7 +540,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage p {
         color: #a1a1aa;
         margin: 1em 0;
-        font-size: 15px;
+        font-size: 16px;
         line-height: 1.9;
       }
 
@@ -595,7 +674,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* H1：紧凑的手绘涂鸦背景 */
       #chicpage h1 {
-        font-size: 30px; color: #000; text-align: center;
+        font-size: 32px; color: #000; text-align: center;
         margin: 1.25em 0 1em;
         padding: 10px 20px;
         background: #fff;
@@ -605,7 +684,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* H2：带涂鸦阴影的便签 */
       #chicpage h2 {
-        font-size: 22px; color: #111;
+        font-size: 24px; color: #111;
         display: inline-block; padding: 8px 20px;
         margin: 2.5em 0 1.2em;
         border: 2px solid #333;
@@ -615,7 +694,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* H3：彩色蜡笔波浪线下划线 */
       #chicpage h3 {
-        font-size: 19px; color: #000; margin: 1.8em 0 0.8em;
+        font-size: 20px; color: #000; margin: 1.8em 0 0.8em;
         display: inline-block;
         border-bottom: 4px dotted #ff4081;
       }

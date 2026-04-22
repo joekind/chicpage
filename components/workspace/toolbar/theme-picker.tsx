@@ -9,6 +9,7 @@ const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
   default:   { bg: '#ffffff', accent: '#6366f1' },
   elegant:   { bg: '#fdfaf6', accent: '#c8a96e' },
   magazine:  { bg: '#ffffff', accent: '#1a1a1a' },
+  kami:      { bg: '#f5f4ed', accent: '#1b365d' },
   crimson:    { bg: '#ffffff', accent: '#555555' },
   green:     { bg: '#f0faf4', accent: '#07c160' },
   tech:      { bg: '#1a1a2e', accent: '#7c83fd' },
@@ -29,6 +30,7 @@ export const ThemePicker = ({ value, onChange, themes = WECHAT_THEMES }: ThemePi
         const isActive = value === theme.id;
         const isElegant = theme.id === 'elegant';
         const isMagazine = theme.id === 'magazine';
+        const isKami = theme.id === 'kami';
 
         return (
           <button
@@ -57,9 +59,9 @@ export const ThemePicker = ({ value, onChange, themes = WECHAT_THEMES }: ThemePi
               </div>
               <div className={cn(
                 "absolute bottom-0 right-1 text-lg font-black opacity-[0.05] pointer-events-none select-none",
-                isElegant ? "font-serif" : "font-sans"
+                isElegant || isKami ? "font-serif" : "font-sans"
               )}>
-                {isElegant ? 'A' : (isMagazine ? 'M' : 'D')}
+                {isElegant ? 'A' : (isMagazine ? 'M' : (isKami ? 'C' : 'D'))}
               </div>
               
               {isActive && (
