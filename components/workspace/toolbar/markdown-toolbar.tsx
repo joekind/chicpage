@@ -10,7 +10,6 @@ import {
   Info, AlertCircle, AlertTriangle,
   Code2, Image as ImageIcon,
   CheckSquare, Keyboard, FolderUp,
-  ChevronsUpDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -78,12 +77,6 @@ export const MarkdownToolbar = ({
     btn(<Minus className="size-4" />,         "装饰分隔线",      () => onSeparator()),
     btn(<SeparatorHorizontal className="size-4" />, "强制分页符（<!--pagebreak-->）", () => onInsertPageBreak?.()),
     btn(<Code2 className="size-4" />,         "代码块",      () => onInsertText('\n```js\n\n```\n')),
-    btn(
-      <ChevronsUpDown className="size-4" />,
-      "折叠块（details/summary）",
-      () => onInsertText('\n<details>\n<summary>点击展开</summary>\n\n这里写可折叠内容\n\n</details>\n'),
-      ""
-    ),
   ];
 
   const groupMedia = [

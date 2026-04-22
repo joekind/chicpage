@@ -384,46 +384,13 @@ async function inlineHtmlAssetUrls(html: string): Promise<string> {
   return doc.body.innerHTML;
 }
 
-function flattenCollapsibleCodeBlocks(html: string): string {
-  if (typeof window === 'undefined') return html;
-
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  const detailsNodes = Array.from(doc.querySelectorAll('details.code-fold'));
-  detailsNodes.forEach((details) => {
-    const pre = details.querySelector('pre');
-    if (pre) {
-      details.replaceWith(pre);
-      return;
-    }
-
-    details.remove();
-  });
-
-  doc.querySelectorAll('summary.code-fold-summary').forEach((summary) => summary.remove());
-
-  return doc.body.innerHTML;
-}
-
 function flattenCollapsibleCodeBlocksForWeChat(html: string): string {
   if (typeof window === 'undefined') return html;
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  const detailsNodes = Array.from(doc.querySelectorAll('details.code-fold'));
-  detailsNodes.forEach((details) => {
-    const pre = details.querySelector('pre');
-    if (pre) {
-      details.replaceWith(pre);
-      return;
-    }
-
-    details.remove();
-  });
-
-  doc.querySelectorAll('summary.code-fold-summary').forEach((summary) => summary.remove());
+  doc.querySelectorAll('details.code-fold, summary.code-fold-summary').forEach((node) => node.remove());
 
   return doc.body.innerHTML;
 }

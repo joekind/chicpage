@@ -58,7 +58,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={onBold}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/85"
                 title="加粗"
               >
                 <Bold className="size-4" />
@@ -66,7 +66,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('*')}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/85"
                 title="斜体"
               >
                 <Italic className="size-4" />
@@ -74,7 +74,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('~~')}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/85"
                 title="删除线"
               >
                 <Strikethrough className="size-3.5" />
@@ -82,7 +82,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('`')}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-violet-400"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/80"
                 title="行内代码"
               >
                 <Code className="size-4" />
@@ -90,7 +90,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('[', '](url)')}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-blue-400"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/80"
                 title="链接"
               >
                 <LinkIcon className="size-4" />
@@ -101,7 +101,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('<sup>', '</sup>')}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-sky-400"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/80"
                 title="上标"
               >
                 <Superscript className="size-3.5" />
@@ -109,7 +109,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => onWrapText('<sub>', '</sub>')}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-sky-400"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/80"
                 title="下标"
               >
                 <Subscript className="size-3.5" />
@@ -120,7 +120,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowColors(true)}
-                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-amber-400 font-bold"
+                className="size-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors text-white/70 font-bold"
                 title="荧光笔"
               >
                 <Highlighter className="size-4" />
@@ -131,10 +131,10 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => setShowColors(false)}
-                className="size-7 flex items-center justify-center hover:bg-white/10 rounded-full mr-1"
+                className="size-7 flex items-center justify-center hover:bg-white/10 rounded-full mr-1 text-white/70"
               >
-                <div className="size-1 bg-white rounded-full mx-0.5" />
-                <div className="size-1 bg-white rounded-full mx-0.5" />
+                <div className="size-1 bg-white/80 rounded-full mx-0.5" />
+                <div className="size-1 bg-white/80 rounded-full mx-0.5" />
               </button>
               {HIGHLIGHT_COLORS.map(c => (
                 <button
@@ -144,7 +144,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
                     onWrapText(`<mark style="background:${c.value}">`, '</mark>');
                     setShowColors(false);
                   }}
-                  className="size-6 rounded-full border border-white/20 hover:scale-125 transition-transform"
+                  className="size-6 rounded-full border border-white/20 hover:scale-125 transition-transform shadow-sm"
                   style={{ backgroundColor: c.value }}
                 />
               ))}
@@ -154,9 +154,9 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
                   onWrapText('', '');
                   setShowColors(false);
                 }}
-                className="size-6 rounded-full border border-dashed border-white/20 flex items-center justify-center hover:bg-white/10"
+                className="size-6 rounded-full border border-dashed border-white/20 flex items-center justify-center hover:bg-white/10 text-white/70"
               >
-                <Eraser className="size-3 text-white/60" />
+                <Eraser className="size-3" />
               </button>
             </div>
           )}
