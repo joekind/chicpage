@@ -2,7 +2,7 @@
  * 主题相关类型定义
  */
 
-/** 微信公众号主题接口 */
+/** 微信公众号主题接口111 */
 export interface WechatTheme {
   id: string;
   name: string;
