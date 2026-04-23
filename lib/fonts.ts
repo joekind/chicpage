@@ -29,6 +29,11 @@ export const POSTER_FONTS: FontConfig[] = [
     value: '"Noto Serif SC", serif',
   },
   {
+    id: 'tsanger-jinkai',
+    name: '仓耳今楷',
+    value: '"TsangerJinKai02", "TsangerJinKai", "Noto Serif SC", serif',
+  },
+  {
     id: 'lxgw',
     name: '霞鹜文楷',
     value: '"LXGW WenKai Lite", sans-serif',
@@ -44,9 +49,19 @@ export const POSTER_FONTS: FontConfig[] = [
     value: '"Zhi Mang Xing", cursive',
   },
   {
+    id: 'newsreader',
+    name: 'Newsreader',
+    value: '"Newsreader", "Noto Serif SC", serif',
+  },
+  {
     id: 'open-sans',
     name: 'Open Sans',
     value: '"Open Sans", sans-serif',
+  },
+  {
+    id: 'inter',
+    name: 'Inter',
+    value: '"Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif',
   },
   {
     id: 'jetbrains-mono',

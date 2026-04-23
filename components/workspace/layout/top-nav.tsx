@@ -316,16 +316,15 @@ export const TopNav = React.memo(({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.98 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute top-full right-0 z-50 mt-2 w-[260px] overflow-hidden rounded-2xl border border-zinc-200 bg-white"
+                  className="absolute top-full right-0 z-50 mt-2 w-[252px] overflow-hidden rounded-[20px] border border-zinc-200/80 bg-[rgba(255,255,255,0.92)] shadow-[0_14px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl"
                 >
-                  <div className="border-b border-zinc-100 bg-zinc-50/50 px-4 py-3">
-                    <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
-                      {styleTheme === "wechat" ? "微信主题" : "小红书主题"}
-                    </h3>
+                  <div className="border-b border-zinc-100/80 px-3 py-2.5">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
+                      {styleTheme === "wechat" ? "微信主题" : "贴图主题"}
+                    </div>
                   </div>
-
                   <div className="p-2">
-                    <div className="grid grid-cols-1 gap-1">
+                    <div className="grid grid-cols-3 gap-1.5">
                       {(styleTheme === "wechat" ? WECHAT_THEMES : POSTER_THEMES).map(
                         (theme) => {
                           const isActive =
@@ -358,43 +357,43 @@ export const TopNav = React.memo(({
                                 setShowThemePicker(false);
                               }}
                               className={cn(
-                                "group flex items-center gap-3 rounded-xl p-2.5 transition-colors",
+                                "group relative flex flex-col items-center rounded-[14px] border p-1.5 text-center transition-all duration-200",
                                 isActive
-                                  ? "bg-zinc-100 text-zinc-900"
-                                  : "text-zinc-600 hover:bg-zinc-50",
+                                  ? "border-zinc-300 bg-white text-zinc-900 shadow-[0_6px_14px_rgba(15,23,42,0.05)]"
+                                  : "border-transparent bg-transparent text-zinc-500 hover:border-zinc-200/90 hover:bg-zinc-50/70 hover:text-zinc-700",
                               )}
                             >
                               <div
                                 className={cn(
-                                  "relative size-10 shrink-0 overflow-hidden rounded-lg border border-zinc-200 transition-transform group-hover:scale-105",
-                                  isActive ? "border-zinc-300" : "",
+                                  "relative mb-1.5 aspect-[0.78/1] w-full shrink-0 overflow-hidden rounded-[12px] border transition-all duration-200 group-hover:scale-[1.02]",
+                                  isActive ? "border-zinc-300 shadow-sm" : "border-zinc-200/80",
                                 )}
                                 style={previewStyle}
                               >
                                 <div
-                                  className="absolute left-2 top-2 h-1 w-4 rounded-full opacity-20"
+                                  className={cn(
+                                    "absolute inset-x-0 top-0 h-[3px] transition-opacity duration-200",
+                                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-70",
+                                  )}
+                                  style={{
+                                    background: "rgba(24,24,27,0.72)",
+                                  }}
+                                />
+                                <div
+                                  className="absolute left-2.5 top-2.5 h-1.5 w-7 rounded-full opacity-20"
                                   style={{
                                     background: isActive ? "#18181b" : "#000",
                                   }}
                                 />
-                                <div className="absolute left-2 top-4 h-0.5 w-6 rounded-full bg-zinc-300/50" />
-                                <div className="absolute left-2 top-5.5 h-0.5 w-5 rounded-full bg-zinc-300/50" />
+                                <div className="absolute left-2.5 top-5.5 h-0.5 w-8 rounded-full bg-zinc-300/60" />
+                                <div className="absolute left-2.5 top-8 h-0.5 w-6 rounded-full bg-zinc-300/45" />
+                                <div className="absolute left-2.5 top-10.5 h-0.5 w-7 rounded-full bg-zinc-300/35" />
+                                <div className="absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-black/[0.03] to-transparent" />
                               </div>
 
-                              <div className="min-w-0 flex-1 text-left">
-                                <div className="truncate text-[13px] font-bold">
-                                  {theme.name}
-                                </div>
-                                <p className="mt-0.5 truncate text-[10px] text-zinc-400">
-                                  {theme.description}
-                                </p>
+                              <div className="w-full truncate text-[11px] font-semibold tracking-tight">
+                                {theme.name}
                               </div>
-
-                              {isActive && (
-                                <div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-zinc-900">
-                                  <Check className="size-3 text-white" />
-                                </div>
-                              )}
                             </button>
                           );
                         },
@@ -435,15 +434,15 @@ export const TopNav = React.memo(({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute top-full right-0 z-50 mt-2 w-[200px] overflow-hidden rounded-2xl border border-zinc-200 bg-white"
+                    className="absolute top-full right-0 z-50 mt-2 w-[272px] overflow-hidden rounded-[22px] border border-zinc-200/80 bg-[rgba(255,255,255,0.96)] shadow-[0_16px_34px_rgba(15,23,42,0.10)] backdrop-blur-xl"
                   >
-                    <div className="border-b border-zinc-100 bg-zinc-50/50 px-4 py-3">
-                      <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+                    <div className="border-b border-zinc-100 bg-[linear-gradient(180deg,rgba(248,250,252,0.85),rgba(255,255,255,0.88))] px-4 py-3.5">
+                      <h3 className="text-[11px] font-semibold tracking-[0.16em] text-zinc-400">
                         选择字体
                       </h3>
                     </div>
                     <div className="p-2">
-                      <div className="grid grid-cols-1 gap-1">
+                      <div className="grid grid-cols-2 gap-1.5">
                         {POSTER_FONTS.map((font) => {
                           const isActive = posterFont === font.id;
                           return (
@@ -454,15 +453,19 @@ export const TopNav = React.memo(({
                                 setShowFontPicker(false);
                               }}
                               className={cn(
-                                "flex items-center justify-between rounded-xl p-2.5 transition-colors",
+                                "relative flex min-h-[56px] items-center justify-center rounded-[16px] border px-2.5 py-2 text-center transition-all duration-200",
                                 isActive
-                                  ? "bg-zinc-100 text-zinc-900"
-                                  : "text-zinc-600 hover:bg-zinc-50",
+                                  ? "border-zinc-300 bg-[linear-gradient(180deg,#ffffff_0%,#f7f7f8_100%)] text-zinc-900 shadow-[0_8px_18px_rgba(15,23,42,0.06)]"
+                                  : "border-transparent bg-white text-zinc-600 hover:border-zinc-200 hover:bg-zinc-50/70",
                               )}
                               style={{ fontFamily: font.value }}
                             >
-                              <span className="text-[14px]">{font.name}</span>
-                              {isActive && <Check className="size-4 text-zinc-900" />}
+                              <span className="line-clamp-2 text-[13px] font-medium leading-[1.2]">{font.name}</span>
+                              {isActive && (
+                                <div className="absolute right-2 top-2 flex size-4.5 items-center justify-center rounded-full bg-zinc-900">
+                                  <Check className="size-3 text-white" />
+                                </div>
+                              )}
                             </button>
                           );
                         })}

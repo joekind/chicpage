@@ -1,9 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+KuHei&family=Zhi+Mang+Xing&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&family=Newsreader:opsz,wght@6..72,200..800&family=Noto+Sans+SC:wght@400;700&family=Noto+Serif+SC:wght@400;700&family=ZCOOL+KuHei&family=Zhi+Mang+Xing&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Bebas+Neue&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/lxgw-wenkai-lite-webfont@1.1.0/style.css');
 @import "tailwindcss";
 
 
 @plugin "@tailwindcss/typography";
+
+@font-face {
+  font-family: "Source Han Sans";
+  src:
+    local("Source Han Sans SC"),
+    local("Source Han Sans CN"),
+    local("Source Han Sans"),
+    local("思源黑体"),
+    local("Noto Sans CJK SC");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TsangerJinKai";
+  src:
+    local("TsangerJinKai02"),
+    local("TsangerJinKai03"),
+    local("TsangerJinKai"),
+    local("Tsanger Jin Kai");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TsangerJinKai02";
+  src:
+    local("TsangerJinKai02"),
+    local("TsangerJinKai03"),
+    local("TsangerJinKai"),
+    local("Tsanger Jin Kai");
+  font-display: swap;
+}
 
 @theme {
   --font-sans: "Inter", "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;

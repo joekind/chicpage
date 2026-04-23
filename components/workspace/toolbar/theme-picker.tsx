@@ -8,11 +8,11 @@ import { WECHAT_THEMES } from "@/lib/themes";
 const THEME_SWATCHES: Record<string, { bg: string; accent: string }> = {
   default:   { bg: '#ffffff', accent: '#6366f1' },
   elegant:   { bg: '#fdfaf6', accent: '#c8a96e' },
-  magazine:  { bg: '#ffffff', accent: '#1a1a1a' },
+  magazine:  { bg: 'url("/background/post.png") center/cover no-repeat', accent: '#1f1a14' },
   kami:      { bg: '#fdf6e6', accent: '#1b365d' },
   crimson:    { bg: '#ffffff', accent: '#555555' },
   green:     { bg: '#f0faf4', accent: '#07c160' },
-  tech:      { bg: '#1a1a2e', accent: '#7c83fd' },
+  sketch:    { bg: '#fcfbf7', accent: '#8b7b66' },
   rose:      { bg: '#fff1f2', accent: '#be123c' },
 };
 

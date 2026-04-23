@@ -22,6 +22,8 @@ const BASE_CSS = `
     font-size: 16px; 
     line-height: 1.8; 
     word-break: break-word; 
+    padding-left: 22px;
+    padding-right: 22px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -110,7 +112,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: '暖纸',
     name: '暖纸',
     description: '极简高对比排版',
-    containerStyle: 'max-width:677px;margin:0 auto;padding:28px 22px 32px;color:#3d3d3a;font-family:"Source Han Sans","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#fdf6e6;',
+    containerStyle: 'max-width:677px;margin:0 auto;color:#3d3d3a;font-family:"Source Han Sans","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#fdf6e6;',
     css: BASE_CSS + `
       #chicpage {
         color: #3d3d3a;
@@ -270,90 +272,190 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'magazine',
     name: '杂志',
     description: '时尚杂志排版',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:"PingFang SC",sans-serif;color:#1a1a1a;background:#fff;',
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Inter","PingFang SC",sans-serif;color:#181716;background-color:#ece7db;background-image:url("/background/post.png");background-repeat:repeat;background-size:cover;background-position:center top;',
     css: BASE_CSS + `
       #chicpage { 
-        color: #1a1a1a; 
-        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
-        background: #fff; 
-        line-height: 1.85; 
+        color: #181716; 
+        font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
+        background-color: #ece7db;
+        background-image:
+          linear-gradient(180deg, rgba(245, 241, 231, 0.18) 0%, rgba(245, 241, 231, 0.1) 100%),
+          url("/background/post.png");
+        background-repeat: no-repeat, repeat;
+        background-size: 100% 100%, cover;
+        background-position: center top, center top;
+        background-blend-mode: screen, normal;
+        line-height: 1.9;
+        letter-spacing: 0.01em;
       }
 
-      /* H1：封面大标题，极简杂志风 */
+      /* H1：报头标题 */
       #chicpage h1 {
-        font-size: 28px; font-weight: 300; text-align: center;
-        letter-spacing: 0.3em; color: #000;
-        padding: 0.8em 0;
-        border-top: 5px solid #000;
-        border-bottom: 2px solid #000;
-        margin: 1.5em 0 1.2em;
-        line-height: 1.3;
+        font-family: "Newsreader", "Noto Serif SC", Georgia, "Times New Roman", serif;
+        font-size: 38px;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 0.08em;
+        color: #111111;
+        padding: 0;
+        margin: 0.55em 0 1.15em;
+        line-height: 1.08;
         text-transform: uppercase;
       }
 
-      /* H2：编辑标签风格 */
+      /* H2：报刊栏目标签 */
       #chicpage h2 {
-        display: inline-block;
-        background: #000; color: #fff;
-        font-size: 13px; font-weight: 700;
-        letter-spacing: 0.25em;
-        padding: 6px 18px;
-        margin: 2.2em 0 1.2em;
+        display: block;
+        background: transparent;
+        color: #111111;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.36em;
+        padding: 0;
+        margin: 2.8em 0 1.05em;
         line-height: 1;
         text-transform: uppercase;
       }
 
-      /* H3：斜杠序列号感 */
+      /* H3：新闻小标题 */
       #chicpage h3 {
-        font-size: 20px; font-weight: 700;
-        color: #1a1a1a; margin: 1.8em 0 0.8em;
-        padding-bottom: 6px;
-        border-bottom: 3px solid #f0f0f0;
+        font-family: "Newsreader", "Noto Serif SC", Georgia, serif;
+        font-size: 22px;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin: 1.75em 0 0.65em;
+        letter-spacing: 0.02em;
       }
 
-      /* 引用：经典的 Pull-Quote 风格 */
+      #chicpage p {
+        margin: 1.08em 0;
+        line-height: 1.92;
+        color: #2d2d2d;
+        font-size: 15px;
+        text-align: justify;
+      }
+
+      #chicpage ul, #chicpage ol {
+        margin: 1.1em 0;
+        padding-left: 1.25em;
+      }
+
+      #chicpage li {
+        margin: 0.55em 0;
+        color: #2d2d2d;
+      }
+
+      /* 引用：报刊摘句 */
       #chicpage blockquote {
-        margin: 3em 0; padding: 1.5em 2.5em;
-        border: none; background: #fdfdfd;
+        position: relative;
+        margin: 3.2em 0;
+        padding: 2em 2.2em 1.9em;
+        background: rgba(248, 244, 235, 0.76);
         text-align: center;
-        border-top: 1px solid #eee;
-        border-bottom: 1px solid #eee;
+        box-shadow: 0 8px 22px rgba(41, 34, 26, 0.04);
+        backdrop-filter: blur(1px);
       }
       #chicpage blockquote p {
-        font-size: 20px; font-family: Georgia, serif;
-        font-style: italic; line-height: 1.6; color: #333;
-        text-indent: 0; margin: 0;
+        font-size: 23px;
+        font-family: "Newsreader", Georgia, serif;
+        font-style: italic;
+        font-weight: 400;
+        line-height: 1.58;
+        color: #1f1f1f;
+        text-indent: 0;
+        margin: 0;
       }
-      #chicpage blockquote p::before { content: "“"; font-size: 1.6em; vertical-align: -0.4em; margin-right: 4px; color: #ccc; }
-      #chicpage blockquote p::after { content: "”"; font-size: 1.6em; vertical-align: -0.4em; margin-left: 4px; color: #ccc; }
+      #chicpage blockquote p::before { content: "“"; font-size: 1.35em; vertical-align: -0.32em; margin-right: 6px; color: rgba(17,17,17,0.28); }
+      #chicpage blockquote p::after { content: "”"; font-size: 1.35em; vertical-align: -0.32em; margin-left: 6px; color: rgba(17,17,17,0.28); }
 
-      /* 段落 */
-      #chicpage p { margin: 1em 0; line-height: 1.85; }
+      #chicpage hr {
+        border: none;
+        height: 1px;
+        background: rgba(17,17,17,0.14);
+        margin: 3.4em 8%;
+      }
 
-      /* 分割线：极简长线 */
-      #chicpage hr { border: none; border-top: 1px solid #1a1a1a; margin: 3.5em 10%; }
-
-      /* 强调样式 */
-      #chicpage strong { font-weight: 800; color: #000; background: #f0f0f0; padding: 0 0.2em; }
-      #chicpage em { font-style: italic; color: #444; }
-      #chicpage a { color: #000; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+      #chicpage strong {
+        font-weight: 700;
+        color: #111111;
+        background: linear-gradient(180deg, transparent 56%, rgba(17,17,17,0.08) 56%);
+        padding: 0 0.08em;
+      }
+      #chicpage em {
+        font-style: italic;
+        color: #4a4a4a;
+      }
+      #chicpage a {
+        color: #111111;
+        font-weight: 600;
+        text-decoration: underline;
+        text-decoration-color: rgba(17,17,17,0.35);
+        text-underline-offset: 4px;
+      }
       
-      #chicpage li::marker { color: #000; font-weight: 700; }
+      #chicpage li::marker {
+        color: #111111;
+        font-weight: 700;
+      }
       
-      /* 表格：编辑部内表感 */
-      #chicpage th { background: #000; border: none; color: #fff; font-size: 11px; letter-spacing: 0.1em; padding: 10px 14px; text-transform: uppercase; }
-      #chicpage td { border: none; border-bottom: 1px solid #eee; padding: 10px 14px; }
+      #chicpage table {
+        background: rgba(248, 244, 235, 0.72);
+        box-shadow: 0 8px 22px rgba(41, 34, 26, 0.03);
+      }
+      #chicpage th {
+        background: rgba(17,17,17,0.04);
+        border: none;
+        color: #111111;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        padding: 11px 14px;
+        text-transform: uppercase;
+      }
+      #chicpage td {
+        border: none;
+        padding: 12px 14px;
+        color: #343434;
+        background: transparent;
+      }
       
-      #chicpage code { background: #f6f6f6; color: #111; padding: 0.2em 0.4em; font-size: 85%; }
-      #chicpage pre { background: #000; color: #fff; padding: 1.5em; border-radius: 4px; }
+      #chicpage code {
+        background: rgba(248, 244, 235, 0.9);
+        color: #111111;
+        padding: 0.2em 0.42em;
+        font-size: 85%;
+        border-radius: 6px;
+      }
+      #chicpage pre {
+        background: rgba(28, 26, 24, 0.96);
+        color: #f7f1e3;
+        padding: 1.5em;
+        border-radius: 10px;
+        box-shadow: 0 12px 28px rgba(17,17,17,0.10), inset 0 0 0 1px rgba(255,255,255,0.04);
+      }
+      #chicpage img {
+        background: rgba(248, 244, 235, 0.72);
+        padding: 8px;
+        border-radius: 10px;
+        box-shadow: 0 14px 30px rgba(17,17,17,0.08);
+      }
+      #chicpage details {
+        background: rgba(248, 244, 235, 0.8);
+        box-shadow: 0 8px 20px rgba(41, 34, 26, 0.03);
+      }
+      #chicpage details[open] summary {
+        border-bottom: none;
+      }
+      #chicpage summary {
+        color: #1f1f1f;
+      }
     `,
-    preview: '#ffffff',
+    preview: 'url("/background/post.png") center/cover no-repeat',
   },
   {
     id: 'crimson',
     name: '赤红',
     description: '东方赤红美学',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Noto Serif SC","STSong",serif;color:#1a1a1a;background:#fef8f6;padding:40px 30px;',
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Noto Serif SC","STSong",serif;color:#1a1a1a;background:#fef8f6;',
     css: BASE_CSS + `
       #chicpage {
         color: #1a1a1a;
@@ -370,9 +472,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         text-align: center;
         letter-spacing: 0.5em;
         margin: 1.5em 0 1em;
-        padding: 20px 0;
-        border: 2px solid rgba(196, 30, 58, 0.3);
-        border-radius: 8px;
+        padding: 0;
       }
 
       /* H2: 红色装饰框 */
@@ -451,7 +551,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         margin: 3em 0;
         height: 1px;
         background: #c41e3a;
-        opacity: 0.3;
+        opacity: 0.12;
       }
 
       /* 列表 */
@@ -461,17 +561,17 @@ export const WECHAT_THEMES: WechatTheme[] = [
 
       /* 表格 */
       #chicpage th {
-        background: #c41e3a;
-        color: #fff;
+        background: rgba(196, 30, 58, 0.06);
+        color: #c41e3a;
         font-weight: 600;
         border: none;
         padding: 12px 16px;
       }
       #chicpage td {
-        border: 1px solid rgba(196, 30, 58, 0.1);
+        border: none;
         padding: 12px 16px;
         color: #3a3a3a;
-        background: #fff;
+        background: rgba(255,255,255,0.28);
       }
       #chicpage tr:nth-child(even) td {
         background: rgba(196, 30, 58, 0.02);
@@ -480,256 +580,121 @@ export const WECHAT_THEMES: WechatTheme[] = [
     preview: '#fef8f6',
   },
   {
-    id: 'tech',
-    name: '暗黑',
-    description: '极客暗黑美学',
-    containerStyle: 'max-width:677px;margin:0 auto;background:#0a0a0f;color:#e6e6e6;padding:32px 24px;font-family:-apple-system,"SF Pro Display",sans-serif;',
-    css: BASE_CSS + `
-      #chicpage {
-        background: #0a0a0f;
-        color: #e6e6e6;
-        font-family: -apple-system, "SF Pro Display", "PingFang SC", sans-serif;
-        padding: 2em 1.5em;
-        line-height: 1.85;
-        /* 科技感网格背景 */
-        background-image:
-          radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.03) 0%, transparent 50%),
-          linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-        background-size: 100% 100%, 40px 40px, 40px 40px;
-      }
-
-      /* H1: 居中发光标题 */
-      #chicpage h1 {
-        font-size: 28px;
-        font-weight: 700;
-        margin: 1.5em 0 1em;
-        text-align: center;
-        color: #e6e6e6;
-        letter-spacing: 0.02em;
-        padding-bottom: 0.5em;
-        border-bottom: 3px solid #6366f1;
-      }
-
-      /* H2: 科技感卡片 */
-      #chicpage h2 {
-        font-size: 20px;
-        font-weight: 600;
-        color: #e6e6e6;
-        margin: 2.2em 0 1em;
-        padding: 14px 20px;
-        background: rgba(99, 102, 241, 0.1);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-left: none;
-        border-radius: 8px;
-      }
-
-      /* H3: 紫色强调 */
-      #chicpage h3 {
-        font-size: 17px;
-        font-weight: 600;
-        color: #c4b5fd;
-        margin: 1.8em 0 0.8em;
-        padding-left: 0;
-        border-left: none;
-      }
-
-      /* 段落 */
-      #chicpage p {
-        color: #a1a1aa;
-        margin: 1em 0;
-        font-size: 16px;
-        line-height: 1.9;
-      }
-
-      /* 引用：发光卡片 */
-      #chicpage blockquote {
-        margin: 2em 0;
-        padding: 20px 24px;
-        background: rgba(99, 102, 241, 0.05);
-        border: 1px solid rgba(99, 102, 241, 0.15);
-        border-left: none;
-        color: #c4b5fd;
-        border-radius: 8px;
-      }
-      #chicpage blockquote p {
-        color: #c4b5fd;
-        margin: 0;
-      }
-
-      /* 链接：渐变效果 */
-      #chicpage a {
-        color: #818cf8;
-        text-decoration: underline;
-        text-underline-offset: 3px;
-      }
-
-      /* 强调 */
-      #chicpage strong {
-        color: #e6e6e6;
-        font-weight: 600;
-        background: rgba(99, 102, 241, 0.2);
-        padding: 0.1em 0.3em;
-        border-radius: 4px;
-      }
-
-      /* 代码：霓虹风格 */
-      #chicpage code {
-        background: rgba(99, 102, 241, 0.1);
-        color: #a5b4fc;
-        padding: 0.2em 0.6em;
-        border-radius: 4px;
-        font-size: 85%;
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        font-family: "JetBrains Mono", "Fira Code", monospace;
-      }
-
-      /* 代码块 */
-      #chicpage pre {
-        background: #0d0d12;
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        border-radius: 12px;
-        padding: 20px;
-        overflow-x: auto;
-      }
-      #chicpage pre code {
-        background: transparent;
-        border: none;
-        padding: 0;
-        color: #a5b4fc;
-      }
-
-      /* 分割线：渐变光效 */
-      #chicpage hr {
-        border: none;
-        margin: 3em 0;
-        height: 2px;
-        background: rgba(99, 102, 241, 0.5);
-      }
-
-      /* 列表 */
-      #chicpage li {
-        margin: 0.5em 0;
-        line-height: 1.8;
-        color: #a1a1aa;
-      }
-      #chicpage li::marker {
-        color: #6366f1;
-      }
-      #chicpage ul, #chicpage ol {
-        padding-left: 1.5em;
-      }
-
-      /* 表格：发光边框 */
-      #chicpage table {
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid rgba(99, 102, 241, 0.2);
-      }
-      #chicpage th {
-        background: rgba(99, 102, 241, 0.2);
-        color: #e6e6e6;
-        font-weight: 600;
-        border: none;
-        padding: 14px 18px;
-        font-size: 13px;
-        letter-spacing: 0.02em;
-      }
-      #chicpage td {
-        border: none;
-        border-top: 1px solid rgba(99, 102, 241, 0.1);
-        padding: 14px 18px;
-        color: #a1a1aa;
-        background: transparent;
-      }
-      #chicpage tr:nth-child(even) td {
-        background: rgba(99, 102, 241, 0.02);
-      }
-
-      /* 图片：发光边框 */
-      #chicpage img {
-        border-radius: 12px;
-        border: 1px solid rgba(99, 102, 241, 0.1);
-      }
-    `,
-    preview: '#0a0a0f',
-  },
-  {
     id: 'sketch',
     name: '手绘',
-    description: '手绘涂鸦风格',
-    containerStyle: 'max-width:677px;margin:0 auto;background:#fffef5;color:#333;padding:40px 30px;font-family:"PingFang SC",sans-serif;',
+    description: '克制手作纸感',
+    containerStyle: 'max-width:677px;margin:0 auto;background:#fcfbf7;color:#2f2c28;font-family:"PingFang SC",sans-serif;',
     css: BASE_CSS + `
       #chicpage { 
-        background-color: #fffef5; 
-        color: #1a1a1a; 
+        background-color: #fcfbf7;
+        background-image:
+          linear-gradient(180deg, rgba(72, 63, 51, 0.012) 0%, rgba(72, 63, 51, 0.004) 100%),
+          radial-gradient(circle at 20% 20%, rgba(255,255,255,0.7) 0%, transparent 42%);
+        color: #2f2c28; 
         font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-        line-height: 1.85; 
-        padding: 2em 1em;
+        line-height: 1.9; 
+        padding: 2em 22px;
+        letter-spacing: 0.01em;
       }
 
-      /* H1：紧凑的手绘涂鸦背景 */
+      /* H1：像压在手工纸上的标题签 */
       #chicpage h1 {
-        font-size: 32px; color: #000; text-align: center;
-        margin: 1.25em 0 1em;
-        padding: 10px 20px;
-        background: #fff;
-        border: 2px solid #111;
-        border-radius: 15px;
+        font-size: 30px;
+        color: #1f1d1a;
+        text-align: center;
+        margin: 1em 0 0.95em;
+        padding: 14px 18px 12px;
+        background: rgba(255,255,255,0.6);
+        border-radius: 18px 16px 20px 14px;
+        box-shadow: 0 10px 24px rgba(56, 48, 40, 0.06);
+        font-weight: 700;
       }
 
-      /* H2：带涂鸦阴影的便签 */
+      /* H2：低饱和便签条 */
       #chicpage h2 {
-        font-size: 24px; color: #111;
-        display: inline-block; padding: 8px 20px;
-        margin: 2.5em 0 1.2em;
-        border: 2px solid #333;
-        background: #ffeb3b;
-        border-radius: 15px;
-      }
-
-      /* H3：彩色蜡笔波浪线下划线 */
-      #chicpage h3 {
-        font-size: 20px; color: #000; margin: 1.8em 0 0.8em;
+        font-size: 20px;
+        color: #2d2a25;
         display: inline-block;
-        border-bottom: 4px dotted #ff4081;
+        padding: 8px 16px 7px;
+        margin: 2.3em 0 1em;
+        background: rgba(210, 198, 170, 0.34);
+        border-radius: 14px 12px 16px 10px;
+        font-weight: 600;
       }
 
-      /* 引用：四角贴了透明胶带的纸片 */
+      /* H3：铅笔下划线感 */
+      #chicpage h3 {
+        font-size: 18px;
+        color: #1f1d1a;
+        margin: 1.7em 0 0.75em;
+        display: inline-block;
+        font-weight: 600;
+      }
+
+      #chicpage p {
+        color: #3a352f;
+        line-height: 1.95;
+      }
+
+      /* 引用：轻手工卡片 */
       #chicpage blockquote {
-        margin: 3.5em 0; padding: 2em;
-        background: #fff; border: 1px solid #ddd;
-        border-radius: 4px;
+        margin: 2.8em 0;
+        padding: 1.35em 1.5em;
+        background: rgba(255,255,255,0.56);
+        border-radius: 18px 14px 16px 12px;
+        box-shadow: 0 8px 20px rgba(64, 57, 46, 0.04);
       }
 
-      /* 强调样式：极其厚重的涂鸦高亮 */
+      /* 强调样式：低饱和手工标记 */
       #chicpage strong { 
-        font-weight: 900; color: #000; 
-        background: #fff176;
-        padding: 0 4px;
-        border-radius: 4px;
+        font-weight: 700;
+        color: #1f1d1a; 
+        background: linear-gradient(180deg, transparent 54%, rgba(190, 181, 146, 0.45) 54%);
+        padding: 0 2px;
       }
-      #chicpage em { font-style: italic; color: #2196f3; font-weight: 800; border-bottom: 2px solid #2196f3; }
-      #chicpage a { color: #f44336; border-bottom: 3px double #f44336; text-decoration: none; }
+      #chicpage em {
+        font-style: italic;
+        color: #6e6254;
+      }
+      #chicpage a {
+        color: #5e5245;
+        border-bottom: 1px solid rgba(94, 82, 69, 0.36);
+        text-decoration: none;
+      }
 
-      /* 分割线：大手绘波浪线 */
-      #chicpage hr { border: none; border-top: 2px dashed #ccc; margin: 4em 0; }
+      #chicpage hr {
+        border: none;
+        height: 1px;
+        background: rgba(92, 81, 69, 0.12);
+        margin: 3.2em 0;
+      }
 
-      /* 图片：像贴在墙上的照片 */
+      /* 图片：轻贴纸效果 */
       #chicpage img { 
-        padding: 12px; border: 1px solid #ddd; background: #fff;
-        border-radius: 2px;
-        margin: 2.5em auto;
+        padding: 10px;
+        background: rgba(255,255,255,0.72);
+        border-radius: 16px 14px 18px 12px;
+        margin: 2.2em auto;
+        box-shadow: 0 10px 24px rgba(56, 48, 40, 0.05);
       }
       
-      #chicpage li { list-style: disc; padding-left: 0; }
+      #chicpage li {
+        list-style: disc;
+        padding-left: 0;
+        color: #3a352f;
+      }
       
-      #chicpage code { background: #e1f5fe; color: #0277bd; border: 1px dashed #0277bd; border-radius: 10px; }
-      #chicpage pre { background: #1a1a1a; border: 3px solid #333; border-radius: 15px; }
+      #chicpage code {
+        background: rgba(94, 82, 69, 0.08);
+        color: #4c4339;
+        border-radius: 8px;
+      }
+      #chicpage pre {
+        background: #2d2a26;
+        border-radius: 16px;
+      }
     `,
-    preview: '#ffeb3b',
+    preview: '#fcfbf7',
   }
 ];
 
