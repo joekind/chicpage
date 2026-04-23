@@ -110,12 +110,12 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: '暖纸',
     name: '暖纸',
     description: '极简高对比排版',
-    containerStyle: 'max-width:677px;margin:0 auto;padding:28px 22px 32px;color:#3d3d3a;font-family:"Source Han Sans","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#f5f4ed;',
+    containerStyle: 'max-width:677px;margin:0 auto;padding:28px 22px 32px;color:#3d3d3a;font-family:"Source Han Sans","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#fdf6e6;',
     css: BASE_CSS + `
       #chicpage {
         color: #3d3d3a;
         font-family: "Source Han Sans", "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-        background: #f5f4ed;
+        background: #fdf6e6;
         padding: 28px 22px 32px;
         line-height: 1.55;
       }
@@ -175,24 +175,24 @@ export const WECHAT_THEMES: WechatTheme[] = [
         text-underline-offset: 3px;
       }
       #chicpage blockquote {
-        background: #faf9f5;
+        background: #fffbf1;
         color: #4d4c48;
-        border: 1px solid #e8e6dc;
+        border: 1px solid #eadbbd;
         border-radius: 16px;
         padding: 16px 18px;
-        box-shadow: 0 0 0 1px #e8e6dc;
+        box-shadow: 0 0 0 1px #eadbbd;
       }
       #chicpage hr {
-        border-top: 1px solid #e4ddcf;
+        border-top: 1px solid #e6d5b3;
         margin: 3em 0;
       }
       #chicpage img {
         border-radius: 16px;
-        box-shadow: 0 0 0 1px #e8e6dc;
+        box-shadow: 0 0 0 1px #eadbbd;
       }
       #chicpage pre {
-        background: #faf9f5;
-        border: 1px solid #e8e6dc;
+        background: #fffbf1;
+        border: 1px solid #eadbbd;
         border-radius: 16px;
       }
       #chicpage pre code {
@@ -201,13 +201,13 @@ export const WECHAT_THEMES: WechatTheme[] = [
         font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
       }
       #chicpage code {
-        background: #e8e6dc;
+        background: #f5e7c9;
         color: #1b365d;
         border-radius: 6px;
         font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
       }
       #chicpage table {
-        border: 1px solid #e4ddcf;
+        border: 1px solid #e6d5b3;
         border-radius: 16px;
         overflow: hidden;
       }
@@ -218,13 +218,13 @@ export const WECHAT_THEMES: WechatTheme[] = [
         line-height: 1.35;
       }
       #chicpage td {
-        border-top: 1px solid #e4ddcf;
+        border-top: 1px solid #e6d5b3;
         line-height: 1.45;
       }
       #chicpage details {
-        background: #faf9f5;
+        background: #fffbf1;
         border-radius: 16px;
-        border: 1px solid #e4ddcf;
+        border: 1px solid #e6d5b3;
       }
       #chicpage summary {
         font-family: Georgia, "Noto Serif SC", "Songti SC", "TsangerJinKai02", serif;
@@ -233,13 +233,13 @@ export const WECHAT_THEMES: WechatTheme[] = [
         line-height: 1.3;
       }
       #chicpage kbd {
-        background: #e8e6dc;
+        background: #f5e7c9;
         color: #3d3d3a;
-        border: 1px solid #d4d0c1;
+        border: 1px solid #e0cda9;
         border-bottom-width: 1px;
       }
     `,
-    preview: '#f5f4ed',
+    preview: '#fdf6e6',
   },
   {
     id: 'linedpaper2',
