@@ -10,6 +10,11 @@ export interface ThemeBackgroundStyle {
   fontFamily?: string;
 }
 
+export interface ThemeTextureLayer {
+  src: string;
+  opacity: number;
+}
+
 export function getThemeBackgroundStyle(theme: Pick<WechatTheme, "containerStyle">): ThemeBackgroundStyle {
   const backgroundMatch = theme.containerStyle.match(/background-color:\s*([^;]+)/i)
     ?? theme.containerStyle.match(/background:\s*(#[a-fA-F0-9]{3,8}|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-z]+)/i);
@@ -31,4 +36,30 @@ export function getThemeBackgroundStyle(theme: Pick<WechatTheme, "containerStyle
     color: colorMatch?.[1].trim(),
     fontFamily: fontFamilyMatch?.[1].trim(),
   };
+}
+
+export function extractBackgroundImageUrl(backgroundImage?: string): string | undefined {
+  if (!backgroundImage) return undefined;
+  const match = backgroundImage.match(/url\((['"]?)(.*?)\1\)/i);
+  return match?.[2]?.trim();
+}
+
+export function getThemeTextureLayer(
+  theme: Pick<WechatTheme, "id" | "containerStyle">,
+): ThemeTextureLayer | undefined {
+  const backgroundStyle = getThemeBackgroundStyle(theme);
+  const src = extractBackgroundImageUrl(backgroundStyle.backgroundImage);
+
+  if (!src) return undefined;
+
+  switch (theme.id) {
+    case "linedpaper2":
+      return { src, opacity: 0.34 };
+    case "magazine":
+      return { src, opacity: 0.22 };
+    case "sketch":
+      return { src, opacity: 0.24 };
+    default:
+      return { src, opacity: 0.2 };
+  }
 }

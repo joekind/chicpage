@@ -28,6 +28,10 @@ import { POSTER_THEMES } from "@/lib/poster-themes";
 import { WECHAT_THEMES, type WechatTheme } from "@/lib/themes";
 import { POSTER_FONTS } from "@/lib/fonts";
 import type { PosterRatio } from "@/types";
+import {
+  getThemeBackgroundStyle,
+  getThemeTextureLayer,
+} from "@/lib/theme-background";
 
 const POSTER_RATIO_OPTIONS: { value: PosterRatio; label: string }[] = [
   { value: "3:4", label: "3:4" },
@@ -316,9 +320,9 @@ export const TopNav = React.memo(({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 8, scale: 0.98 }}
                   transition={{ duration: 0.15, ease: "easeOut" }}
-                  className="absolute top-full right-0 z-50 mt-2 w-[252px] overflow-hidden rounded-[20px] border border-zinc-200/80 bg-[rgba(255,255,255,0.92)] shadow-[0_14px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl"
+                  className="absolute top-full right-0 z-50 mt-2 w-[252px] overflow-hidden rounded-[20px] border border-zinc-200 bg-white shadow-[0_14px_30px_rgba(15,23,42,0.12)]"
                 >
-                  <div className="border-b border-zinc-100/80 px-3 py-2.5">
+                  <div className="border-b border-zinc-100 px-3 py-2.5">
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
                       {styleTheme === "wechat" ? "微信主题" : "贴图主题"}
                     </div>
@@ -330,8 +334,14 @@ export const TopNav = React.memo(({
                           const isActive =
                             (styleTheme === "wechat" ? wechatTheme : posterTheme) ===
                             theme.id;
+                          const wechatThemeData =
+                            !("background" in theme) ? (theme as WechatTheme) : null;
                           const posterThemeData =
                             "background" in theme ? (theme as (typeof POSTER_THEMES)[number]) : null;
+                          const wechatThemeBackground =
+                            wechatThemeData ? getThemeBackgroundStyle(wechatThemeData) : null;
+                          const wechatTextureLayer =
+                            wechatThemeData ? getThemeTextureLayer(wechatThemeData) : null;
                           const previewStyle =
                             posterThemeData
                               ? {
@@ -342,7 +352,8 @@ export const TopNav = React.memo(({
                                   backgroundPosition: posterThemeData.backgroundPosition,
                                 }
                               : {
-                                  backgroundColor: theme.preview || "#fff",
+                                  backgroundColor:
+                                    wechatThemeBackground?.backgroundColor ?? "#fff",
                                 };
 
                           return (
@@ -370,25 +381,30 @@ export const TopNav = React.memo(({
                                 )}
                                 style={previewStyle}
                               >
+                                {wechatTextureLayer && (
+                                  <div
+                                    aria-hidden="true"
+                                    className="absolute inset-0"
+                                    style={{
+                                      backgroundImage: `url("${wechatTextureLayer.src}")`,
+                                      backgroundSize: "cover",
+                                      backgroundRepeat:
+                                        wechatThemeData?.id === "linedpaper2" ? "repeat" : "no-repeat",
+                                      backgroundPosition: "center top",
+                                      opacity: wechatTextureLayer.opacity,
+                                    }}
+                                  />
+                                )}
                                 <div
-                                  className={cn(
-                                    "absolute inset-x-0 top-0 h-[3px] transition-opacity duration-200",
-                                    isActive ? "opacity-100" : "opacity-0 group-hover:opacity-70",
-                                  )}
-                                  style={{
-                                    background: "rgba(24,24,27,0.72)",
-                                  }}
-                                />
-                                <div
-                                  className="absolute left-2.5 top-2.5 h-1.5 w-7 rounded-full opacity-20"
+                                  className="absolute left-2.5 top-2.5 z-[1] h-1.5 w-7 rounded-full opacity-20"
                                   style={{
                                     background: isActive ? "#18181b" : "#000",
                                   }}
                                 />
-                                <div className="absolute left-2.5 top-5.5 h-0.5 w-8 rounded-full bg-zinc-300/60" />
-                                <div className="absolute left-2.5 top-8 h-0.5 w-6 rounded-full bg-zinc-300/45" />
-                                <div className="absolute left-2.5 top-10.5 h-0.5 w-7 rounded-full bg-zinc-300/35" />
-                                <div className="absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-black/[0.03] to-transparent" />
+                                <div className="absolute left-2.5 top-5.5 z-[1] h-0.5 w-8 rounded-full bg-zinc-300/60" />
+                                <div className="absolute left-2.5 top-8 z-[1] h-0.5 w-6 rounded-full bg-zinc-300/45" />
+                                <div className="absolute left-2.5 top-10.5 z-[1] h-0.5 w-7 rounded-full bg-zinc-300/35" />
+                                <div className="absolute inset-x-0 bottom-0 z-[1] h-5 bg-gradient-to-t from-black/[0.03] to-transparent" />
                               </div>
 
                               <div className="w-full truncate text-[11px] font-semibold tracking-tight">
@@ -706,3 +722,5 @@ export const TopNav = React.memo(({
     </>
   );
 });
+
+TopNav.displayName = "TopNav";
