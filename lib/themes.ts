@@ -659,13 +659,14 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'sketch',
     name: '手绘',
     description: '克制手作纸感',
-    containerStyle: 'max-width:677px;margin:0 auto;background:#fcfbf7;color:#2f2c28;font-family:"PingFang SC",sans-serif;',
+    containerStyle: 'max-width:677px;margin:0 auto;background-color:#fcfbf7;background-image:url("/background/shohui.png");background-repeat:repeat;background-size:cover;background-position:center top;color:#2f2c28;font-family:"PingFang SC",sans-serif;',
     css: BASE_CSS + `
       #chicpage { 
         background-color: #fcfbf7;
-        background-image:
-          linear-gradient(180deg, rgba(72, 63, 51, 0.012) 0%, rgba(72, 63, 51, 0.004) 100%),
-          radial-gradient(circle at 20% 20%, rgba(255,255,255,0.7) 0%, transparent 42%);
+        background-image: url("/background/shohui.png");
+        background-repeat: repeat;
+        background-size: cover;
+        background-position: center top;
         color: #2f2c28; 
         font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
         line-height: 1.9; 
@@ -779,7 +780,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border-radius: 16px;
       }
     `,
-    preview: '#fcfbf7',
+    preview: 'url("/background/shohui.png") center/cover no-repeat',
   }
 ];
 
