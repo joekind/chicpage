@@ -122,6 +122,8 @@ export default function ChicEditor() {
   );
 
   const handlePaste = async (e: React.ClipboardEvent | ClipboardEvent) => {
+    if (e.defaultPrevented) return;
+
     const clipboardData =
       (e as React.ClipboardEvent).clipboardData ||
       (e as ClipboardEvent).clipboardData;

@@ -318,6 +318,7 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
             paste(event) {
               if (onPaste) {
                 onPaste(event);
+                event.stopPropagation();
               }
             }
           })
