@@ -82,6 +82,136 @@ const BASE_CSS = `
   #chicpage input[type="checkbox"] { margin-right: 6px; accent-color: #6366f1; pointer-events: none; }
 `;
 
+const WARM_PAPER_CODE_CSS = `
+  #chicpage .hljs { color: #4d4c48; }
+  #chicpage .hljs-keyword,
+  #chicpage .hljs-selector-tag,
+  #chicpage .hljs-literal,
+  #chicpage .hljs-title,
+  #chicpage .hljs-section,
+  #chicpage .hljs-doctag,
+  #chicpage .hljs-type,
+  #chicpage .hljs-name,
+  #chicpage .hljs-strong { color: #8a5a22; }
+  #chicpage .hljs-string,
+  #chicpage .hljs-attr,
+  #chicpage .hljs-template-tag,
+  #chicpage .hljs-template-variable,
+  #chicpage .hljs-bullet { color: #6f6a35; }
+  #chicpage .hljs-number,
+  #chicpage .hljs-symbol,
+  #chicpage .hljs-variable,
+  #chicpage .hljs-params,
+  #chicpage .hljs-link { color: #1b365d; }
+  #chicpage .hljs-comment,
+  #chicpage .hljs-quote { color: #8a8374; }
+  #chicpage input[type="checkbox"] { accent-color: #1b365d; }
+`;
+
+const PAPER_INK_CODE_CSS = `
+  #chicpage .hljs { color: #3f4650; }
+  #chicpage .hljs-keyword,
+  #chicpage .hljs-selector-tag,
+  #chicpage .hljs-literal,
+  #chicpage .hljs-title,
+  #chicpage .hljs-section,
+  #chicpage .hljs-doctag,
+  #chicpage .hljs-type,
+  #chicpage .hljs-name,
+  #chicpage .hljs-strong { color: #354b68; }
+  #chicpage .hljs-string,
+  #chicpage .hljs-attr,
+  #chicpage .hljs-template-tag,
+  #chicpage .hljs-template-variable,
+  #chicpage .hljs-bullet { color: #5d6a58; }
+  #chicpage .hljs-number,
+  #chicpage .hljs-symbol,
+  #chicpage .hljs-variable,
+  #chicpage .hljs-params,
+  #chicpage .hljs-link { color: #6d5945; }
+  #chicpage .hljs-comment,
+  #chicpage .hljs-quote { color: #8a8176; }
+  #chicpage input[type="checkbox"] { accent-color: #354b68; }
+`;
+
+const MAGAZINE_CODE_CSS = `
+  #chicpage .hljs { color: #f7f1e3; }
+  #chicpage .hljs-keyword,
+  #chicpage .hljs-selector-tag,
+  #chicpage .hljs-literal,
+  #chicpage .hljs-title,
+  #chicpage .hljs-section,
+  #chicpage .hljs-doctag,
+  #chicpage .hljs-type,
+  #chicpage .hljs-name,
+  #chicpage .hljs-strong { color: #d7bd82; }
+  #chicpage .hljs-string,
+  #chicpage .hljs-attr,
+  #chicpage .hljs-template-tag,
+  #chicpage .hljs-template-variable,
+  #chicpage .hljs-bullet { color: #c9a86b; }
+  #chicpage .hljs-number,
+  #chicpage .hljs-symbol,
+  #chicpage .hljs-variable,
+  #chicpage .hljs-params,
+  #chicpage .hljs-link { color: #ead9ad; }
+  #chicpage .hljs-comment,
+  #chicpage .hljs-quote { color: #a69a86; }
+  #chicpage input[type="checkbox"] { accent-color: #111111; }
+`;
+
+const CRIMSON_CODE_CSS = `
+  #chicpage .hljs { color: #3d3d3d; }
+  #chicpage .hljs-keyword,
+  #chicpage .hljs-selector-tag,
+  #chicpage .hljs-literal,
+  #chicpage .hljs-title,
+  #chicpage .hljs-section,
+  #chicpage .hljs-doctag,
+  #chicpage .hljs-type,
+  #chicpage .hljs-name,
+  #chicpage .hljs-strong { color: #8b1a2b; }
+  #chicpage .hljs-string,
+  #chicpage .hljs-attr,
+  #chicpage .hljs-template-tag,
+  #chicpage .hljs-template-variable,
+  #chicpage .hljs-bullet { color: #7a4a3a; }
+  #chicpage .hljs-number,
+  #chicpage .hljs-symbol,
+  #chicpage .hljs-variable,
+  #chicpage .hljs-params,
+  #chicpage .hljs-link { color: #9d4b58; }
+  #chicpage .hljs-comment,
+  #chicpage .hljs-quote { color: #8b7474; }
+  #chicpage input[type="checkbox"] { accent-color: #8b1a2b; }
+`;
+
+const SKETCH_CODE_CSS = `
+  #chicpage .hljs { color: #3a352f; }
+  #chicpage .hljs-keyword,
+  #chicpage .hljs-selector-tag,
+  #chicpage .hljs-literal,
+  #chicpage .hljs-title,
+  #chicpage .hljs-section,
+  #chicpage .hljs-doctag,
+  #chicpage .hljs-type,
+  #chicpage .hljs-name,
+  #chicpage .hljs-strong { color: #5e5245; }
+  #chicpage .hljs-string,
+  #chicpage .hljs-attr,
+  #chicpage .hljs-template-tag,
+  #chicpage .hljs-template-variable,
+  #chicpage .hljs-bullet { color: #75663f; }
+  #chicpage .hljs-number,
+  #chicpage .hljs-symbol,
+  #chicpage .hljs-variable,
+  #chicpage .hljs-params,
+  #chicpage .hljs-link { color: #8a704a; }
+  #chicpage .hljs-comment,
+  #chicpage .hljs-quote { color: #8a8174; }
+  #chicpage input[type="checkbox"] { accent-color: #5e5245; }
+`;
+
 export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'default',
@@ -113,7 +243,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
     name: '暖纸',
     description: '极简高对比排版',
     containerStyle: 'max-width:677px;margin:0 auto;color:#3d3d3a;font-family:"Source Han Sans","Inter","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:#fdf6e6;',
-    css: BASE_CSS + `
+    css: BASE_CSS + WARM_PAPER_CODE_CSS + `
       #chicpage {
         color: #3d3d3a;
         font-family: "Source Han Sans", "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -272,25 +402,25 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'linedpaper2',
     name: '纸质',
     description: '简约排版',
-    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color:#ffffff;background-image:url("/background/lined-paper-2.png");background-repeat:repeat;background-size:auto;',
-    css: BASE_CSS + `
+    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color:#ffffff;background-image:url("https://pub-165e4a840b054521b838c89222b94062.r2.dev/background/lined-paper-2.png");background-repeat:repeat;background-size:auto;',
+    css: BASE_CSS + PAPER_INK_CODE_CSS + `
       #chicpage {
-        color: #333;
+        color: #343230;
         font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
        
         }
-      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 1em 0; }
-      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 1.2em 0 1em 0; }
-      #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.2em 0 1em 0; }
-      #chicpage h4 { color: #222; font-size: 17px; font-weight: 600; margin: 1.1em 0 0.75em 0; }
-      #chicpage h5 { color: #2f2f2f; font-size: 16px; font-weight: 600; margin: 1em 0 0.65em 0; }
-      #chicpage h6 { color: #6b7280; font-size: 14px; font-weight: 700; margin: 0.95em 0 0.55em 0; letter-spacing: 0.06em; text-transform: uppercase; }
-      #chicpage p { font-size: 16px; margin: 1em 0; line-height: 1.8; color: #374151; }
-      #chicpage blockquote { background: #f9fafb;  color: #4b5563; padding: 1.2em 1.5em; }
+      #chicpage h1 { color: #1f1d1a; font-size: 28px; font-weight: 700; margin: 1em 0 1em 0; }
+      #chicpage h2 { color: #1f1d1a; font-size: 22px; font-weight: 600; margin: 1.2em 0 1em 0; }
+      #chicpage h3 { color: #2a2825; font-size: 19px; font-weight: 600; margin: 1.2em 0 1em 0; }
+      #chicpage h4 { color: #2a2825; font-size: 17px; font-weight: 600; margin: 1.1em 0 0.75em 0; }
+      #chicpage h5 { color: #343230; font-size: 16px; font-weight: 600; margin: 1em 0 0.65em 0; }
+      #chicpage h6 { color: #756c62; font-size: 14px; font-weight: 700; margin: 0.95em 0 0.55em 0; letter-spacing: 0.06em; text-transform: uppercase; }
+      #chicpage p { font-size: 16px; margin: 1em 0; line-height: 1.8; color: #3f4650; }
+      #chicpage blockquote { background: rgba(255, 252, 244, 0.72); color: #5b534b; padding: 1.2em 1.5em; }
       #chicpage li { list-style: disc; margin: 0.6em 0;}
       #chicpage ul, #chicpage ol { margin: 1.2em 0;padding-left: 1em; }
-      #chicpage a { color: #2563eb; text-decoration: underline; text-underline-offset: 4px; }
-      #chicpage hr { border-top: 1px solid #f3f4f6; margin: 3em 0; }
+      #chicpage a { color: #354b68; text-decoration: underline; text-underline-offset: 4px; }
+      #chicpage hr { border-top: 1px solid rgba(117, 108, 98, 0.22); margin: 3em 0; }
       #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 0px; }
       #chicpage blockquote { margin: 1.5em 0; padding: 12px 20px; font-style: normal; border-radius: 8px;border-left:0px}
     `,
@@ -300,15 +430,15 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'magazine',
     name: '杂志',
     description: '时尚杂志排版',
-    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Inter","PingFang SC",sans-serif;color:#181716;background-color:#ece7db;background-image:url("/background/post.png");background-repeat:repeat;background-size:cover;background-position:center top;',
-    css: BASE_CSS + `
+    containerStyle: 'max-width:677px;margin:0 auto;font-family:"Inter","PingFang SC",sans-serif;color:#181716;background-color:#ece7db;background-image:url("https://pub-165e4a840b054521b838c89222b94062.r2.dev/background/post.png");background-repeat:repeat;background-size:cover;background-position:center top;',
+    css: BASE_CSS + MAGAZINE_CODE_CSS + `
       #chicpage { 
         color: #181716; 
         font-family: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; 
         background-color: #ece7db;
         background-image:
           linear-gradient(180deg, rgba(245, 241, 231, 0.18) 0%, rgba(245, 241, 231, 0.1) 100%),
-          url("/background/post.png");
+          url("https://pub-165e4a840b054521b838c89222b94062.r2.dev/background/post.png");
         background-repeat: no-repeat, repeat;
         background-size: 100% 100%, cover;
         background-position: center top, center top;
@@ -498,14 +628,14 @@ export const WECHAT_THEMES: WechatTheme[] = [
         color: #1f1f1f;
       }
     `,
-    preview: 'url("/background/post.png") center/cover no-repeat',
+    preview: 'url("https://pub-165e4a840b054521b838c89222b94062.r2.dev/background/post.png") center/cover no-repeat',
   },
   {
     id: 'crimson',
     name: '赤红',
     description: '克制深红美学',
     containerStyle: 'max-width:677px;margin:0 auto;font-family:"Noto Serif SC","STSong","PingFang SC",serif;color:#2c2c2c;background:#fef8f6;',
-    css: BASE_CSS + `
+    css: BASE_CSS + CRIMSON_CODE_CSS + `
       #chicpage {
         color: #2c2c2c;
         font-family: "Noto Serif SC", "STSong", "PingFang SC", "Hiragino Sans GB", serif;
@@ -549,7 +679,7 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage h5 {
         font-size: 15px;
         font-weight: 600;
-        color: #3a333;
+        color: #3a3333;
         margin: 1.2em 0 0.45em;
       }
       #chicpage h6 {
@@ -659,11 +789,11 @@ export const WECHAT_THEMES: WechatTheme[] = [
     id: 'sketch',
     name: '手绘',
     description: '克制手作纸感',
-    containerStyle: 'max-width:677px;margin:0 auto;background-color:#fcfbf7;background-image:url("/background/shohui.png");background-repeat:repeat;background-size:cover;background-position:center top;color:#2f2c28;font-family:"PingFang SC",sans-serif;',
-    css: BASE_CSS + `
+    containerStyle: 'max-width:677px;margin:0 auto;background-color:#fcfbf7;background-image:url("https://pub-165e4a840b054521b838c89222b94062.r2.dev/background/shohui.png");background-repeat:repeat;background-size:cover;background-position:center top;color:#2f2c28;font-family:"PingFang SC",sans-serif;',
+    css: BASE_CSS + SKETCH_CODE_CSS + `
       #chicpage { 
         background-color: #fcfbf7;
-        background-image: url("/background/shohui.png");
+        background-image: url("https://pub-165e4a840b054521b838c89222b94062.r2.dev/background/shohui.png");
         background-repeat: repeat;
         background-size: cover;
         background-position: center top;
@@ -777,10 +907,11 @@ export const WECHAT_THEMES: WechatTheme[] = [
       }
       #chicpage pre {
         background: #2d2a26;
+        color: #f8f0df;
         border-radius: 16px;
       }
     `,
-    preview: 'url("/background/shohui.png") center/cover no-repeat',
+    preview: 'url("https://pub-165e4a840b054521b838c89222b94062.r2.dev/background/shohui.png") center/cover no-repeat',
   }
 ];
 

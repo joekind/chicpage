@@ -438,9 +438,9 @@ export async function getWeChatHtml(
     .replace(/-webkit-text-fill-color:[^;]+;?/gi, '')
     .replace(/background-clip:[^;]+;?/gi, '');
   
-  // 转换背景图片为 base64（如果有的话）
-  // 这个过程会自动处理背景图片，如果转换失败会移除背景图片
-  const style = await inlineStyleUrls(normalizedStyle);
+  // 容器背景图保留 HTTPS URL，便于复制到公众号后继续访问在线资源。
+  // 正文内部图片仍在上方按需内联，避免 blob/local 资源失效。
+  const style = normalizedStyle;
 
   // 如果包含背景图，添加微信特有的容器属性
   const isImageBg = style.includes('background-image') && !style.includes('background-image:none');
