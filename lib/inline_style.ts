@@ -444,14 +444,26 @@ export async function getWeChatHtml(
 
   // 如果包含背景图，添加微信特有的容器属性
   const isImageBg = style.includes('background-image') && !style.includes('background-image:none');
-  const finalContainerStyle = isImageBg 
-    ? `${style};background-attachment:scroll;background-size:cover;`
-    : style;
+  const copySafeSpacing =
+    'box-sizing:border-box;padding:24px 22px 32px;max-width:677px;margin:0 auto;';
+  const finalContainerStyle = isImageBg
+    ? `${style};${copySafeSpacing}background-attachment:scroll;background-size:cover;`
+    : `${style};${copySafeSpacing}`;
 
   // 添加暗黑模式适配
   const section = document.createElement('section');
   section.setAttribute('style', finalContainerStyle);
   section.innerHTML = optimizedHtml;
+
+  const innerContent = section.querySelector('#chicpage') as HTMLElement | null;
+  if (innerContent) {
+    innerContent.style.padding = '0';
+    innerContent.style.paddingLeft = '0';
+    innerContent.style.paddingRight = '0';
+    innerContent.style.maxWidth = '100%';
+    innerContent.style.marginLeft = '0';
+    innerContent.style.marginRight = '0';
+  }
   
   // 为容器添加暗黑模式属性
   if (finalContainerStyle.includes('background-color')) {
