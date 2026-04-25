@@ -69,6 +69,7 @@ export default function ChicEditor() {
   const posterSlideRef = useRef<SlidePreviewMethods>(null);
   const exportPreviewRef = useRef<HTMLDivElement>(null);
   const uploadNoticeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const imageWidthHistoryTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
     "idle",
   );
@@ -96,6 +97,9 @@ export default function ChicEditor() {
     return () => {
       if (uploadNoticeTimerRef.current) {
         clearTimeout(uploadNoticeTimerRef.current);
+      }
+      if (imageWidthHistoryTimerRef.current) {
+        clearTimeout(imageWidthHistoryTimerRef.current);
       }
     };
   }, []);
@@ -237,6 +241,38 @@ export default function ChicEditor() {
     setLinkUrl("https://");
     setIsLinkDialogOpen(true);
   };
+
+  const handleImageWidthChange = useCallback(
+    (imageIndex: number, widthPercent: number) => {
+      const currentMarkdown = editorRef.current?.getMarkdown() || useStore.getState().markdown;
+      let currentImageIndex = -1;
+      const normalizedWidth = Math.min(100, Math.max(40, Math.round(widthPercent)));
+      const nextMarkdown = currentMarkdown.replace(
+        /!\[([^\]\n]*)\]\((\S+?)(?:\s+(["'])(.*?)\3)?\)/g,
+        (match, alt: string, url: string) => {
+          currentImageIndex += 1;
+          if (currentImageIndex !== imageIndex) return match;
+          return `![${alt}](${url} "width=${normalizedWidth}%")`;
+        },
+      );
+
+      if (nextMarkdown === currentMarkdown) return;
+
+      if (!imageWidthHistoryTimerRef.current) {
+        pushHistory();
+      } else {
+        clearTimeout(imageWidthHistoryTimerRef.current);
+      }
+
+      imageWidthHistoryTimerRef.current = setTimeout(() => {
+        imageWidthHistoryTimerRef.current = null;
+      }, 700);
+
+      editorRef.current?.setMarkdown(nextMarkdown);
+      setMarkdown(nextMarkdown);
+    },
+    [pushHistory, setMarkdown],
+  );
 
   const handleCloseInsertLink = () => {
     setIsLinkDialogOpen(false);
@@ -573,6 +609,7 @@ export default function ChicEditor() {
             isUploading={isUploading}
             previewRef={previewRef}
             posterSlideRef={posterSlideRef}
+            onImageWidthChange={handleImageWidthChange}
           />
         </AnimatePresence>
       </main>

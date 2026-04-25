@@ -147,6 +147,7 @@ interface XHSSlidePreviewProps {
   hideMockUI?: boolean;
   font?: string;
   ratio?: PosterRatio;
+  onImageWidthChange?: (imageIndex: number, widthPercent: number) => void;
 }
 
 export interface PosterLayoutConfig {
@@ -179,7 +180,7 @@ export function getPosterLayoutConfig(
   const footerHeight = 18;
   const paddingX = 18;
   const paddingY = 12;
-  const safeMargin = 0;
+  const safeMargin = 34;
 
   return {
     ratio,
@@ -287,7 +288,6 @@ export function getXHSContentCSS(
     // }
     #xhs-content img {
       max-width: 100% !important;
-      width: auto !important;
       height: auto !important;
       display: block;
       margin: 0.8em auto !important;
@@ -351,11 +351,66 @@ async function calculateSlides(
   // 1. 按 <hr data-pagebreak="true"> 拆分章节
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
+  const contentH = layout.contentHeight;
+  const imageMaxHeight = Math.floor(contentH * 0.62);
+
+  doc.querySelectorAll("img").forEach((img) => {
+    const width = (img as HTMLElement).style.width;
+    if (!width.endsWith("%")) return;
+
+    const widthPercent = Number.parseInt(width, 10);
+    if (!Number.isFinite(widthPercent)) return;
+
+    (img as HTMLElement).style.setProperty(
+      "max-height",
+      `${Math.round(imageMaxHeight * Math.min(100, Math.max(40, widthPercent)) / 100)}px`,
+      "important",
+    );
+  });
+
+  const expandImageParagraph = (node: Node): Node[] => {
+    if (
+      node.nodeType !== Node.ELEMENT_NODE ||
+      (node as Element).tagName.toLowerCase() !== "p" ||
+      !(node as Element).querySelector("img")
+    ) {
+      return [node];
+    }
+
+    const paragraph = node as HTMLElement;
+    const expanded: Node[] = [];
+    let textParagraph = paragraph.cloneNode(false) as HTMLElement;
+
+    const flushTextParagraph = () => {
+      if (!textParagraph.textContent?.trim() && textParagraph.children.length === 0) {
+        textParagraph = paragraph.cloneNode(false) as HTMLElement;
+        return;
+      }
+      expanded.push(textParagraph);
+      textParagraph = paragraph.cloneNode(false) as HTMLElement;
+    };
+
+    Array.from(paragraph.childNodes).forEach((child) => {
+      if (
+        child.nodeType === Node.ELEMENT_NODE &&
+        (child as Element).tagName.toLowerCase() === "img"
+      ) {
+        flushTextParagraph();
+        expanded.push(child.cloneNode(true));
+        return;
+      }
+
+      textParagraph.appendChild(child.cloneNode(true));
+    });
+
+    flushTextParagraph();
+    return expanded;
+  };
 
   const sections: Node[][] = [];
   let currentSection: Node[] = [];
 
-  Array.from(doc.body.childNodes).forEach((node) => {
+  Array.from(doc.body.childNodes).flatMap(expandImageParagraph).forEach((node) => {
     if (
       node.nodeType === Node.ELEMENT_NODE &&
       (node as Element).tagName.toLowerCase() === "hr" &&
@@ -387,7 +442,6 @@ async function calculateSlides(
 
   const probe = document.createElement("div");
   const contentW = layout.contentWidth;
-  const contentH = layout.contentHeight;
   probe.style.cssText = `
     position: fixed; top: -9999px; left: -9999px;
     width: ${contentW}px;
@@ -645,6 +699,7 @@ export const XHSSlidePreview = forwardRef<
       hideMockUI = false,
       font = "system",
       ratio = "9:16",
+      onImageWidthChange,
     },
     ref,
   ) => {
@@ -658,7 +713,9 @@ export const XHSSlidePreview = forwardRef<
       slideIndex: number;
       imageIndex: number;
       src: string;
-      scale: number;
+      widthPercent: number;
+      top: number;
+      left: number;
     } | null>(null);
 
     useEffect(() => {
@@ -679,7 +736,6 @@ export const XHSSlidePreview = forwardRef<
         if (isMounted) {
           setSlides(result);
           setCurrent((prev) => Math.min(previousCurrent ?? prev, Math.max(result.length - 1, 0)));
-          setSelectedImage(null);
         }
       };
       run();
@@ -695,12 +751,18 @@ export const XHSSlidePreview = forwardRef<
       );
     };
 
+    const isImageControlEvent = (target: EventTarget | null) =>
+      target instanceof HTMLElement &&
+      Boolean(target.closest("[data-xhs-image-control]"));
+
     const onMouseDown = (e: React.MouseEvent) => {
+      if (isImageControlEvent(e.target)) return;
       setIsDragging(true);
       setStartX(e.clientX);
       setDragOffset(0);
     };
     const onMouseMove = (e: React.MouseEvent) => {
+      if (isImageControlEvent(e.target)) return;
       if (isDragging) setDragOffset(e.clientX - startX);
     };
     const onMouseUp = () => {
@@ -711,11 +773,13 @@ export const XHSSlidePreview = forwardRef<
       setDragOffset(0);
     };
     const onTouchStart = (e: React.TouchEvent) => {
+      if (isImageControlEvent(e.target)) return;
       setIsDragging(true);
       setStartX(e.touches[0].clientX);
       setDragOffset(0);
     };
     const onTouchMove = (e: React.TouchEvent) => {
+      if (isImageControlEvent(e.target)) return;
       if (isDragging) setDragOffset(e.touches[0].clientX - startX);
     };
     const onTouchEnd = () => {
@@ -743,6 +807,52 @@ export const XHSSlidePreview = forwardRef<
     })();
 
     const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+      if (!selectedImage) return;
+
+      const handlePointerDown = (event: PointerEvent) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        if (!containerRef.current?.contains(target)) return;
+        if (target.closest("[data-xhs-image-control]")) return;
+        if (target.closest("img[data-image-index]")) return;
+        setSelectedImage(null);
+      };
+
+      document.addEventListener("pointerdown", handlePointerDown, true);
+      return () => {
+        document.removeEventListener("pointerdown", handlePointerDown, true);
+      };
+    }, [selectedImage]);
+
+    const getImageControlPosition = (
+      slideIndex: number,
+      imageIndex: number,
+    ) => {
+      const container = containerRef.current;
+      const image = container?.querySelector<HTMLImageElement>(
+        `img[data-slide-index="${slideIndex}"][data-image-index="${imageIndex}"]`,
+      );
+      if (!container || !image) return { top: 0, left: layout.width / 2 };
+
+      const imageRect = image.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const controlWidth = 244;
+      const controlHeight = 76;
+      const left = Math.min(
+        Math.max(imageRect.left - containerRect.left + imageRect.width / 2, controlWidth / 2 + 8),
+        layout.width - controlWidth / 2 - 8,
+      );
+      const preferredTop = imageRect.bottom - containerRect.top + 10;
+      const fallbackTop = imageRect.top - containerRect.top - controlHeight - 10;
+      const top =
+        preferredTop + controlHeight <= layout.height - 8
+          ? preferredTop
+          : Math.max(8, fallbackTop);
+
+      return { top, left };
+    };
 
     useImperativeHandle(ref, () => ({
       getSlidesCount: () => slideCount,
@@ -782,6 +892,12 @@ export const XHSSlidePreview = forwardRef<
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (!target.closest("img") && !target.closest("[data-xhs-image-control]")) {
+            setSelectedImage(null);
+          }
+        }}
       >
         {/* Notch */}
         {!hideMockUI && (
@@ -815,15 +931,15 @@ export const XHSSlidePreview = forwardRef<
           ${getXHSContentCSS(theme.css, XHS_FONTS.find((f) => f.id === font)?.value || XHS_FONTS[0].value, layout)}
           .xhs-preview-image-selectable {
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
+            transition: box-shadow 0.2s ease, outline-color 0.2s ease;
           }
           .xhs-preview-image-selectable:hover {
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.22);
+            box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.16);
           }
           .xhs-preview-image-selectable.is-selected {
-            outline: 2px solid rgba(99, 102, 241, 0.95);
+            outline: 2px solid rgba(24, 24, 27, 0.95);
             outline-offset: 2px;
-            box-shadow: 0 10px 24px rgba(99, 102, 241, 0.22);
+            box-shadow: 0 10px 24px rgba(24, 24, 27, 0.18);
           }
           .xhs-slide-nav {
             position: absolute;
@@ -912,22 +1028,44 @@ export const XHSSlidePreview = forwardRef<
                         if (!node) return;
                         const images = Array.from(node.querySelectorAll("img"));
                         images.forEach((img, imageIndex) => {
+                          const markdownImageIndex = Number(
+                            img.dataset.chicpageImageIndex ?? imageIndex,
+                          );
                           const isSelected =
                             selectedImage?.slideIndex === i &&
-                            selectedImage?.imageIndex === imageIndex;
-                          const scale = isSelected ? selectedImage.scale : 1;
+                            selectedImage?.imageIndex === markdownImageIndex;
                           img.classList.add("xhs-preview-image-selectable");
                           img.classList.toggle("is-selected", isSelected);
-                          img.style.transform = `scale(${scale})`;
-                          img.style.transformOrigin = "center center";
+                          img.dataset.imageIndex = String(markdownImageIndex);
+                          img.dataset.slideIndex = String(i);
                           img.style.pointerEvents = "auto";
+                          const imageWidth = img.style.width;
+                          if (imageWidth.endsWith("%")) {
+                            const widthPercent = Number.parseInt(imageWidth, 10);
+                            if (Number.isFinite(widthPercent)) {
+                              img.style.setProperty(
+                                "max-height",
+                                `${Math.round(Math.floor(layout.contentHeight * 0.62) * Math.min(100, Math.max(40, widthPercent)) / 100)}px`,
+                                "important",
+                              );
+                            }
+                          }
+                          img.onmousedown = (event) => event.stopPropagation();
+                          img.ontouchstart = (event) => event.stopPropagation();
                           img.onclick = (event) => {
                             event.stopPropagation();
+                            const width = img.style.width;
+                            const widthPercent = width.endsWith("%")
+                              ? Number.parseInt(width, 10)
+                              : 100;
                             setSelectedImage({
                               slideIndex: i,
-                              imageIndex,
+                              imageIndex: markdownImageIndex,
                               src: img.currentSrc || img.getAttribute("src") || "",
-                              scale: isSelected ? selectedImage.scale : 1,
+                              widthPercent: Number.isFinite(widthPercent)
+                                ? widthPercent
+                                : 100,
+                              ...getImageControlPosition(i, markdownImageIndex),
                             });
                           };
                         });
@@ -974,20 +1112,26 @@ export const XHSSlidePreview = forwardRef<
 
         {selectedImage && selectedImage.slideIndex === current && (
           <div
+            data-xhs-image-control="true"
             onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseMove={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
             style={{
               position: "absolute",
-              left: "50%",
-              bottom: showFooter ? `${layout.footerHeight + 20}px` : "22px",
+              left: selectedImage.left,
+              top: selectedImage.top,
               transform: "translateX(-50%)",
               zIndex: 25,
-              width: "min(280px, calc(100% - 32px))",
+              width: 244,
               padding: "10px 12px",
-              borderRadius: 14,
-              background: "rgba(255,255,255,0.95)",
-              border: "1px solid rgba(99,102,241,0.15)",
-              boxShadow: "0 14px 40px rgba(15,23,42,0.18)",
-              backdropFilter: "blur(10px)",
+              borderRadius: 12,
+              background: "#fff",
+              border: "1px solid #09090b",
+              boxShadow: "0 10px 28px rgba(0,0,0,0.18)",
             }}
           >
             <div
@@ -1003,36 +1147,56 @@ export const XHSSlidePreview = forwardRef<
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
-                  color: "#312e81",
+                  color: "#09090b",
                 }}
               >
-                图片缩放
+                图片宽度
               </span>
               <span
                 style={{
                   fontSize: 11,
-                  color: "#6366f1",
+                  color: "#09090b",
                   fontVariantNumeric: "tabular-nums",
                 }}
               >
-                {Math.round(selectedImage.scale * 100)}%
+                {selectedImage.widthPercent}%
               </span>
             </div>
             <input
               type="range"
-              min="60"
-              max="140"
+              min="40"
+              max="100"
               step="1"
-              value={Math.round(selectedImage.scale * 100)}
+              value={selectedImage.widthPercent}
               onChange={(e) => {
-                const nextScale = Number(e.target.value) / 100;
-                setSelectedImage((prev) =>
-                  prev ? { ...prev, scale: nextScale } : prev,
+                const widthPercent = Number(e.target.value);
+                const image = containerRef.current?.querySelector<HTMLImageElement>(
+                  `img[data-slide-index="${selectedImage.slideIndex}"][data-image-index="${selectedImage.imageIndex}"]`,
                 );
+                if (image) {
+                  image.style.width = `${widthPercent}%`;
+                  image.style.maxWidth = "100%";
+                  image.style.height = "auto";
+                  image.style.setProperty(
+                    "max-height",
+                    `${Math.round(Math.floor(layout.contentHeight * 0.62) * widthPercent / 100)}px`,
+                    "important",
+                  );
+                }
+                setSelectedImage((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        widthPercent,
+                        ...getImageControlPosition(prev.slideIndex, prev.imageIndex),
+                      }
+                    : prev,
+                );
+                onImageWidthChange?.(selectedImage.imageIndex, widthPercent);
               }}
               style={{
                 width: "100%",
-                accentColor: "#6366f1",
+                accentColor: "#09090b",
               }}
             />
           </div>

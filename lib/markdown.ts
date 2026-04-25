@@ -14,6 +14,8 @@ import { getLocalImage } from './image_service';
 interface ImageNode extends Node {
   type: "image";
   url?: string;
+  title?: string | null;
+  data?: DirectiveData;
 }
 
 interface DirectiveData {
@@ -83,6 +85,28 @@ function remarkDirectivePlugin() {
           data.hProperties = directiveNode.attributes || {};
         }
       }
+    });
+  };
+}
+
+function remarkImageSizePlugin() {
+  return (tree: Node) => {
+    let imageIndex = 0;
+    visit(tree, 'image', (node) => {
+      const imageNode = node as ImageNode;
+      const data = imageNode.data || (imageNode.data = {});
+      const widthMatch = imageNode.title?.match(/^width=(\d{1,3})%$/);
+      const width = widthMatch ? Math.min(100, Math.max(10, Number(widthMatch[1]))) : null;
+
+      data.hProperties = {
+        ...(data.hProperties ?? {}),
+        'data-chicpage-image-index': imageIndex,
+        ...(width
+          ? { style: `width:${width}%;max-width:100%;height:auto;` }
+          : {}),
+      };
+      if (widthMatch) imageNode.title = null;
+      imageIndex += 1;
     });
   };
 }
@@ -170,6 +194,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkLocalImageResolver)
+    .use(remarkImageSizePlugin)
     .use(remarkDirective)
     .use(remarkDirectivePlugin)
     .use(remarkRehype, { allowDangerousHtml: true })

@@ -32,6 +32,7 @@ interface PreviewSectionProps {
   isUploading: boolean;
   previewRef: React.RefObject<HTMLDivElement | null>;
   posterSlideRef: React.RefObject<XHSSlidePreviewMethods | null>;
+  onImageWidthChange?: (imageIndex: number, widthPercent: number) => void;
 }
 
 export const PreviewSection = ({
@@ -50,6 +51,7 @@ export const PreviewSection = ({
   isUploading,
   previewRef,
   posterSlideRef,
+  onImageWidthChange,
 }: PreviewSectionProps) => {
   if (layoutMode === "edit") return null;
 
@@ -111,6 +113,7 @@ export const PreviewSection = ({
                           showHeader={posterShowHeader}
                           showFooter={posterShowFooter}
                           hideMockUI={true}
+                          onImageWidthChange={onImageWidthChange}
                         />
                       </div>
                     </div>
@@ -142,6 +145,7 @@ export const PreviewSection = ({
                   imgRadius={imgRadius}
                   activeThemeCss={activeThemeCss}
                   activeTheme={activeTheme}
+                  onImageWidthChange={onImageWidthChange}
                 />
               </DesktopMockup>
             ) : (
@@ -162,6 +166,7 @@ export const PreviewSection = ({
                   imgRadius={imgRadius}
                   activeThemeCss={activeThemeCss}
                   activeTheme={activeTheme}
+                  onImageWidthChange={onImageWidthChange}
                 />
               </IPhoneMockup>
             )}
