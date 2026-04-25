@@ -319,7 +319,9 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
               if (onPaste) {
                 onPaste(event);
                 event.stopPropagation();
+                return event.defaultPrevented;
               }
+              return false;
             }
           })
         ],
