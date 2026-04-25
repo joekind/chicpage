@@ -35,7 +35,7 @@ interface AppState {
   setShowWordCount: (show: boolean) => void;
   undo: () => void;
   redo: () => void;
-  pushHistory: () => void;
+  pushHistory: (markdown?: string) => void;
 }
 
 const INITIAL_MARKDOWN = `# ChicPage：让每一篇文章都值得被看见
@@ -107,10 +107,16 @@ export const useStore = create<AppState>()(
       setPosterRatio: (posterRatio) => set({ posterRatio }),
       setLayoutMode: (layoutMode) => set({ layoutMode }),
 
-      pushHistory: () => set((state) => ({
-        past: [...state.past, { markdown: state.markdown }].slice(-50),
-        future: []
-      })),
+      pushHistory: (markdown) => set((state) => {
+        const snapshot = markdown ?? state.markdown;
+        const last = state.past[state.past.length - 1]?.markdown;
+        if (snapshot === last) return state;
+
+        return {
+          past: [...state.past, { markdown: snapshot }].slice(-50),
+          future: []
+        };
+      }),
 
       undo: () => set((state) => {
         if (state.past.length === 0) return state;

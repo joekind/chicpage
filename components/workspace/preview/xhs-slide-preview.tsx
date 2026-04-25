@@ -242,10 +242,6 @@ export function getXHSContentCSS(
       margin: 0 !important;
       background: transparent !important;
     }
-    // #xhs-content #chicpage > * {
-    //   margin-top: 0 !important;
-    //   margin-bottom: 0.8em !important;
-    // }
     #xhs-content #chicpage > *:first-child {
       margin-top: 0 !important;
       margin-bottom: 0.12em !important;
@@ -281,11 +277,91 @@ export function getXHSContentCSS(
       font-weight: inherit !important;
       color: inherit !important;
     }
-    // #xhs-content #chicpage p {
-    //   margin: 0.4em 0 !important;
-    //   line-height: 1.7 !important;
-    //   text-indent: 0 !important;
-    // }
+    #xhs-content #chicpage blockquote {
+      margin: 0.85em 0 !important;
+      padding: 0.75em 1em !important;
+      max-width: 100% !important;
+      overflow: visible !important;
+      box-sizing: border-box !important;
+    }
+    #xhs-content #chicpage blockquote p {
+      margin: 0.25em 0 !important;
+      line-height: 1.65 !important;
+    }
+    #xhs-content #chicpage hr {
+      margin: 1em 0 !important;
+      max-width: 100% !important;
+    }
+    #xhs-content #chicpage ul,
+    #xhs-content #chicpage ol {
+      margin: 0.7em 0 !important;
+      padding-left: 1.45em !important;
+      list-style-position: outside !important;
+    }
+    #xhs-content #chicpage ul {
+      list-style-type: disc !important;
+    }
+    #xhs-content #chicpage ol {
+      list-style-type: decimal !important;
+    }
+    #xhs-content #chicpage li {
+      display: list-item !important;
+      margin: 0.3em 0 !important;
+      padding-left: 0.15em !important;
+      line-height: 1.7 !important;
+      list-style: inherit !important;
+    }
+    #xhs-content #chicpage li::marker {
+      color: currentColor !important;
+      font-weight: 700 !important;
+    }
+    #xhs-content #chicpage input[type="checkbox"] {
+      width: 0.9em !important;
+      height: 0.9em !important;
+      margin: 0 0.35em 0 0 !important;
+      vertical-align: -0.1em !important;
+    }
+    #xhs-content #chicpage pre {
+      margin: 0.75em 0 !important;
+      padding: 0.85em !important;
+      max-width: 100% !important;
+      max-height: ${Math.floor(layout.contentHeight * 0.48)}px !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      white-space: pre-wrap !important;
+      word-break: break-word !important;
+    }
+    #xhs-content #chicpage pre code {
+      display: block !important;
+      padding: 0 !important;
+      white-space: pre-wrap !important;
+      word-break: break-word !important;
+      overflow-wrap: anywhere !important;
+      font-size: 0.86em !important;
+      line-height: 1.55 !important;
+    }
+    #xhs-content #chicpage code {
+      white-space: normal !important;
+      overflow-wrap: anywhere !important;
+    }
+    #xhs-content #chicpage table {
+      display: table !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      table-layout: fixed !important;
+      margin: 0.75em 0 !important;
+      border-collapse: collapse !important;
+      font-size: 0.78em !important;
+      line-height: 1.35 !important;
+      word-break: break-word !important;
+    }
+    #xhs-content #chicpage th,
+    #xhs-content #chicpage td {
+      padding: 0.45em 0.5em !important;
+      max-width: 0 !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+    }
     #xhs-content img {
       max-width: 100% !important;
       height: auto !important;
@@ -295,20 +371,6 @@ export function getXHSContentCSS(
       max-height: ${Math.floor(layout.contentHeight * 0.62)}px !important;
       object-fit: contain !important;
     }
-    // #xhs-content pre {
-    //   overflow-x: auto;
-    //   padding: 12px;
-    //   border-radius: 6px;
-    //   margin: 0.8em 0;
-    //   font-size: 13px;
-    //   max-height: ${Math.floor(XHS_CONTENT_H * 0.7)}px;
-    // }
-    // #xhs-content blockquote {
-    //   margin: 0.8em 0;
-    //   padding: 10px 14px;
-    //   border-left: 3px solid currentColor;
-    //   opacity: 0.8;
-    // }
     #xhs-content h1, 
     #xhs-content h2, 
     #xhs-content h3, 

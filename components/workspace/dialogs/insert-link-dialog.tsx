@@ -47,7 +47,11 @@ export function InsertLinkDialog({
 
   return (
     <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/45 backdrop-blur-sm">
-      <div className="relative w-[92vw] max-w-md rounded-2xl border border-zinc-200 bg-white shadow-2xl overflow-hidden">
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative w-[92vw] max-w-md rounded-2xl border border-zinc-200 bg-white shadow-2xl overflow-hidden"
+      >
         <div className="flex items-center justify-between border-b border-zinc-200 px-5 py-4">
           <div>
             <h2 className="text-base font-bold text-zinc-900">插入链接</h2>

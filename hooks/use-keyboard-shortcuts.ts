@@ -15,6 +15,7 @@ interface KeyboardShortcutsOptions {
   onWrapText: (before: string, after?: string) => void;
   undo: () => void;
   redo: () => void;
+  onInsertLink?: () => void;
 }
 
 export function useKeyboardShortcuts({
@@ -27,11 +28,22 @@ export function useKeyboardShortcuts({
   onWrapText,
   undo,
   redo,
+  onInsertLink,
 }: KeyboardShortcutsOptions) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target;
+      const targetElement = target instanceof Element ? target : null;
+      const isEditableTarget = Boolean(
+        targetElement?.closest(
+          'input, textarea, select, [role="dialog"]',
+        ),
+      );
+      if (isEditableTarget) return;
+
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+      const key = e.key.toLowerCase();
 
       if (!cmdOrCtrl) return;
 
@@ -56,7 +68,7 @@ export function useKeyboardShortcuts({
       }
 
       // Ctrl/Cmd + Shift + P - 切换 PC/移动端预览（贴图模式下禁用）
-      if (e.shiftKey && e.key === 'P') {
+      if (e.shiftKey && key === 'p') {
         e.preventDefault();
         if (styleTheme !== 'poster') {
           setPreviewMode(previewMode === 'pc' ? 'app' : 'pc');
@@ -65,21 +77,21 @@ export function useKeyboardShortcuts({
       }
 
       // Ctrl/Cmd + Z - 撤销
-      if (e.key === 'z' && !e.shiftKey) {
+      if (key === 'z' && !e.shiftKey) {
         e.preventDefault();
         undo();
         return;
       }
 
       // Ctrl/Cmd + Shift + Z 或 Ctrl/Cmd + Y - 重做
-      if ((e.key === 'z' && e.shiftKey) || e.key === 'y') {
+      if ((key === 'z' && e.shiftKey) || key === 'y') {
         e.preventDefault();
         redo();
         return;
       }
 
       // Ctrl/Cmd + B - 加粗
-      if (e.key === 'b') {
+      if (key === 'b') {
         e.preventDefault();
         if (styleTheme === 'poster') {
           onWrapText('「', '」');
@@ -89,9 +101,16 @@ export function useKeyboardShortcuts({
         return;
       }
 
+      // Ctrl/Cmd + K - 插入链接
+      if (key === 'k') {
+        e.preventDefault();
+        onInsertLink?.();
+        return;
+      }
+
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [layoutMode, previewMode, styleTheme, setLayoutMode, setPreviewMode, onCopy, onWrapText, undo, redo]);
+  }, [layoutMode, previewMode, styleTheme, setLayoutMode, setPreviewMode, onCopy, onWrapText, undo, redo, onInsertLink]);
 }

@@ -37,7 +37,7 @@ interface EditorProps {
   onChange: (markdown: string) => void;
   onPaste?: (e: ClipboardEvent) => void;
   onSelectionChange?: (info: SelectionInfo) => void;
-  onPushHistory?: () => void;
+  onPushHistory?: (markdown?: string) => void;
   className?: string;
   isXHSTheme?: boolean;
 }
@@ -113,13 +113,14 @@ const chicpageTheme = EditorView.theme({
 });
 
 const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
-  ({ markdown: initialMarkdown, onChange, onPaste, onSelectionChange, onPushHistory, className }, ref) => {
+  ({ markdown: markdownContent, onChange, onPaste, onSelectionChange, onPushHistory, className }, ref) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewRef = useRef<EditorView | null>(null);
     const onChangeRef = useRef(onChange);
     const onPushHistoryRef = useRef(onPushHistory);
     const historyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const lastSavedContentRef = useRef<string>(initialMarkdown);
+    const pendingHistorySnapshotRef = useRef<string | null>(null);
+    const isApplyingExternalChangeRef = useRef(false);
 
     onChangeRef.current = onChange;
     onPushHistoryRef.current = onPushHistory;
@@ -143,9 +144,11 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         if (!view) return;
         const current = view.state.doc.toString();
         if (current === md) return;
+        isApplyingExternalChangeRef.current = true;
         view.dispatch({
           changes: { from: 0, to: current.length, insert: md },
         });
+        isApplyingExternalChangeRef.current = false;
       },
       insertMarkdown: (text: string) => {
         const view = viewRef.current;
@@ -160,11 +163,47 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
       insertAtLineStart: (prefix: string) => {
         const view = viewRef.current;
         if (!view) return;
-        const { from } = view.state.selection.main;
-        const line = view.state.doc.lineAt(from);
+        const { from, to } = view.state.selection.main;
+        const doc = view.state.doc;
+        const startLine = view.state.doc.lineAt(from);
+        const adjustedTo =
+          to > from && to === doc.lineAt(to).from ? Math.max(from, to - 1) : to;
+        const endLine = doc.lineAt(adjustedTo);
+        const getLinePrefix = (index: number) =>
+          prefix === "1. " ? `${index + 1}. ` : prefix;
+        const replaceablePrefixPattern =
+          /^(\s*)(?:(?:-\s+\[[ xX]\]\s+)|(?:[-*+]\s+)|(?:\d+\.\s+)|(?:>\s*))/;
+        const changes = [];
+        let totalDelta = 0;
+        let firstLineDelta = 0;
+        for (let lineNumber = startLine.number; lineNumber <= endLine.number; lineNumber += 1) {
+          const line = view.state.doc.line(lineNumber);
+          const index = lineNumber - startLine.number;
+          const nextPrefix = getLinePrefix(index);
+          const match = line.text.match(replaceablePrefixPattern);
+          if (match) {
+            const change = {
+              from: line.from + match[1].length,
+              to: line.from + match[0].length,
+              insert: nextPrefix,
+            };
+            const delta = nextPrefix.length - (change.to - change.from);
+            if (lineNumber === startLine.number) firstLineDelta = delta;
+            totalDelta += delta;
+            changes.push(change);
+          } else {
+            const change = { from: line.from, to: line.from, insert: nextPrefix };
+            if (lineNumber === startLine.number) firstLineDelta = nextPrefix.length;
+            totalDelta += nextPrefix.length;
+            changes.push(change);
+          }
+        }
         view.dispatch({
-          changes: { from: line.from, to: line.from, insert: prefix },
-          selection: { anchor: from + prefix.length },
+          changes,
+          selection: {
+            anchor: from + firstLineDelta,
+            head: to + totalDelta,
+          },
         });
         view.focus();
       },
@@ -226,9 +265,10 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
         const line = view.state.doc.lineAt(from);
         const deleteTo =
           line.number < view.state.doc.lines ? view.state.doc.line(line.number + 1).from : line.to;
+        const nextAnchor = Math.min(line.from, view.state.doc.length - (deleteTo - line.from));
         view.dispatch({
           changes: { from: line.from, to: deleteTo, insert: "" },
-          selection: { anchor: Math.min(line.from, view.state.doc.length - (line.from === view.state.doc.length ? 0 : 1) + 1) },
+          selection: { anchor: Math.max(0, nextAnchor) },
         });
         view.focus();
       },
@@ -264,12 +304,26 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
       }
     }));
 
+    useEffect(() => {
+      const view = viewRef.current;
+      if (!view) return;
+
+      const current = view.state.doc.toString();
+      if (current === markdownContent) return;
+
+      isApplyingExternalChangeRef.current = true;
+      view.dispatch({
+        changes: { from: 0, to: current.length, insert: markdownContent },
+      });
+      isApplyingExternalChangeRef.current = false;
+    }, [markdownContent]);
+
     // 初始化 CodeMirror
     useEffect(() => {
       if (!containerRef.current) return;
 
       const state = EditorState.create({
-        doc: initialMarkdown,
+        doc: markdownContent,
         extensions: [
           lineNumbers(),
           foldGutter(),
@@ -291,15 +345,19 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
               const newContent = update.state.doc.toString();
               onChangeRef.current(newContent);
 
-              // 防抖历史记录：用户停止输入 800ms 后记录
-              if (onPushHistoryRef.current) {
+              // 防抖历史记录：用户停止输入 800ms 后记录变更前快照
+              if (onPushHistoryRef.current && !isApplyingExternalChangeRef.current) {
+                if (pendingHistorySnapshotRef.current === null) {
+                  pendingHistorySnapshotRef.current = update.startState.doc.toString();
+                }
                 if (historyTimeoutRef.current) {
                   clearTimeout(historyTimeoutRef.current);
                 }
                 historyTimeoutRef.current = setTimeout(() => {
-                  if (newContent !== lastSavedContentRef.current) {
-                    onPushHistoryRef.current?.();
-                    lastSavedContentRef.current = newContent;
+                  const snapshot = pendingHistorySnapshotRef.current;
+                  pendingHistorySnapshotRef.current = null;
+                  if (snapshot !== null && snapshot !== viewRef.current?.state.doc.toString()) {
+                    onPushHistoryRef.current?.(snapshot);
                   }
                 }, 800);
               }
@@ -336,8 +394,9 @@ const EditorWrapper = forwardRef<EditorMethods, EditorProps>(
           clearTimeout(historyTimeoutRef.current);
           if (viewRef.current && onPushHistoryRef.current) {
             const currentContent = viewRef.current.state.doc.toString();
-            if (currentContent !== lastSavedContentRef.current) {
-              onPushHistoryRef.current();
+            const snapshot = pendingHistorySnapshotRef.current;
+            if (snapshot !== null && snapshot !== currentContent) {
+              onPushHistoryRef.current(snapshot);
             }
           }
         }

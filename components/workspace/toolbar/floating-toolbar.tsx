@@ -17,10 +17,11 @@ interface FloatingToolbarProps {
   coords: { top: number; left: number; width: number; height: number } | null;
   onWrapText: (before: string, after?: string) => void;
   onBold: () => void;
+  onClearFormatting: () => void;
   isVisible: boolean;
 }
 
-export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: FloatingToolbarProps) => {
+export const FloatingToolbar = ({ coords, onWrapText, onBold, onClearFormatting, isVisible }: FloatingToolbarProps) => {
   const [showColors, setShowColors] = React.useState(false);
 
   if (!coords) return null;
@@ -151,7 +152,7 @@ export const FloatingToolbar = ({ coords, onWrapText, onBold, isVisible }: Float
               <button
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
-                  onWrapText('', '');
+                  onClearFormatting();
                   setShowColors(false);
                 }}
                 className="size-6 rounded-full border border-dashed border-white/20 flex items-center justify-center hover:bg-white/10 text-white/70"

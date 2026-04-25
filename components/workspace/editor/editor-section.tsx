@@ -25,7 +25,7 @@ interface EditorSectionProps {
   floatingToolbar?: React.ReactNode;
   onSelectionChange?: (info: SelectionInfo) => void;
   onInsertPageBreak?: () => void;
-  onPushHistory?: () => void;
+  onPushHistory?: (markdown?: string) => void;
 }
 
 export const EditorSection = ({

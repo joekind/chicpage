@@ -154,6 +154,7 @@ export default function ChicEditor() {
       turndown.keep(["kbd", "sup", "sub", "mark"]);
       const markdownContent = turndown.turndown(htmlData);
       if (editorRef.current) {
+        pushHistory(editorRef.current.getMarkdown());
         editorRef.current.insertMarkdown(markdownContent);
         setMarkdown(editorRef.current.getMarkdown());
       }
@@ -179,10 +180,12 @@ export default function ChicEditor() {
   };
 
   const handleWrapText = (before: string, after?: string) => {
+    pushHistory(editorRef.current?.getMarkdown());
     editorRef.current?.wrapSelection(before, after ?? before);
   };
 
   const handleInsertText = (text: string) => {
+    pushHistory(editorRef.current?.getMarkdown());
     editorRef.current?.insertMarkdown(text);
   };
 
@@ -191,7 +194,27 @@ export default function ChicEditor() {
   };
 
   const handleInsertAtLineStart = (prefix: string) => {
+    pushHistory(editorRef.current?.getMarkdown());
     editorRef.current?.insertAtLineStart(prefix);
+  };
+
+  const handleClearFormatting = () => {
+    const selectionInfo = editorRef.current?.getSelection();
+    if (!selectionInfo || selectionInfo.empty) return;
+
+    const cleaned = selectionInfo.text
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/~~([^~]+)~~/g, "$1")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/<mark\b[^>]*>([\s\S]*?)<\/mark>/gi, "$1")
+      .replace(/<(kbd|sup|sub)>([\s\S]*?)<\/\1>/gi, "$2");
+
+    if (cleaned === selectionInfo.text) return;
+
+    pushHistory(editorRef.current?.getMarkdown());
+    editorRef.current?.replaceRange(selectionInfo.from, selectionInfo.to, cleaned);
   };
 
   const handleInsertTable = (rows: number, cols: number) => {
@@ -200,6 +223,7 @@ export default function ChicEditor() {
     const row = "| " + Array(cols).fill("内容").join(" | ") + " |";
     const table =
       "\n" + [header, divider, ...Array(rows).fill(row)].join("\n") + "\n";
+    pushHistory(editorRef.current?.getMarkdown());
     editorRef.current?.insertMarkdown(table);
     setActivePopup(null);
   };
@@ -369,6 +393,7 @@ export default function ChicEditor() {
     onWrapText: handleWrapText,
     undo: handleUndo,
     redo: handleRedo,
+    onInsertLink: handleOpenInsertLink,
   });
 
   const handleSelectionChange = (info: SelectionInfo) => {
@@ -534,6 +559,7 @@ export default function ChicEditor() {
                   if (styleTheme === "poster") handleWrapText("「", "」");
                   else handleWrapText("**");
                 }}
+                onClearFormatting={handleClearFormatting}
               />
             }
             toolbar={
