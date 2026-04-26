@@ -63,7 +63,7 @@ export default function ChicEditor() {
 
   const activeTheme = getTheme(wechatTheme);
   const activePosterTheme = getPosterTheme(posterTheme);
-  const posterLayout = getPosterLayoutConfig(posterRatio);
+  const posterLayout = getPosterLayoutConfig(posterRatio, posterShowFooter);
   const editorRef = useRef<EditorMethods>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const posterSlideRef = useRef<SlidePreviewMethods>(null);

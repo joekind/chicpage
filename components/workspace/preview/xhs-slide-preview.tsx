@@ -172,12 +172,13 @@ const POSTER_RATIO_HEIGHT_MAP: Record<PosterRatio, number> = {
 
 export function getPosterLayoutConfig(
   ratio: PosterRatio = "9:16",
+  showFooter = true,
 ): PosterLayoutConfig {
   const width = 360;
   const height = POSTER_RATIO_HEIGHT_MAP[ratio];
   const statusHeight = 0;
   const headerHeight = 0;
-  const footerHeight = 18;
+  const footerHeight = showFooter ? 18 : 0;
   const paddingX = 18;
   const paddingY = 12;
   const safeMargin = 34;
@@ -547,6 +548,16 @@ async function calculateSlides(
     ((node as Element).tagName.toLowerCase() === "img" ||
       Boolean((node as Element).querySelector("img")));
 
+  const getImagesInNode = (node: Node): HTMLImageElement[] => {
+    if (node.nodeType !== Node.ELEMENT_NODE) return [];
+    const element = node as Element;
+    const images = Array.from(element.querySelectorAll("img"));
+    if (element.tagName.toLowerCase() === "img") {
+      return [element as HTMLImageElement, ...images];
+    }
+    return images;
+  };
+
   const waitImagesInElement = (element: HTMLElement) => {
     const images = Array.from(element.querySelectorAll("img"));
     if (images.length === 0) return Promise.resolve();
@@ -601,6 +612,38 @@ async function calculateSlides(
     return min + (last.index ?? 0) + 1;
   };
 
+  const tryFitImageBlock = async (
+    currentBlocks: Node[],
+    block: Node,
+    targetH: number,
+  ): Promise<Node | null> => {
+    if (!hasImage(block) || targetH < 96) return null;
+
+    let low = 72;
+    let high = Math.max(72, Math.floor(targetH));
+    let best: Node | null = null;
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const candidateBlock = block.cloneNode(true);
+
+      getImagesInNode(candidateBlock).forEach((img) => {
+        img.style.setProperty("max-height", `${mid}px`, "important");
+        img.style.setProperty("object-fit", "contain", "important");
+      });
+
+      const h = await measureHeight([...currentBlocks, candidateBlock], true);
+      if (h <= contentH) {
+        best = candidateBlock;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    return best;
+  };
+
   /**
    * Slice a block node into two parts: 
    * - one that fits within targetH
@@ -638,31 +681,84 @@ async function calculateSlides(
       return { first, rest: [rest] };
     }
 
-    // Text splitting
-    const sourceText = (element.textContent || "").trim();
-    if (sourceText.length < 10) return null;
+    // Text splitting. Preserve inline markup while splitting by text offset.
+    const sourceText = element.textContent || "";
+    if (sourceText.trim().length < 10) return null;
 
-    const createNodeFromText = (text: string): Node => {
-      const clone = element.cloneNode(false) as HTMLElement;
-      clone.textContent = text;
-      return clone;
+    const hasContent = (node: Node | null): node is Node =>
+      Boolean(node && (node.textContent || "").trim());
+
+    const splitNodeAtTextOffset = (
+      node: Node,
+      offset: number,
+    ): { first: Node | null; rest: Node | null } => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent || "";
+        const firstText = text.slice(0, offset);
+        const restText = text.slice(offset);
+        return {
+          first: firstText ? document.createTextNode(firstText) : null,
+          rest: restText ? document.createTextNode(restText) : null,
+        };
+      }
+
+      if (node.nodeType !== Node.ELEMENT_NODE) {
+        return offset > 0
+          ? { first: node.cloneNode(true), rest: null }
+          : { first: null, rest: node.cloneNode(true) };
+      }
+
+      const first = node.cloneNode(false) as HTMLElement;
+      const rest = node.cloneNode(false) as HTMLElement;
+      let remaining = offset;
+
+      Array.from(node.childNodes).forEach((child) => {
+        const childTextLength = (child.textContent || "").length;
+
+        if (remaining <= 0) {
+          rest.appendChild(child.cloneNode(true));
+          return;
+        }
+
+        if (childTextLength <= remaining) {
+          first.appendChild(child.cloneNode(true));
+          remaining -= childTextLength;
+          return;
+        }
+
+        const split = splitNodeAtTextOffset(child, remaining);
+        if (split.first) first.appendChild(split.first);
+        if (split.rest) rest.appendChild(split.rest);
+        remaining = 0;
+      });
+
+      return {
+        first: hasContent(first) ? first : null,
+        rest: hasContent(rest) ? rest : null,
+      };
     };
+
+    const createNodeAtOffset = (offset: number): Node | null =>
+      splitNodeAtTextOffset(element, offset).first;
 
     let low = 1;
     let high = sourceText.length;
     let best = 0;
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);
-      const cand = createNodeFromText(sourceText.slice(0, mid));
+      const cand = createNodeAtOffset(mid);
+      if (!cand) {
+        low = mid + 1;
+        continue;
+      }
       const h = await measureHeight([cand], false);
       if (h <= targetH) { best = mid; low = mid + 1; } else { high = mid - 1; }
     }
     if (best < 5) return null;
     const splitAt = findNaturalBreakIndex(sourceText, best);
-    const firstText = sourceText.slice(0, splitAt).trim();
-    const restText = sourceText.slice(splitAt).trim();
-    if (!firstText || !restText) return null;
-    return { first: createNodeFromText(firstText), rest: [createNodeFromText(restText)] };
+    const split = splitNodeAtTextOffset(element, splitAt);
+    if (!hasContent(split.first) || !hasContent(split.rest)) return null;
+    return { first: split.first, rest: [split.rest] };
   };
 
   try {
@@ -698,6 +794,18 @@ async function calculateSlides(
             blockQueue.unshift(...sliced.rest);
             continue;
           }
+
+          const fittedImage = await tryFitImageBlock(
+            currentPageBlocks,
+            block,
+            remainingH,
+          );
+          if (fittedImage) {
+            currentPageBlocks.push(fittedImage);
+            pagesInSection.push(nodesToHtml(currentPageBlocks));
+            currentPageBlocks = [];
+            continue;
+          }
         }
 
         // Must transition to new page
@@ -711,6 +819,12 @@ async function calculateSlides(
         if (soloH <= contentH) {
           currentPageBlocks = [block];
         } else {
+          const fittedImage = await tryFitImageBlock([], block, contentH);
+          if (fittedImage) {
+            currentPageBlocks = [fittedImage];
+            continue;
+          }
+
           // Slice for the next full page
           const sliced = await sliceBlock(block, contentH);
           if (sliced) {
@@ -765,7 +879,10 @@ export const XHSSlidePreview = forwardRef<
     },
     ref,
   ) => {
-    const layout = useMemo(() => getPosterLayoutConfig(ratio), [ratio]);
+    const layout = useMemo(
+      () => getPosterLayoutConfig(ratio, showFooter),
+      [ratio, showFooter],
+    );
     const [slides, setSlides] = useState<SlideItem[]>([]);
     const [current, setCurrent] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
@@ -788,7 +905,6 @@ export const XHSSlidePreview = forwardRef<
 
       let isMounted = true;
       const run = async () => {
-        const previousCurrent = current;
         const result = await splitIntoSlides(
           html,
           theme.css,
@@ -797,7 +913,7 @@ export const XHSSlidePreview = forwardRef<
         );
         if (isMounted) {
           setSlides(result);
-          setCurrent((prev) => Math.min(previousCurrent ?? prev, Math.max(result.length - 1, 0)));
+          setCurrent((prev) => Math.min(prev, Math.max(result.length - 1, 0)));
         }
       };
       run();
@@ -853,17 +969,20 @@ export const XHSSlidePreview = forwardRef<
     };
 
     // 安全回退：如果尚未完成分页计算，至少展示原始 HTML 为一页
-    const displaySlides = slides.length > 0
+    const displaySlides = !html
+      ? [{ html: "", sectionId: 0, pageInGroup: 0, totalInGroup: 1 }]
+      : slides.length > 0
       ? slides
       : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
 
     const slideCount = displaySlides.length;
+    const currentSlide = Math.min(current, Math.max(slideCount - 1, 0));
 
     // 计算位移，并在边缘滑动时增加阻尼感
     const translateX = (() => {
-      const base = -current * layout.width;
-      if (current === 0 && dragOffset > 0) return base + dragOffset * 0.35;
-      if (current === slideCount - 1 && dragOffset < 0)
+      const base = -currentSlide * layout.width;
+      if (currentSlide === 0 && dragOffset > 0) return base + dragOffset * 0.35;
+      if (currentSlide === slideCount - 1 && dragOffset < 0)
         return base + dragOffset * 0.35;
       return base + dragOffset;
     })();
@@ -921,7 +1040,7 @@ export const XHSSlidePreview = forwardRef<
       getSlides: () => displaySlides,
       goToSlide: (index: number) =>
         setCurrent(Math.max(0, Math.min(slideCount - 1, index))),
-      getCurrentSlide: () => current,
+      getCurrentSlide: () => currentSlide,
       goPrev: () => setCurrent((prev) => Math.max(0, prev - 1)),
       goNext: () =>
         setCurrent((prev) => Math.min(slideCount - 1, prev + 1)),
@@ -1156,11 +1275,11 @@ export const XHSSlidePreview = forwardRef<
             <div
               key={i}
               style={{
-                width: i === current ? 16 : 6,
+                width: i === currentSlide ? 16 : 6,
                 height: 6,
                 borderRadius: 3,
                 background:
-                  i === current ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.2)",
+                  i === currentSlide ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.2)",
                 transition: "all 0.3s",
               }}
             />
@@ -1172,7 +1291,7 @@ export const XHSSlidePreview = forwardRef<
           <div style={{ height: `${layout.footerHeight}px`, flexShrink: 0 }} />
         )}
 
-        {selectedImage && selectedImage.slideIndex === current && (
+        {selectedImage && selectedImage.slideIndex === currentSlide && (
           <div
             data-xhs-image-control="true"
             onClick={(e) => e.stopPropagation()}

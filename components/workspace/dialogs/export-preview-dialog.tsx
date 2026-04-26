@@ -114,12 +114,16 @@ export function ExportPreviewDialog({
           >
             <div
               className="preview-content w-full"
-              dangerouslySetInnerHTML={{ __html: slide.html }}
               style={{
                 height: `${layout.contentHeight}px`,
                 overflow: "hidden",
               }}
-            />
+            >
+              <div
+                id="chicpage"
+                dangerouslySetInnerHTML={{ __html: slide.html }}
+              />
+            </div>
           </div>
           <div style={{ height: layout.footerHeight, flexShrink: 0 }} />
         </div>
