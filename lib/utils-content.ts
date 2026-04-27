@@ -35,6 +35,6 @@ export function getReadInfo(text: string) {
  */
 export function injectReadInfo(markdown: string) {
   const { wordCount, readTime } = getReadInfo(markdown);
-  const info = `<div class="chicpage-read-info" style="margin:0 0 1em 0;padding:0;line-height:1.65;">全文共 ${wordCount} 字<br />\n预计阅读时间 ${readTime} 分钟</div>\n\n`;
+  const info = `<div class="chicpage-read-info" style="margin:0.75em 0 1em 0;padding:0;line-height:1.65;">全文共 ${wordCount} 字<br />\n预计阅读时间 ${readTime} 分钟</div>\n\n`;
   return info + markdown;
 }
