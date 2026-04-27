@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, FileCode, FileLineChart, Check, XCircle } from "lucide-react";
+import JSZip from "jszip";
 import { Button } from "@/components/ui/button";
 import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
+import { getLocalImage } from "@/lib/image_service";
 import { useStore } from "@/store/use-store";
 import type { WechatTheme } from "@/lib/themes";
 
@@ -20,14 +22,128 @@ export function ExportButton({
   previewRef,
   styleTheme,
   activeWechatTheme,
-  fileName = "document",
+  fileName = "ChicPage",
 }: ExportButtonProps) {
+  const exportMenuRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [exportStatus, setExportStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!exportMenuRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isOpen]);
+
+  const downloadBlob = (blob: Blob, downloadName: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = downloadName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const safeFileName = (name: string) =>
+    name.replace(/[\\/:*?"<>|]/g, "-").replace(/\s+/g, "-").replace(/^-+|-+$/g, "") || "ChicPage";
+
+  const getTimestampedFileName = (name: string) => {
+    const pad = (value: number) => String(value).padStart(2, "0");
+    const now = new Date();
+    const timestamp = [
+      now.getFullYear(),
+      pad(now.getMonth() + 1),
+      pad(now.getDate()),
+      "-",
+      pad(now.getHours()),
+      pad(now.getMinutes()),
+      pad(now.getSeconds()),
+    ].join("");
+
+    return `${safeFileName(name)}-${timestamp}`;
+  };
+
+  const extensionFromMime = (mime: string) => {
+    if (mime.includes("png")) return "png";
+    if (mime.includes("webp")) return "webp";
+    if (mime.includes("gif")) return "gif";
+    if (mime.includes("svg")) return "svg";
+    return "jpg";
+  };
+
+  const dataUrlToBlob = (dataUrl: string) => {
+    const [meta, payload] = dataUrl.split(",");
+    const mime = meta.match(/^data:([^;]+)/)?.[1] || "application/octet-stream";
+    const bytes = meta.includes(";base64")
+      ? atob(payload || "")
+      : decodeURIComponent(payload || "");
+    const array = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i += 1) array[i] = bytes.charCodeAt(i);
+    return { blob: new Blob([array], { type: mime }), extension: extensionFromMime(mime) };
+  };
+
+  const getImageBlob = async (src: string) => {
+    if (src.startsWith("data:")) {
+      return dataUrlToBlob(src);
+    }
+
+    if (src.startsWith("img://")) {
+      const dataUrl = await getLocalImage(src);
+      return dataUrl ? dataUrlToBlob(dataUrl) : null;
+    }
+
+    try {
+      const res = await fetch(src);
+      if (!res.ok) throw new Error("Image request failed");
+      const blob = await res.blob();
+      return { blob, extension: extensionFromMime(blob.type) };
+    } catch {
+      if (!/^https?:\/\//.test(src)) return null;
+      try {
+        const res = await fetch(`/api/image-proxy?url=${encodeURIComponent(src)}`);
+        if (!res.ok) return null;
+        const data = await res.json() as { dataUrl?: string };
+        return data.dataUrl ? dataUrlToBlob(data.dataUrl) : null;
+      } catch {
+        return null;
+      }
+    }
+  };
+
+  const buildImageZip = async (imageSources: string[], rewrite: (src: string, assetPath: string) => void) => {
+    const zip = new JSZip();
+    const assetMap = new Map<string, string>();
+    let imageCount = 0;
+
+    for (const src of imageSources) {
+      if (!src || assetMap.has(src)) continue;
+      const image = await getImageBlob(src);
+      if (!image) continue;
+
+      imageCount += 1;
+      const assetPath = `images/image-${String(imageCount).padStart(2, "0")}.${image.extension}`;
+      assetMap.set(src, assetPath);
+      zip.file(assetPath, image.blob);
+      rewrite(src, assetPath);
+    }
+
+    if (imageCount === 0) return null;
+
+    return zip;
+  };
 
   const exportToHTML = async () => {
     if (!previewRef.current) return;
     try {
+      const exportFileName = getTimestampedFileName(fileName);
       let htmlContent = previewRef.current.innerHTML;
 
       if (styleTheme === "wechat" && activeWechatTheme) {
@@ -57,15 +173,24 @@ export function ExportButton({
   ${htmlContent}
 </body>
 </html>`;
-      const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${fileName}.html`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const doc = new DOMParser().parseFromString(fullHtml, "text/html");
+      const imageSources = Array.from(doc.querySelectorAll<HTMLImageElement>("img"))
+        .map((img) => img.getAttribute("src") || "")
+        .filter(Boolean);
+      const zip = await buildImageZip(imageSources, (src, assetPath) => {
+        doc.querySelectorAll<HTMLImageElement>("img").forEach((img) => {
+          if (img.getAttribute("src") === src) img.setAttribute("src", assetPath);
+        });
+      });
+
+      if (zip) {
+        const rewrittenHtml = `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
+        zip.file(`${exportFileName}.html`, rewrittenHtml);
+        downloadBlob(await zip.generateAsync({ type: "blob" }), `${exportFileName}.zip`);
+      } else {
+        const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+        downloadBlob(blob, `${exportFileName}.html`);
+      }
       setExportStatus('success');
       setTimeout(() => setExportStatus('idle'), 2000);
     } catch (error) {
@@ -74,18 +199,24 @@ export function ExportButton({
     }
   };
 
-  const exportToMarkdown = () => {
+  const exportToMarkdown = async () => {
     try {
-      const markdown = useStore.getState().markdown;
-      const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${fileName}.md`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const exportFileName = getTimestampedFileName(fileName);
+      let markdown = useStore.getState().markdown;
+      const imageSources = Array.from(markdown.matchAll(/!\[([^\]\n]*)\]\((\S+?)(?:\s+(["'])(.*?)\3)?\)/g))
+        .map((match) => match[2])
+        .filter(Boolean);
+      const zip = await buildImageZip(imageSources, (src, assetPath) => {
+        markdown = markdown.replaceAll(src, assetPath);
+      });
+
+      if (zip) {
+        zip.file(`${exportFileName}.md`, markdown);
+        downloadBlob(await zip.generateAsync({ type: "blob" }), `${exportFileName}.zip`);
+      } else {
+        const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+        downloadBlob(blob, `${exportFileName}.md`);
+      }
       setExportStatus('success');
       setTimeout(() => setExportStatus('idle'), 2000);
     } catch (error) {
@@ -95,7 +226,7 @@ export function ExportButton({
   };
 
   return (
-    <div className="relative">
+    <div ref={exportMenuRef} className="relative">
       <Button
         variant="ghost"
         size="sm"
@@ -113,13 +244,6 @@ export function ExportButton({
         {isOpen && (
           <>
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40"
-              onClick={() => setIsOpen(false)}
-            />
-            <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -134,12 +258,12 @@ export function ExportButton({
                 </div>
                 <div className="flex flex-col items-start text-left">
                   <span>导出 HTML</span>
-                  <span className="text-[10px] text-zinc-400 font-normal">保持原始样式</span>
+                  <span className="text-[10px] text-zinc-400 font-normal">保持样式与图片</span>
                 </div>
               </button>
 
               <button
-                onClick={() => { exportToMarkdown(); setIsOpen(false); }}
+                onClick={async () => { await exportToMarkdown(); setIsOpen(false); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition-colors"
               >
                 <div className="size-8 rounded-lg bg-purple-50 flex items-center justify-center">
@@ -147,7 +271,7 @@ export function ExportButton({
                 </div>
                 <div className="flex flex-col items-start text-left">
                   <span>导出 Markdown</span>
-                  <span className="text-[10px] text-zinc-400 font-normal">仅导出纯文本</span>
+                  <span className="text-[10px] text-zinc-400 font-normal">包含图片资源</span>
                 </div>
               </button>
 
