@@ -137,9 +137,9 @@ export const TopNav = React.memo(({
 
   return (
     <>
-    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/70 backdrop-blur-xl px-4 py-2.5 md:px-6">
-      <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex flex-wrap items-center gap-2.5">
+    <nav className="sticky top-0 z-50 border-b border-zinc-200 bg-white/72 backdrop-blur-xl px-4 py-3 md:px-7">
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex flex-wrap items-center gap-3">
           <Link href="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
             <Image
               src="/logo.svg"
@@ -251,7 +251,7 @@ export const TopNav = React.memo(({
           </motion.div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 xl:justify-end shrink-0">
+        <div className="flex flex-wrap items-center gap-2 xl:justify-end shrink-0">
 
           <AnimatePresence mode="popLayout">
             {styleTheme === "poster" && (

@@ -7,7 +7,6 @@ import {
   Quote, Table,
   Heading1, Heading2, Minus,
   SeparatorHorizontal,
-  Info, AlertCircle, AlertTriangle,
   Code2, Image as ImageIcon,
   CheckSquare, Keyboard, FolderUp,
 } from "lucide-react";
@@ -92,18 +91,12 @@ export const MarkdownToolbar = ({
     </Button>,
   ];
 
-  const groupCallouts = [
-    btn(<Info className="size-4" />,          "提示盒 tip",     () => onInsertText('\n:::tip\n在这输入提示内容\n:::\n')),
-    btn(<AlertCircle className="size-4" />,   "警告盒 warning", () => onInsertText('\n:::warning\n在这输入警告内容\n:::\n')),
-    btn(<AlertTriangle className="size-4" />, "危险盒 danger",  () => onInsertText('\n:::danger\n在这输入危险内容\n:::\n')),
-  ];
-
-  const groups = [groupHeadings, groupInline, groupBlock, groupMedia, groupCallouts];
+  const groups = [groupHeadings, groupInline, groupBlock, groupMedia];
 
   return (
-    <div ref={toolbarRef} className="toolbar-root w-full flex flex-col border-b border-[var(--border)] bg-[rgba(251,251,252,0.96)] backdrop-blur-md overflow-visible relative text-[var(--foreground)]">
-      <div className="flex items-center justify-between px-6 py-1.5 flex-wrap gap-y-1.5 relative">
-        <div className="flex items-center flex-wrap gap-y-1.5">
+    <div ref={toolbarRef} className="toolbar-root w-full flex flex-col border-b border-[var(--border)] bg-[rgba(251,251,252,0.96)] backdrop-blur-md overflow-visible relative text-[var(--foreground)] rounded-t-[22px]">
+      <div className="flex items-center justify-between px-6 py-2 flex-wrap gap-y-2 relative md:px-8">
+        <div className="flex items-center flex-wrap gap-y-2">
           {groups.map((group, i) => (
             <React.Fragment key={i}>
               <div className="flex gap-0.5">{group}</div>

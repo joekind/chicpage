@@ -81,7 +81,7 @@ export const EditorSection = ({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       className={cn(
-        "flex flex-col bg-[var(--card)] rounded-none border border-zinc-900/8 shadow-2xl shadow-zinc-200/35 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] overflow-visible relative",
+        "flex flex-col bg-[var(--card)] rounded-[22px] border border-zinc-900/8 shadow-2xl shadow-zinc-200/35 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] overflow-visible relative",
         isDragOver && "border-zinc-900/15 shadow-[0_0_0_4px_rgba(24,24,27,0.04)]",
         layoutMode === "split"
           ? "flex-1"
@@ -94,7 +94,7 @@ export const EditorSection = ({
 
       <div
         className={cn(
-          "flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-10 py-10 transition-colors bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(250,250,251,0.72)_100%)]",
+          "flex-1 overflow-y-auto relative flex flex-col no-scrollbar px-8 py-8 transition-colors bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(250,250,251,0.72)_100%)] md:px-10 md:py-10 xl:px-12 xl:py-12",
           isDragOver && "bg-zinc-50/70",
         )}
         onDragEnter={(e) => {
@@ -203,7 +203,7 @@ export const EditorSection = ({
         {floatingToolbar}
       </div>
 
-      <div className="flex items-center justify-between px-8 py-3.5 bg-[rgba(252,252,253,0.65)] backdrop-blur-md border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400">
+      <div className="flex items-center justify-between px-8 py-4 bg-[rgba(252,252,253,0.65)] backdrop-blur-md border-t border-zinc-900/5 font-mono text-[10px] uppercase tracking-widest text-zinc-400 md:px-10">
         <div className="flex items-center gap-6">
           {isUploading && (
             <div className="flex items-center gap-2 text-zinc-800 animate-pulse">
