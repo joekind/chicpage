@@ -35,7 +35,6 @@ export function getReadInfo(text: string) {
  */
 export function injectReadInfo(markdown: string) {
   const { wordCount, readTime } = getReadInfo(markdown);
-  // 使用双回车确保 Markdown 解析为两个段落，保证 HTML 渲染出换行
-  const info = `全文共 ${wordCount} 字\n\n预计阅读时间 ${readTime} 分钟\n\n${'━'.repeat(18)}\n\n`;
+  const info = `<div class="chicpage-read-info" style="margin:0 0 1em 0;padding:0;line-height:1.65;">全文共 ${wordCount} 字<br />\n预计阅读时间 ${readTime} 分钟</div>\n\n`;
   return info + markdown;
 }
