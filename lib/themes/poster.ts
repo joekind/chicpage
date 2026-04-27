@@ -1,6 +1,9 @@
-import { WECHAT_THEMES } from "./themes";
+import { WECHAT_THEMES } from "./wechat";
 
-export interface XHSTheme {
+/**
+ * 贴图主题接口
+ */
+export interface PosterTheme {
   id: string;
   name: string;
   description: string;
@@ -14,7 +17,11 @@ export interface XHSTheme {
   css: string;
 }
 
-export const XHS_THEMES: XHSTheme[] = WECHAT_THEMES.map(theme => {
+/**
+ * 贴图主题列表
+ * 基于微信主题转换而来
+ */
+export const POSTER_THEMES: PosterTheme[] = WECHAT_THEMES.map(theme => {
   const backgroundMatch = theme.containerStyle.match(/background-color:\s*([^;]+)/i)
     ?? theme.containerStyle.match(/background:\s*(#[a-fA-F0-9]{3,8}|rgba?\([^)]*\)|hsla?\([^)]*\)|[a-z]+)/i);
   const backgroundImageMatch = theme.containerStyle.match(/background-image:\s*([^;]+)/i);
@@ -40,5 +47,24 @@ export const XHS_THEMES: XHSTheme[] = WECHAT_THEMES.map(theme => {
   };
 });
 
-export const getXHSTheme = (id: string) =>
-  XHS_THEMES.find(t => t.id === id) ?? XHS_THEMES[0];
+/**
+ * 根据 ID 获取贴图主题
+ */
+export const getPosterTheme = (id: string) =>
+  POSTER_THEMES.find(t => t.id === id) ?? POSTER_THEMES[0];
+
+// 向后兼容的导出（使用 @deprecated 标记）
+/**
+ * @deprecated 使用 PosterTheme 代替
+ */
+export type XHSTheme = PosterTheme;
+
+/**
+ * @deprecated 使用 POSTER_THEMES 代替
+ */
+export const XHS_THEMES = POSTER_THEMES;
+
+/**
+ * @deprecated 使用 getPosterTheme 代替
+ */
+export const getXHSTheme = getPosterTheme;

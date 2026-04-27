@@ -3,8 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { CSSProperties } from "react";
-import type { WechatTheme } from "@/lib/themes";
-import { getThemeBackgroundStyle } from "@/lib/theme-background";
+import { getThemeBackgroundStyle, type WechatTheme } from "@/lib/themes";
 
 interface PreviewContentProps {
   html: string;

@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Download, FileCode, FileLineChart, Check, XCircle } from "lucide-react";
 import JSZip from "jszip";
 import { Button } from "@/components/ui/button";
-import { getInlinedHtml, getWeChatHtml } from "@/lib/inline_style";
-import { getLocalImage } from "@/lib/image_service";
+import { getInlinedHtml, getWeChatHtml } from "@/lib/export";
+import { getLocalImage } from "@/lib/images";
 import { useStore } from "@/store/use-store";
 import type { WechatTheme } from "@/lib/themes";
 
@@ -95,6 +95,17 @@ export function ExportButton({
       return dataUrlToBlob(src);
     }
 
+    if (src.startsWith("blob:")) {
+      try {
+        const res = await fetch(src);
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        return { blob, extension: extensionFromMime(blob.type) };
+      } catch {
+        return null;
+      }
+    }
+
     if (src.startsWith("img://")) {
       const dataUrl = await getLocalImage(src);
       return dataUrl ? dataUrlToBlob(dataUrl) : null;
@@ -174,6 +185,7 @@ export function ExportButton({
 </body>
 </html>`;
       const doc = new DOMParser().parseFromString(fullHtml, "text/html");
+
       const imageSources = Array.from(doc.querySelectorAll<HTMLImageElement>("img"))
         .map((img) => img.getAttribute("src") || "")
         .filter(Boolean);

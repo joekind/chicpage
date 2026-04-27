@@ -4,8 +4,7 @@
  */
 
 import { useEffect } from 'react';
-import { markdownToHtml } from '@/lib/markdown';
-import { injectReadInfo } from '@/lib/utils-content';
+import { markdownToHtml, injectReadInfo } from '@/lib/content';
 import { EXPORT } from '@/config/constants';
 
 interface MarkdownSyncOptions {

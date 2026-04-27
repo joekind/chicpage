@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import dynamic from "next/dynamic";
 import { CheckCircle2, ImagePlus, Loader2, TriangleAlert, X } from "lucide-react";
 import type { EditorMethods, SelectionInfo } from "./mdx-editor";
-import { getReadInfo } from "@/lib/utils-content";
+import { getReadInfo } from "@/lib/content";
 
 const MDXEditor = dynamic(() => import("./mdx-editor"), { ssr: false });
 

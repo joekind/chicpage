@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { XHS_THEMES } from "@/lib/xhs-themes";
+import { XHS_THEMES } from "@/lib/themes";
 import { cn } from "@/lib/utils";
 
 interface XHSThemePickerProps {

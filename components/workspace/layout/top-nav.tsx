@@ -24,14 +24,17 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ExportButton } from "@/components/workspace/toolbar/export-button";
-import { POSTER_THEMES } from "@/lib/poster-themes";
-import { WECHAT_THEMES, type WechatTheme } from "@/lib/themes";
-import { POSTER_FONTS } from "@/lib/fonts";
+import {
+  POSTER_THEMES,
+  WECHAT_THEMES,
+  POSTER_FONTS,
+  type WechatTheme,
+} from "@/lib/themes";
 import type { PosterRatio } from "@/types";
 import {
   getThemeBackgroundStyle,
   getThemeTextureLayer,
-} from "@/lib/theme-background";
+} from "@/lib/themes";
 
 const POSTER_RATIO_OPTIONS: { value: PosterRatio; label: string }[] = [
   { value: "3:4", label: "3:4" },

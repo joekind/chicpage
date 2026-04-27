@@ -2,7 +2,7 @@
  * 分页工具函数
  */
 
-import { REGEX, POSTER_CARD, POSTER_CONTENT_HEIGHT } from '@/config/constants';
+import { REGEX } from '@/config/constants';
 
 /**
  * 将 markdown 中的分页标记转换为 HTML hr 标签

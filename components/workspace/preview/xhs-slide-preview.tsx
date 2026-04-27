@@ -8,8 +8,8 @@ import React, {
   useMemo,
   useImperativeHandle,
 } from "react";
-import { XHSTheme } from "@/lib/xhs-themes";
-import { XHS_FONTS } from "@/lib/fonts";
+import type { XHSTheme } from "@/lib/themes";
+import { XHS_FONTS } from "@/lib/themes";
 import type { SlideItem } from "@/types";
 import type { PosterRatio } from "@/types";
 

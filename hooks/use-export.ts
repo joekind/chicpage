@@ -4,9 +4,8 @@
  */
 
 import { useState, useCallback } from 'react';
-import { exportToImage } from '@/lib/export-image';
-import { getXHSTheme } from '@/lib/xhs-themes';
-import { XHS_FONTS } from '@/lib/fonts';
+import { exportToImage } from '@/lib/export';
+import { getXHSTheme } from '@/lib/themes';
 import JSZip from 'jszip';
 import type { SlidePreviewMethods, ExportProgress } from '@/types';
 
@@ -20,7 +19,6 @@ export function useExport() {
   const confirmExport = useCallback(async (
     slideRef: React.RefObject<SlidePreviewMethods | null>,
     themeId: string,
-    fontId: string
   ) => {
     if (!slideRef.current) return;
 

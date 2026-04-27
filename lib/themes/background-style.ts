@@ -1,4 +1,4 @@
-import type { WechatTheme } from "@/lib/themes";
+import type { WechatTheme } from "./wechat";
 
 export interface ThemeBackgroundStyle {
   backgroundColor: string;

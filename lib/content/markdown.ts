@@ -9,7 +9,7 @@ import { visit } from 'unist-util-visit';
 import hljs from 'highlight.js';
 import type { Node, Parent } from 'unist';
 import type { Element, Root } from 'hast';
-import { getLocalImage } from './image_service';
+import { getLocalImage } from '@/lib/images';
 
 interface ImageNode extends Node {
   type: "image";

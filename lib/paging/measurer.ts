@@ -5,7 +5,6 @@
 import { POSTER_CARD } from '@/config/constants';
 
 const PADDING_X = POSTER_CARD.PADDING_X;
-const PADDING_Y = POSTER_CARD.PADDING_Y;
 const CONTENT_W = POSTER_CARD.WIDTH - PADDING_X * 2;
 
 /** 测量探针容器（全局复用） */

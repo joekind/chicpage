@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { getPosterTheme } from '@/lib/poster-themes';
+import { getPosterTheme } from '@/lib/themes';
 import type { PosterRatio } from '@/types';
 
 interface AppState {

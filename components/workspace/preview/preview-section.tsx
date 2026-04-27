@@ -11,10 +11,9 @@ import {
   XHSSlidePreviewMethods,
 } from "./xhs-slide-preview";
 import { PreviewContent } from "./preview-content";
-import type { PosterTheme } from "@/lib/poster-themes";
-import type { WechatTheme } from "@/lib/themes";
+import type { PosterTheme, WechatTheme } from "@/lib/themes";
 import type { PosterRatio } from "@/types";
-import { getThemeBackgroundStyle } from "@/lib/theme-background";
+import { getThemeBackgroundStyle } from "@/lib/themes";
 
 interface PreviewSectionProps {
   layoutMode: string;

@@ -160,32 +160,6 @@ const MAGAZINE_CODE_CSS = `
   #chicpage input[type="checkbox"] { accent-color: #111111; }
 `;
 
-const CRIMSON_CODE_CSS = `
-  #chicpage .hljs { color: #3d3d3d; }
-  #chicpage .hljs-keyword,
-  #chicpage .hljs-selector-tag,
-  #chicpage .hljs-literal,
-  #chicpage .hljs-title,
-  #chicpage .hljs-section,
-  #chicpage .hljs-doctag,
-  #chicpage .hljs-type,
-  #chicpage .hljs-name,
-  #chicpage .hljs-strong { color: #8b1a2b; }
-  #chicpage .hljs-string,
-  #chicpage .hljs-attr,
-  #chicpage .hljs-template-tag,
-  #chicpage .hljs-template-variable,
-  #chicpage .hljs-bullet { color: #7a4a3a; }
-  #chicpage .hljs-number,
-  #chicpage .hljs-symbol,
-  #chicpage .hljs-variable,
-  #chicpage .hljs-params,
-  #chicpage .hljs-link { color: #9d4b58; }
-  #chicpage .hljs-comment,
-  #chicpage .hljs-quote { color: #8b7474; }
-  #chicpage input[type="checkbox"] { accent-color: #8b1a2b; }
-`;
-
 const SKETCH_CODE_CSS = `
   #chicpage .hljs { color: #3a352f; }
   #chicpage .hljs-keyword,

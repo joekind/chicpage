@@ -2,7 +2,7 @@
 
 import React, { forwardRef } from "react";
 import Image from "next/image";
-import { XHSTheme } from "@/lib/xhs-themes";
+import type { XHSTheme } from "@/lib/themes";
 
 interface XHSLongImagePreviewProps {
   html: string;
