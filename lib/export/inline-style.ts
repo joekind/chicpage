@@ -444,8 +444,11 @@ export async function getWeChatHtml(
 
   // 如果包含背景图，添加微信特有的容器属性
   const isImageBg = style.includes('background-image') && !style.includes('background-image:none');
-  const copySafeSpacing =
-    'box-sizing:border-box;padding:24px 22px 32px;max-width:677px;margin:0 auto;';
+  const isDefaultWhiteTheme =
+    !isImageBg && /(?:^|;)\s*background-color\s*:\s*#fff(?:fff)?\s*;?/i.test(style);
+  const copySafeSpacing = isDefaultWhiteTheme
+    ? 'box-sizing:border-box;padding:24px 0 32px;max-width:677px;margin:0 auto;'
+    : 'box-sizing:border-box;padding:24px 22px 32px;max-width:677px;margin:0 auto;';
   const finalContainerStyle = isImageBg
     ? `${style};${copySafeSpacing}background-attachment:scroll;background-size:cover;`
     : `${style};${copySafeSpacing}`;
