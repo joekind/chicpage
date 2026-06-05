@@ -1,21 +1,23 @@
-"use client";
+'use client';
 
 import React, {
   forwardRef,
+  memo,
   useState,
   useRef,
   useEffect,
+  useCallback,
   useMemo,
   useImperativeHandle,
-} from "react";
-import type { XHSTheme } from "@/lib/themes";
-import { XHS_FONTS } from "@/lib/themes";
-import type { SlideItem } from "@/types";
-import type { PosterRatio } from "@/types";
+} from 'react';
+import type { XHSTheme } from '@/lib/themes';
+import { XHS_FONTS } from '@/lib/themes';
+import type { SlideItem } from '@/types';
+import type { PosterRatio } from '@/types';
 
 // 判断颜色是否为深色
 function isColorDark(color: string): boolean {
-  const hex = color.replace("#", "");
+  const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
   const b = parseInt(hex.substring(4, 6), 16);
@@ -25,17 +27,17 @@ function isColorDark(color: string): boolean {
 
 function StatusBar({ backgroundColor }: { backgroundColor: string }) {
   const isDark = isColorDark(backgroundColor);
-  const color = isDark ? "#fff" : "#000";
+  const color = isDark ? '#fff' : '#000';
 
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState('');
 
   useEffect(() => {
     const update = () => {
       const now = new Date();
       setTime(
-        now.toLocaleTimeString("zh-CN", {
-          hour: "2-digit",
-          minute: "2-digit",
+        now.toLocaleTimeString('zh-CN', {
+          hour: '2-digit',
+          minute: '2-digit',
           hour12: false,
         }),
       );
@@ -47,50 +49,39 @@ function StatusBar({ backgroundColor }: { backgroundColor: string }) {
 
   return (
     <div
-      className="flex h-10 w-full items-end justify-between px-6 pb-1"
+      className='flex h-10 w-full items-end justify-between px-6 pb-1'
       style={{ fontSize: 12, fontWeight: 700, color }}
     >
       <span>{time}</span>
-      <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
         {/* Signal bars */}
-        <svg width="17" height="12" viewBox="0 0 17 12" fill="none">
-          <rect x="0" y="8" width="3" height="4" rx="0.8" fill={color} />
-          <rect x="4.5" y="5.5" width="3" height="6.5" rx="0.8" fill={color} />
-          <rect x="9" y="3" width="3" height="9" rx="0.8" fill={color} />
-          <rect
-            x="13.5"
-            y="0"
-            width="3"
-            height="12"
-            rx="0.8"
-            fill={color}
-            opacity="0.3"
-          />
+        <svg width='17' height='12' viewBox='0 0 17 12' fill='none'>
+          <rect x='0' y='8' width='3' height='4' rx='0.8' fill={color} />
+          <rect x='4.5' y='5.5' width='3' height='6.5' rx='0.8' fill={color} />
+          <rect x='9' y='3' width='3' height='9' rx='0.8' fill={color} />
+          <rect x='13.5' y='0' width='3' height='12' rx='0.8' fill={color} opacity='0.3' />
         </svg>
         {/* WiFi */}
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+        <svg width='16' height='12' viewBox='0 0 16 12' fill='none'>
+          <path d='M8 9.5a1.2 1.2 0 1 1 0 2.4A1.2 1.2 0 0 1 8 9.5z' fill={color} />
           <path
-            d="M8 9.5a1.2 1.2 0 1 1 0 2.4A1.2 1.2 0 0 1 8 9.5z"
-            fill={color}
+            d='M4.2 7.1a5.4 5.4 0 0 1 7.6 0'
+            stroke={color}
+            strokeWidth='1.4'
+            strokeLinecap='round'
+            fill='none'
           />
           <path
-            d="M4.2 7.1a5.4 5.4 0 0 1 7.6 0"
+            d='M1.5 4.4a9 9 0 0 1 13 0'
             stroke={color}
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            fill="none"
-          />
-          <path
-            d="M1.5 4.4a9 9 0 0 1 13 0"
-            stroke={color}
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            fill="none"
-            opacity="0.5"
+            strokeWidth='1.4'
+            strokeLinecap='round'
+            fill='none'
+            opacity='0.5'
           />
         </svg>
         {/* Battery */}
-        <div style={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <div
             style={{
               width: 22,
@@ -98,14 +89,14 @@ function StatusBar({ backgroundColor }: { backgroundColor: string }) {
               borderRadius: 3,
               border: `1.5px solid ${color}`,
               padding: 1.5,
-              display: "flex",
-              alignItems: "center",
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             <div
               style={{
-                width: "80%",
-                height: "100%",
+                width: '80%',
+                height: '100%',
                 borderRadius: 1.5,
                 background: color,
               }}
@@ -165,13 +156,13 @@ export interface PosterLayoutConfig {
 }
 
 const POSTER_RATIO_HEIGHT_MAP: Record<PosterRatio, number> = {
-  "3:4": 480,
-  "9:16": 640,
-  "1:1": 360,
+  '3:4': 480,
+  '9:16': 640,
+  '1:1': 360,
 };
 
 export function getPosterLayoutConfig(
-  ratio: PosterRatio = "9:16",
+  ratio: PosterRatio = '9:16',
   showFooter = true,
 ): PosterLayoutConfig {
   const width = 360;
@@ -194,33 +185,25 @@ export function getPosterLayoutConfig(
     paddingY,
     safeMargin,
     contentWidth: width - paddingX * 2,
-    contentHeight:
-      height -
-      statusHeight -
-      headerHeight -
-      footerHeight -
-      paddingY * 2 -
-      safeMargin,
+    contentHeight: height - statusHeight - headerHeight - footerHeight - paddingY * 2 - safeMargin,
   };
 }
 
-export const XHS_CARD_W = getPosterLayoutConfig("3:4").width;
-export const XHS_CARD_H = getPosterLayoutConfig("3:4").height;
-export const XHS_STATUS_H = getPosterLayoutConfig("3:4").statusHeight;
-export const XHS_FOOTER_H = getPosterLayoutConfig("3:4").footerHeight;
-export const XHS_CONTENT_H = getPosterLayoutConfig("3:4").contentHeight;
+export const XHS_CARD_W = getPosterLayoutConfig('3:4').width;
+export const XHS_CARD_H = getPosterLayoutConfig('3:4').height;
+export const XHS_STATUS_H = getPosterLayoutConfig('3:4').statusHeight;
+export const XHS_FOOTER_H = getPosterLayoutConfig('3:4').footerHeight;
+export const XHS_CONTENT_H = getPosterLayoutConfig('3:4').contentHeight;
 
 // 导出内容区域的通用 CSS，供导出时注入
 export function getXHSContentCSS(
   themeCSS: string,
   fontValue?: string,
-  layout: PosterLayoutConfig = getPosterLayoutConfig("9:16"),
+  layout: PosterLayoutConfig = getPosterLayoutConfig('9:16'),
 ): string {
   // 将主题中的 #chicpage 替换为 #xhs-content 以适配小红书预览
-  const adjustedCSS = themeCSS.replace(/#chicpage/g, "#xhs-content");
-  const fontFamilyRule = fontValue
-    ? `font-family: ${fontValue} !important;`
-    : "";
+  const adjustedCSS = themeCSS.replace(/#chicpage/g, '#xhs-content');
+  const fontFamilyRule = fontValue ? `font-family: ${fontValue} !important;` : '';
   return `
     ${adjustedCSS}
     #xhs-content {
@@ -409,33 +392,33 @@ async function calculateSlides(
   html: string,
   themeCSS: string,
   fontValue?: string,
-  layout: PosterLayoutConfig = getPosterLayoutConfig("9:16"),
+  layout: PosterLayoutConfig = getPosterLayoutConfig('9:16'),
 ): Promise<SlideItem[]> {
   // 1. 按 <hr data-pagebreak="true"> 拆分章节
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+  const doc = parser.parseFromString(html, 'text/html');
   const contentH = layout.contentHeight;
   const imageMaxHeight = Math.floor(contentH * 0.62);
 
-  doc.querySelectorAll("img").forEach((img) => {
+  doc.querySelectorAll('img').forEach(img => {
     const width = (img as HTMLElement).style.width;
-    if (!width.endsWith("%")) return;
+    if (!width.endsWith('%')) return;
 
     const widthPercent = Number.parseInt(width, 10);
     if (!Number.isFinite(widthPercent)) return;
 
     (img as HTMLElement).style.setProperty(
-      "max-height",
-      `${Math.round(imageMaxHeight * Math.min(100, Math.max(40, widthPercent)) / 100)}px`,
-      "important",
+      'max-height',
+      `${Math.round((imageMaxHeight * Math.min(100, Math.max(40, widthPercent))) / 100)}px`,
+      'important',
     );
   });
 
   const expandImageParagraph = (node: Node): Node[] => {
     if (
       node.nodeType !== Node.ELEMENT_NODE ||
-      (node as Element).tagName.toLowerCase() !== "p" ||
-      !(node as Element).querySelector("img")
+      (node as Element).tagName.toLowerCase() !== 'p' ||
+      !(node as Element).querySelector('img')
     ) {
       return [node];
     }
@@ -453,10 +436,10 @@ async function calculateSlides(
       textParagraph = paragraph.cloneNode(false) as HTMLElement;
     };
 
-    Array.from(paragraph.childNodes).forEach((child) => {
+    Array.from(paragraph.childNodes).forEach(child => {
       if (
         child.nodeType === Node.ELEMENT_NODE &&
-        (child as Element).tagName.toLowerCase() === "img"
+        (child as Element).tagName.toLowerCase() === 'img'
       ) {
         flushTextParagraph();
         expanded.push(child.cloneNode(true));
@@ -473,25 +456,27 @@ async function calculateSlides(
   const sections: Node[][] = [];
   let currentSection: Node[] = [];
 
-  Array.from(doc.body.childNodes).flatMap(expandImageParagraph).forEach((node) => {
-    if (
-      node.nodeType === Node.ELEMENT_NODE &&
-      (node as Element).tagName.toLowerCase() === "hr" &&
-      (node as Element).hasAttribute("data-pagebreak")
-    ) {
-      if (currentSection.length > 0) {
-        sections.push(currentSection);
-        currentSection = [];
+  Array.from(doc.body.childNodes)
+    .flatMap(expandImageParagraph)
+    .forEach(node => {
+      if (
+        node.nodeType === Node.ELEMENT_NODE &&
+        (node as Element).tagName.toLowerCase() === 'hr' &&
+        (node as Element).hasAttribute('data-pagebreak')
+      ) {
+        if (currentSection.length > 0) {
+          sections.push(currentSection);
+          currentSection = [];
+        }
+        return;
       }
-      return;
-    }
 
-    if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) {
-      return;
-    }
+      if (node.nodeType === Node.TEXT_NODE && !node.textContent?.trim()) {
+        return;
+      }
 
-    currentSection.push(node.cloneNode(true));
-  });
+      currentSection.push(node.cloneNode(true));
+    });
 
   if (currentSection.length > 0) {
     sections.push(currentSection);
@@ -500,10 +485,10 @@ async function calculateSlides(
   if (sections.length === 0) return [];
 
   // 2. 用隐藏探针测量“当前页 + 新块”是否溢出
-  const styleEl = document.createElement("style");
+  const styleEl = document.createElement('style');
   styleEl.textContent = getXHSContentCSS(themeCSS, fontValue, layout);
 
-  const probe = document.createElement("div");
+  const probe = document.createElement('div');
   const contentW = layout.contentWidth;
   probe.style.cssText = `
     position: fixed; top: -9999px; left: -9999px;
@@ -513,20 +498,20 @@ async function calculateSlides(
     overflow: hidden;
     padding: 0;
   `;
-  const probeContent = document.createElement("div");
-  probeContent.id = "xhs-content";
+  const probeContent = document.createElement('div');
+  probeContent.id = 'xhs-content';
   probe.appendChild(probeContent);
 
   document.head.appendChild(styleEl);
   document.body.appendChild(probe);
 
   const finalSlides: SlideItem[] = [];
-  const sourceImages = Array.from(doc.querySelectorAll("img"))
-    .map((img) => img.getAttribute("src"))
+  const sourceImages = Array.from(doc.querySelectorAll('img'))
+    .map(img => img.getAttribute('src'))
     .filter((src): src is string => Boolean(src));
 
   const preloadImage = (src: string) =>
-    new Promise<void>((resolve) => {
+    new Promise<void>(resolve => {
       const image = new Image();
       image.onload = () => resolve();
       image.onerror = () => resolve();
@@ -538,33 +523,33 @@ async function calculateSlides(
   await Promise.all(sourceImages.map(preloadImage));
 
   const nodesToHtml = (nodes: Node[]) => {
-    const wrapper = document.createElement("div");
-    nodes.forEach((n) => wrapper.appendChild(n.cloneNode(true)));
+    const wrapper = document.createElement('div');
+    nodes.forEach(n => wrapper.appendChild(n.cloneNode(true)));
     return wrapper.innerHTML;
   };
 
   const hasImage = (node: Node) =>
     node.nodeType === Node.ELEMENT_NODE &&
-    ((node as Element).tagName.toLowerCase() === "img" ||
-      Boolean((node as Element).querySelector("img")));
+    ((node as Element).tagName.toLowerCase() === 'img' ||
+      Boolean((node as Element).querySelector('img')));
 
   const getImagesInNode = (node: Node): HTMLImageElement[] => {
     if (node.nodeType !== Node.ELEMENT_NODE) return [];
     const element = node as Element;
-    const images = Array.from(element.querySelectorAll("img"));
-    if (element.tagName.toLowerCase() === "img") {
+    const images = Array.from(element.querySelectorAll('img'));
+    if (element.tagName.toLowerCase() === 'img') {
       return [element as HTMLImageElement, ...images];
     }
     return images;
   };
 
   const waitImagesInElement = (element: HTMLElement) => {
-    const images = Array.from(element.querySelectorAll("img"));
+    const images = Array.from(element.querySelectorAll('img'));
     if (images.length === 0) return Promise.resolve();
     return Promise.all(
       images.map(
-        (img) =>
-          new Promise<void>((resolve) => {
+        img =>
+          new Promise<void>(resolve => {
             if (img.complete && img.naturalWidth > 0) {
               resolve();
               return;
@@ -578,22 +563,23 @@ async function calculateSlides(
   };
 
   const measureHeight = async (nodes: Node[], waitForImage = false) => {
-    probeContent.innerHTML = "";
+    probeContent.innerHTML = '';
     // Wrap in #xhs-content AND #chicpage so XHS-specific theme overrides apply during measurement
-    const themeWrap = document.createElement("div");
-    themeWrap.id = "chicpage";
-    nodes.forEach((n) => themeWrap.appendChild(n.cloneNode(true)));
+    const themeWrap = document.createElement('div');
+    themeWrap.id = 'chicpage';
+    nodes.forEach(n => themeWrap.appendChild(n.cloneNode(true)));
 
-    const xhsWrap = document.createElement("div");
-    xhsWrap.id = "xhs-content";
+    const xhsWrap = document.createElement('div');
+    xhsWrap.id = 'xhs-content';
     xhsWrap.appendChild(themeWrap);
 
-    const outerWrap = document.createElement("div");
-    outerWrap.style.cssText = "display: block; width: 100%; border: 1px solid transparent; padding: 0;";
+    const outerWrap = document.createElement('div');
+    outerWrap.style.cssText =
+      'display: block; width: 100%; border: 1px solid transparent; padding: 0;';
     outerWrap.appendChild(xhsWrap);
-    
+
     probeContent.appendChild(outerWrap);
-    
+
     if (waitForImage) {
       await waitImagesInElement(probeContent);
     }
@@ -627,9 +613,9 @@ async function calculateSlides(
       const mid = Math.floor((low + high) / 2);
       const candidateBlock = block.cloneNode(true);
 
-      getImagesInNode(candidateBlock).forEach((img) => {
-        img.style.setProperty("max-height", `${mid}px`, "important");
-        img.style.setProperty("object-fit", "contain", "important");
+      getImagesInNode(candidateBlock).forEach(img => {
+        img.style.setProperty('max-height', `${mid}px`, 'important');
+        img.style.setProperty('object-fit', 'contain', 'important');
       });
 
       const h = await measureHeight([...currentBlocks, candidateBlock], true);
@@ -645,18 +631,21 @@ async function calculateSlides(
   };
 
   /**
-   * Slice a block node into two parts: 
+   * Slice a block node into two parts:
    * - one that fits within targetH
    * - the rest
    */
-  const sliceBlock = async (block: Node, targetH: number): Promise<{ first: Node; rest: Node[] } | null> => {
+  const sliceBlock = async (
+    block: Node,
+    targetH: number,
+  ): Promise<{ first: Node; rest: Node[] } | null> => {
     if (block.nodeType !== Node.ELEMENT_NODE) return null;
     const element = block as Element;
     const tag = element.tagName.toLowerCase();
-    
+
     // Support splitting common block types
-    const textSplitable = ["p", "li", "blockquote"].includes(tag);
-    const listSplitable = ["ul", "ol"].includes(tag);
+    const textSplitable = ['p', 'li', 'blockquote'].includes(tag);
+    const listSplitable = ['ul', 'ol'].includes(tag);
     if (!textSplitable && !listSplitable) return null;
 
     if (listSplitable) {
@@ -667,11 +656,19 @@ async function calculateSlides(
       let best = 0;
       while (low <= high) {
         const mid = Math.floor((low + high) / 2);
-        if (mid === 0) { low = 1; continue; }
+        if (mid === 0) {
+          low = 1;
+          continue;
+        }
         const candidate = element.cloneNode(false) as HTMLElement;
         for (let i = 0; i < mid; i++) candidate.appendChild(items[i].cloneNode(true));
         const h = await measureHeight([candidate], false);
-        if (h <= targetH) { best = mid; low = mid + 1; } else { high = mid - 1; }
+        if (h <= targetH) {
+          best = mid;
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
       }
       if (best === 0) return null;
       const first = element.cloneNode(false) as HTMLElement;
@@ -682,18 +679,18 @@ async function calculateSlides(
     }
 
     // Text splitting. Preserve inline markup while splitting by text offset.
-    const sourceText = element.textContent || "";
+    const sourceText = element.textContent || '';
     if (sourceText.trim().length < 10) return null;
 
     const hasContent = (node: Node | null): node is Node =>
-      Boolean(node && (node.textContent || "").trim());
+      Boolean(node && (node.textContent || '').trim());
 
     const splitNodeAtTextOffset = (
       node: Node,
       offset: number,
     ): { first: Node | null; rest: Node | null } => {
       if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent || "";
+        const text = node.textContent || '';
         const firstText = text.slice(0, offset);
         const restText = text.slice(offset);
         return {
@@ -712,8 +709,8 @@ async function calculateSlides(
       const rest = node.cloneNode(false) as HTMLElement;
       let remaining = offset;
 
-      Array.from(node.childNodes).forEach((child) => {
-        const childTextLength = (child.textContent || "").length;
+      Array.from(node.childNodes).forEach(child => {
+        const childTextLength = (child.textContent || '').length;
 
         if (remaining <= 0) {
           rest.appendChild(child.cloneNode(true));
@@ -752,7 +749,12 @@ async function calculateSlides(
         continue;
       }
       const h = await measureHeight([cand], false);
-      if (h <= targetH) { best = mid; low = mid + 1; } else { high = mid - 1; }
+      if (h <= targetH) {
+        best = mid;
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
     }
     if (best < 5) return null;
     const splitAt = findNaturalBreakIndex(sourceText, best);
@@ -769,11 +771,10 @@ async function calculateSlides(
 
       while (blockQueue.length > 0) {
         const block = blockQueue.shift()!;
-        
+
         // Measure current cumulative height of this page
-        const beforeH = currentPageBlocks.length > 0 
-          ? await measureHeight(currentPageBlocks, false) 
-          : 0;
+        const beforeH =
+          currentPageBlocks.length > 0 ? await measureHeight(currentPageBlocks, false) : 0;
 
         const candidate = [...currentPageBlocks, block];
         const candH = await measureHeight(candidate, hasImage(block));
@@ -785,7 +786,8 @@ async function calculateSlides(
 
         // Doesn't fit. Can we slice the current block to fill the gap?
         const remainingH = contentH - beforeH;
-        if (remainingH > 80) { // Gap worth filling
+        if (remainingH > 80) {
+          // Gap worth filling
           const sliced = await sliceBlock(block, remainingH);
           if (sliced) {
             currentPageBlocks.push(sliced.first);
@@ -795,11 +797,7 @@ async function calculateSlides(
             continue;
           }
 
-          const fittedImage = await tryFitImageBlock(
-            currentPageBlocks,
-            block,
-            remainingH,
-          );
+          const fittedImage = await tryFitImageBlock(currentPageBlocks, block, remainingH);
           if (fittedImage) {
             currentPageBlocks.push(fittedImage);
             pagesInSection.push(nodesToHtml(currentPageBlocks));
@@ -862,27 +860,116 @@ async function calculateSlides(
 // 保留旧名称，供外部逻辑兼容调用
 export const splitIntoSlides = calculateSlides;
 
+interface SlidePageProps {
+  slide: SlideItem;
+  slideIndex: number;
+  layout: PosterLayoutConfig;
+  theme: XHSTheme;
+  onImageClick: (slideIndex: number, imageIndex: number, image: HTMLImageElement) => void;
+}
 
-export const XHSSlidePreview = forwardRef<
-  XHSSlidePreviewMethods,
-  XHSSlidePreviewProps
->(
+// 单页 slide 渲染，用 memo 隔离：当 selectedImage 变化（宽度工具条挂载/卸载）触发
+// 父组件重渲染时，只要这些 props 引用不变，React 会在 fiber 层短路整页子树，
+// dangerouslySetInnerHTML 的图片 DOM 不会被销毁重建，从而避免图片重新请求与闪烁。
+// 选中高亮（is-selected）由父级 useEffect 命令式 toggle，这里不依赖 selectedImage。
+const SlidePage = React.memo(function SlidePage({
+  slide,
+  slideIndex,
+  layout,
+  theme,
+  onImageClick,
+}: SlidePageProps) {
+  return (
+    <div
+      className='xhs-slide-page'
+      style={{
+        backgroundColor: theme.background,
+        backgroundImage: theme.backgroundImage,
+        backgroundRepeat: theme.backgroundRepeat,
+        backgroundSize: theme.backgroundSize,
+        backgroundPosition: theme.backgroundPosition,
+        width: `${layout.width}px`,
+        flexShrink: 0,
+        height: '100%',
+        padding: `${layout.paddingY}px ${layout.paddingX}px`,
+        display: 'flex',
+        flexDirection: 'column',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+      }}
+    >
+      <div
+        className='xhs-slide-content-viewport'
+        style={{
+          flex: 1,
+          width: '100%',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div
+          id='xhs-content'
+          className='xhs-content-wrapper'
+          style={{
+            width: `${layout.contentWidth}px`,
+            maxWidth: `${layout.contentWidth}px`,
+            height: `${layout.contentHeight}px`,
+            overflow: 'hidden',
+            display: 'block',
+          }}
+        >
+          <div
+            id='chicpage'
+            dangerouslySetInnerHTML={{ __html: slide.html }}
+            ref={node => {
+              if (!node) return;
+              const images = Array.from(node.querySelectorAll('img'));
+              images.forEach((img, imageIndex) => {
+                const markdownImageIndex = Number(img.dataset.chicpageImageIndex ?? imageIndex);
+                img.classList.add('xhs-preview-image-selectable');
+                img.dataset.imageIndex = String(markdownImageIndex);
+                img.dataset.slideIndex = String(slideIndex);
+                img.style.pointerEvents = 'auto';
+                const imageWidth = img.style.width;
+                if (imageWidth.endsWith('%')) {
+                  const widthPercent = Number.parseInt(imageWidth, 10);
+                  if (Number.isFinite(widthPercent)) {
+                    img.style.setProperty(
+                      'max-height',
+                      `${Math.round((Math.floor(layout.contentHeight * 0.62) * Math.min(100, Math.max(40, widthPercent))) / 100)}px`,
+                      'important',
+                    );
+                  }
+                }
+                img.onmousedown = event => event.stopPropagation();
+                img.ontouchstart = event => event.stopPropagation();
+                img.onclick = event => {
+                  event.stopPropagation();
+                  onImageClick(slideIndex, markdownImageIndex, img);
+                };
+              });
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const XHSSlidePreviewBase = forwardRef<XHSSlidePreviewMethods, XHSSlidePreviewProps>(
   (
     {
       html,
       theme,
       showFooter = true,
       hideMockUI = false,
-      font = "system",
-      ratio = "9:16",
+      font = 'system',
+      ratio = '9:16',
       onImageWidthChange,
     },
     ref,
   ) => {
-    const layout = useMemo(
-      () => getPosterLayoutConfig(ratio, showFooter),
-      [ratio, showFooter],
-    );
+    const layout = useMemo(() => getPosterLayoutConfig(ratio, showFooter), [ratio, showFooter]);
     const [slides, setSlides] = useState<SlideItem[]>([]);
     const [current, setCurrent] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
@@ -900,20 +987,14 @@ export const XHSSlidePreview = forwardRef<
     useEffect(() => {
       if (!html) return;
 
-      const currentFontValue =
-        XHS_FONTS.find((f) => f.id === font)?.value || XHS_FONTS[0].value;
+      const currentFontValue = XHS_FONTS.find(f => f.id === font)?.value || XHS_FONTS[0].value;
 
       let isMounted = true;
       const run = async () => {
-        const result = await splitIntoSlides(
-          html,
-          theme.css,
-          currentFontValue,
-          layout,
-        );
+        const result = await splitIntoSlides(html, theme.css, currentFontValue, layout);
         if (isMounted) {
           setSlides(result);
-          setCurrent((prev) => Math.min(prev, Math.max(result.length - 1, 0)));
+          setCurrent(prev => Math.min(prev, Math.max(result.length - 1, 0)));
         }
       };
       run();
@@ -924,14 +1005,11 @@ export const XHSSlidePreview = forwardRef<
     }, [html, theme.css, font, layout]);
 
     const go = (dir: 1 | -1) => {
-      setCurrent((p) =>
-        Math.max(0, Math.min(displaySlides.length - 1, p + dir)),
-      );
+      setCurrent(p => Math.max(0, Math.min(displaySlides.length - 1, p + dir)));
     };
 
     const isImageControlEvent = (target: EventTarget | null) =>
-      target instanceof HTMLElement &&
-      Boolean(target.closest("[data-xhs-image-control]"));
+      target instanceof HTMLElement && Boolean(target.closest('[data-xhs-image-control]'));
 
     const onMouseDown = (e: React.MouseEvent) => {
       if (isImageControlEvent(e.target)) return;
@@ -970,10 +1048,10 @@ export const XHSSlidePreview = forwardRef<
 
     // 安全回退：如果尚未完成分页计算，至少展示原始 HTML 为一页
     const displaySlides = !html
-      ? [{ html: "", sectionId: 0, pageInGroup: 0, totalInGroup: 1 }]
+      ? [{ html: '', sectionId: 0, pageInGroup: 0, totalInGroup: 1 }]
       : slides.length > 0
-      ? slides
-      : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
+        ? slides
+        : [{ html, sectionId: 0, pageInGroup: 0, totalInGroup: 1 }];
 
     const slideCount = displaySlides.length;
     const currentSlide = Math.min(current, Math.max(slideCount - 1, 0));
@@ -982,12 +1060,32 @@ export const XHSSlidePreview = forwardRef<
     const translateX = (() => {
       const base = -currentSlide * layout.width;
       if (currentSlide === 0 && dragOffset > 0) return base + dragOffset * 0.35;
-      if (currentSlide === slideCount - 1 && dragOffset < 0)
-        return base + dragOffset * 0.35;
+      if (currentSlide === slideCount - 1 && dragOffset < 0) return base + dragOffset * 0.35;
       return base + dragOffset;
     })();
 
     const containerRef = useRef<HTMLDivElement>(null);
+    const widthCommitTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+      return () => {
+        if (widthCommitTimerRef.current) {
+          clearTimeout(widthCommitTimerRef.current);
+        }
+      };
+    }, []);
+
+    // 拖动滑块时实时改 DOM 做预览，但延迟提交到 markdown，避免每一步都触发
+    // setMarkdown → 重新分页导致的抖动。
+    const commitImageWidth = (imageIndex: number, widthPercent: number) => {
+      if (widthCommitTimerRef.current) {
+        clearTimeout(widthCommitTimerRef.current);
+      }
+      widthCommitTimerRef.current = setTimeout(() => {
+        onImageWidthChange?.(imageIndex, widthPercent);
+        widthCommitTimerRef.current = null;
+      }, 220);
+    };
 
     useEffect(() => {
       if (!selectedImage) return;
@@ -996,61 +1094,92 @@ export const XHSSlidePreview = forwardRef<
         const target = event.target;
         if (!(target instanceof HTMLElement)) return;
         if (!containerRef.current?.contains(target)) return;
-        if (target.closest("[data-xhs-image-control]")) return;
-        if (target.closest("img[data-image-index]")) return;
+        if (target.closest('[data-xhs-image-control]')) return;
+        if (target.closest('img[data-image-index]')) return;
         setSelectedImage(null);
       };
 
-      document.addEventListener("pointerdown", handlePointerDown, true);
+      document.addEventListener('pointerdown', handlePointerDown, true);
       return () => {
-        document.removeEventListener("pointerdown", handlePointerDown, true);
+        document.removeEventListener('pointerdown', handlePointerDown, true);
       };
     }, [selectedImage]);
 
-    const getImageControlPosition = (
-      slideIndex: number,
-      imageIndex: number,
-    ) => {
+    const getImageControlPosition = useCallback(
+      (slideIndex: number, imageIndex: number) => {
+        const container = containerRef.current;
+        const image = container?.querySelector<HTMLImageElement>(
+          `img[data-slide-index="${slideIndex}"][data-image-index="${imageIndex}"]`,
+        );
+        if (!container || !image) return { top: 0, left: layout.width / 2 };
+
+        const imageRect = image.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const controlWidth = 244;
+        const controlHeight = 76;
+        const left = Math.min(
+          Math.max(imageRect.left - containerRect.left + imageRect.width / 2, controlWidth / 2 + 8),
+          layout.width - controlWidth / 2 - 8,
+        );
+        const preferredTop = imageRect.bottom - containerRect.top + 10;
+        const fallbackTop = imageRect.top - containerRect.top - controlHeight - 10;
+        const top =
+          preferredTop + controlHeight <= layout.height - 8
+            ? preferredTop
+            : Math.max(8, fallbackTop);
+
+        return { top, left };
+      },
+      [layout],
+    );
+
+    // 点击图片：记录选中信息并定位宽度工具条。作为稳定回调传给 SlidePage，
+    // 使其在 selectedImage 变化时不重渲染（图片 DOM 因此保持稳定）。
+    const handleImageClick = useCallback(
+      (slideIndex: number, imageIndex: number, image: HTMLImageElement) => {
+        const width = image.style.width;
+        const widthPercent = width.endsWith('%') ? Number.parseInt(width, 10) : 100;
+        setSelectedImage({
+          slideIndex,
+          imageIndex,
+          src: image.currentSrc || image.getAttribute('src') || '',
+          widthPercent: Number.isFinite(widthPercent) ? widthPercent : 100,
+          ...getImageControlPosition(slideIndex, imageIndex),
+        });
+      },
+      [getImageControlPosition],
+    );
+
+    // 选中高亮与 SlidePage 渲染解耦：selectedImage 变化时仅命令式 toggle is-selected，
+    // 不触发 SlidePage 重渲染，从而不重建图片 DOM。
+    useEffect(() => {
       const container = containerRef.current;
-      const image = container?.querySelector<HTMLImageElement>(
-        `img[data-slide-index="${slideIndex}"][data-image-index="${imageIndex}"]`,
-      );
-      if (!container || !image) return { top: 0, left: layout.width / 2 };
-
-      const imageRect = image.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      const controlWidth = 244;
-      const controlHeight = 76;
-      const left = Math.min(
-        Math.max(imageRect.left - containerRect.left + imageRect.width / 2, controlWidth / 2 + 8),
-        layout.width - controlWidth / 2 - 8,
-      );
-      const preferredTop = imageRect.bottom - containerRect.top + 10;
-      const fallbackTop = imageRect.top - containerRect.top - controlHeight - 10;
-      const top =
-        preferredTop + controlHeight <= layout.height - 8
-          ? preferredTop
-          : Math.max(8, fallbackTop);
-
-      return { top, left };
-    };
+      if (!container) return;
+      const images = container.querySelectorAll<HTMLImageElement>('img[data-image-index]');
+      images.forEach(img => {
+        const si = Number(img.dataset.slideIndex);
+        const ii = Number(img.dataset.imageIndex);
+        img.classList.toggle(
+          'is-selected',
+          selectedImage?.slideIndex === si && selectedImage?.imageIndex === ii,
+        );
+      });
+    }, [selectedImage, slides]);
 
     useImperativeHandle(ref, () => ({
       getSlidesCount: () => slideCount,
       getSlides: () => displaySlides,
-      goToSlide: (index: number) =>
-        setCurrent(Math.max(0, Math.min(slideCount - 1, index))),
+      goToSlide: (index: number) => setCurrent(Math.max(0, Math.min(slideCount - 1, index))),
       getCurrentSlide: () => currentSlide,
-      goPrev: () => setCurrent((prev) => Math.max(0, prev - 1)),
-      goNext: () =>
-        setCurrent((prev) => Math.min(slideCount - 1, prev + 1)),
+      goPrev: () => setCurrent(prev => Math.max(0, prev - 1)),
+      goNext: () => setCurrent(prev => Math.min(slideCount - 1, prev + 1)),
       clearSelectedImage: () => setSelectedImage(null),
     }));
 
     return (
       <div
         ref={containerRef}
-        className="xhs-slide-container select-none"
+        className='xhs-slide-container select-none'
         style={{
           backgroundColor: theme.background,
           backgroundImage: theme.backgroundImage,
@@ -1059,12 +1188,12 @@ export const XHSSlidePreview = forwardRef<
           backgroundPosition: theme.backgroundPosition,
           width: `${layout.width}px`,
           height: `${layout.height}px`,
-          position: "relative",
-          overflow: "hidden",
-          borderRadius: "0",
-          cursor: isDragging ? "grabbing" : "grab",
-          display: "flex",
-          flexDirection: "column",
+          position: 'relative',
+          overflow: 'hidden',
+          borderRadius: '0',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          display: 'flex',
+          flexDirection: 'column',
         }}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
@@ -1073,9 +1202,9 @@ export const XHSSlidePreview = forwardRef<
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        onClick={(e) => {
+        onClick={e => {
           const target = e.target as HTMLElement;
-          if (!target.closest("img") && !target.closest("[data-xhs-image-control]")) {
+          if (!target.closest('img') && !target.closest('[data-xhs-image-control]')) {
             setSelectedImage(null);
           }
         }}
@@ -1084,14 +1213,14 @@ export const XHSSlidePreview = forwardRef<
         {!hideMockUI && (
           <div
             style={{
-              position: "absolute",
+              position: 'absolute',
               top: 0,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "120px",
-              height: "24px",
-              borderRadius: "0 0 20px 20px",
-              background: "#000",
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '120px',
+              height: '24px',
+              borderRadius: '0 0 20px 20px',
+              background: '#000',
               zIndex: 30,
             }}
           />
@@ -1102,14 +1231,14 @@ export const XHSSlidePreview = forwardRef<
           style={{
             height: `${layout.statusHeight}px`,
             flexShrink: 0,
-            position: "relative",
+            position: 'relative',
             zIndex: 20,
           }}
         >
           {!hideMockUI && <StatusBar backgroundColor={theme.background} />}
         </div>
         <style>{`
-          ${getXHSContentCSS(theme.css, XHS_FONTS.find((f) => f.id === font)?.value || XHS_FONTS[0].value, layout)}
+          ${getXHSContentCSS(theme.css, XHS_FONTS.find(f => f.id === font)?.value || XHS_FONTS[0].value, layout)}
           .xhs-preview-image-selectable {
             cursor: pointer;
             transition: box-shadow 0.2s ease, outline-color 0.2s ease;
@@ -1143,118 +1272,32 @@ export const XHSSlidePreview = forwardRef<
 
         {/* Slides viewport */}
         <div
-          style={{ flex: 1, overflow: "hidden", position: "relative" }}
-          onClick={(e) => {
+          style={{ flex: 1, overflow: 'hidden', position: 'relative' }}
+          onClick={e => {
             const target = e.target as HTMLElement;
-            if (!target.closest("img")) {
+            if (!target.closest('img')) {
               setSelectedImage(null);
             }
           }}
         >
           <div
             style={{
-              display: "flex",
+              display: 'flex',
               width: `${displaySlides.length * layout.width}px`,
-              height: "100%",
+              height: '100%',
               transform: `translateX(${translateX}px)`,
-              transition: isDragging
-                ? "none"
-                : "transform 0.5s cubic-bezier(0.19, 1, 0.22, 1)",
+              transition: isDragging ? 'none' : 'transform 0.5s cubic-bezier(0.19, 1, 0.22, 1)',
             }}
           >
             {displaySlides.map((slide, i) => (
-              <div
+              <SlidePage
                 key={`${slide.sectionId}-${slide.pageInGroup}-${i}`}
-                className="xhs-slide-page"
-                style={{
-                  backgroundColor: theme.background,
-                  backgroundImage: theme.backgroundImage,
-                  backgroundRepeat: theme.backgroundRepeat,
-                  backgroundSize: theme.backgroundSize,
-                  backgroundPosition: theme.backgroundPosition,
-                  width: `${layout.width}px`,
-                  flexShrink: 0,
-                  height: "100%",
-                  padding: `${layout.paddingY}px ${layout.paddingX}px`,
-                  display: "flex",
-                  flexDirection: "column",
-                  boxSizing: "border-box",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  className="xhs-slide-content-viewport"
-                  style={{
-                    flex: 1,
-                    width: '100%',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    id="xhs-content"
-                    className="xhs-content-wrapper"
-                    style={{
-                      width: `${layout.contentWidth}px`,
-                      maxWidth: `${layout.contentWidth}px`,
-                      height: `${layout.contentHeight}px`,
-                      overflow: "hidden",
-                      display: "block",
-                    }}
-                  >
-                    <div
-                      id="chicpage"
-                      dangerouslySetInnerHTML={{ __html: slide.html }}
-                      ref={(node) => {
-                        if (!node) return;
-                        const images = Array.from(node.querySelectorAll("img"));
-                        images.forEach((img, imageIndex) => {
-                          const markdownImageIndex = Number(
-                            img.dataset.chicpageImageIndex ?? imageIndex,
-                          );
-                          const isSelected =
-                            selectedImage?.slideIndex === i &&
-                            selectedImage?.imageIndex === markdownImageIndex;
-                          img.classList.add("xhs-preview-image-selectable");
-                          img.classList.toggle("is-selected", isSelected);
-                          img.dataset.imageIndex = String(markdownImageIndex);
-                          img.dataset.slideIndex = String(i);
-                          img.style.pointerEvents = "auto";
-                          const imageWidth = img.style.width;
-                          if (imageWidth.endsWith("%")) {
-                            const widthPercent = Number.parseInt(imageWidth, 10);
-                            if (Number.isFinite(widthPercent)) {
-                              img.style.setProperty(
-                                "max-height",
-                                `${Math.round(Math.floor(layout.contentHeight * 0.62) * Math.min(100, Math.max(40, widthPercent)) / 100)}px`,
-                                "important",
-                              );
-                            }
-                          }
-                          img.onmousedown = (event) => event.stopPropagation();
-                          img.ontouchstart = (event) => event.stopPropagation();
-                          img.onclick = (event) => {
-                            event.stopPropagation();
-                            const width = img.style.width;
-                            const widthPercent = width.endsWith("%")
-                              ? Number.parseInt(width, 10)
-                              : 100;
-                            setSelectedImage({
-                              slideIndex: i,
-                              imageIndex: markdownImageIndex,
-                              src: img.currentSrc || img.getAttribute("src") || "",
-                              widthPercent: Number.isFinite(widthPercent)
-                                ? widthPercent
-                                : 100,
-                              ...getImageControlPosition(i, markdownImageIndex),
-                            });
-                          };
-                        });
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
+                slide={slide}
+                slideIndex={i}
+                layout={layout}
+                theme={theme}
+                onImageClick={handleImageClick}
+              />
             ))}
           </div>
         </div>
@@ -1262,11 +1305,11 @@ export const XHSSlidePreview = forwardRef<
         {/* Dots */}
         <div
           style={{
-            position: "absolute",
-            bottom: showFooter ? `${layout.footerHeight + 4}px` : "8px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
+            position: 'absolute',
+            bottom: showFooter ? `${layout.footerHeight + 4}px` : '8px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
             gap: 5,
             zIndex: 10,
           }}
@@ -1278,48 +1321,45 @@ export const XHSSlidePreview = forwardRef<
                 width: i === currentSlide ? 16 : 6,
                 height: 6,
                 borderRadius: 3,
-                background:
-                  i === currentSlide ? "rgba(0,0,0,0.6)" : "rgba(0,0,0,0.2)",
-                transition: "all 0.3s",
+                background: i === currentSlide ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.2)',
+                transition: 'all 0.3s',
               }}
             />
           ))}
         </div>
 
         {/* Footer */}
-        {showFooter && (
-          <div style={{ height: `${layout.footerHeight}px`, flexShrink: 0 }} />
-        )}
+        {showFooter && <div style={{ height: `${layout.footerHeight}px`, flexShrink: 0 }} />}
 
         {selectedImage && selectedImage.slideIndex === currentSlide && (
           <div
-            data-xhs-image-control="true"
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.stopPropagation()}
-            onMouseMove={(e) => e.stopPropagation()}
-            onMouseUp={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
+            data-xhs-image-control='true'
+            onClick={e => e.stopPropagation()}
+            onMouseDown={e => e.stopPropagation()}
+            onMouseMove={e => e.stopPropagation()}
+            onMouseUp={e => e.stopPropagation()}
+            onTouchStart={e => e.stopPropagation()}
+            onTouchMove={e => e.stopPropagation()}
+            onTouchEnd={e => e.stopPropagation()}
             style={{
-              position: "absolute",
+              position: 'absolute',
               left: selectedImage.left,
               top: selectedImage.top,
-              transform: "translateX(-50%)",
+              transform: 'translateX(-50%)',
               zIndex: 25,
               width: 244,
-              padding: "10px 12px",
+              padding: '10px 12px',
               borderRadius: 12,
-              background: "#fff",
-              border: "1px solid #09090b",
-              boxShadow: "0 10px 28px rgba(0,0,0,0.18)",
+              background: '#fff',
+              border: '1px solid #09090b',
+              boxShadow: '0 10px 28px rgba(0,0,0,0.18)',
             }}
           >
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
                 gap: 8,
                 marginBottom: 8,
               }}
@@ -1328,7 +1368,7 @@ export const XHSSlidePreview = forwardRef<
                 style={{
                   fontSize: 11,
                   fontWeight: 700,
-                  color: "#09090b",
+                  color: '#09090b',
                 }}
               >
                 图片宽度
@@ -1336,35 +1376,35 @@ export const XHSSlidePreview = forwardRef<
               <span
                 style={{
                   fontSize: 11,
-                  color: "#09090b",
-                  fontVariantNumeric: "tabular-nums",
+                  color: '#09090b',
+                  fontVariantNumeric: 'tabular-nums',
                 }}
               >
                 {selectedImage.widthPercent}%
               </span>
             </div>
             <input
-              type="range"
-              min="40"
-              max="100"
-              step="1"
+              type='range'
+              min='40'
+              max='100'
+              step='1'
               value={selectedImage.widthPercent}
-              onChange={(e) => {
+              onChange={e => {
                 const widthPercent = Number(e.target.value);
                 const image = containerRef.current?.querySelector<HTMLImageElement>(
                   `img[data-slide-index="${selectedImage.slideIndex}"][data-image-index="${selectedImage.imageIndex}"]`,
                 );
                 if (image) {
                   image.style.width = `${widthPercent}%`;
-                  image.style.maxWidth = "100%";
-                  image.style.height = "auto";
+                  image.style.maxWidth = '100%';
+                  image.style.height = 'auto';
                   image.style.setProperty(
-                    "max-height",
-                    `${Math.round(Math.floor(layout.contentHeight * 0.62) * widthPercent / 100)}px`,
-                    "important",
+                    'max-height',
+                    `${Math.round((Math.floor(layout.contentHeight * 0.62) * widthPercent) / 100)}px`,
+                    'important',
                   );
                 }
-                setSelectedImage((prev) =>
+                setSelectedImage(prev =>
                   prev
                     ? {
                         ...prev,
@@ -1373,11 +1413,11 @@ export const XHSSlidePreview = forwardRef<
                       }
                     : prev,
                 );
-                onImageWidthChange?.(selectedImage.imageIndex, widthPercent);
+                commitImageWidth(selectedImage.imageIndex, widthPercent);
               }}
               style={{
-                width: "100%",
-                accentColor: "#09090b",
+                width: '100%',
+                accentColor: '#09090b',
               }}
             />
           </div>
@@ -1385,11 +1425,11 @@ export const XHSSlidePreview = forwardRef<
 
         <div
           style={{
-            position: "absolute",
+            position: 'absolute',
             bottom: 8,
             right: 12,
             fontSize: 10,
-            color: "rgba(0,0,0,0.2)",
+            color: 'rgba(0,0,0,0.2)',
           }}
         >
           ChicPage
@@ -1399,4 +1439,6 @@ export const XHSSlidePreview = forwardRef<
   },
 );
 
-XHSSlidePreview.displayName = "XHSSlidePreview";
+XHSSlidePreviewBase.displayName = 'XHSSlidePreview';
+
+export const XHSSlidePreview = memo(XHSSlidePreviewBase);

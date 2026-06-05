@@ -43,6 +43,22 @@
   --color-border: var(--border);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   
   --color-studio-bg: #f3f4f6;
   --color-studio-card: #fbfbfc;
@@ -73,7 +89,9 @@
   --input: #dde1e6;
   --ring: #2563eb;
   --radius: 1.25rem;
-}@layer base {
+}
+
+@layer base {
   * {
     box-sizing: border-box;
     border-color: var(--border);
@@ -88,6 +106,13 @@
     letter-spacing: -0.015em;
     line-height: 1.6;
   }
+}
+
+.mobile-strong-tabs [data-slot="tabs-trigger"][data-state="active"] {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 6px 14px rgba(17, 24, 39, 0.06);
 }
 
 /* 动画效果 */
