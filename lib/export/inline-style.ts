@@ -185,7 +185,7 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
   // 表格优化
   if (tag === 'DIV' && elem.classList.contains('table-scroll')) {
     elem.style.overflowX = 'auto';
-    elem.style.webkitOverflowScrolling = 'touch';
+    elem.style.setProperty('-webkit-overflow-scrolling', 'touch');
     elem.style.margin = '1.6em 0';
     elem.style.maxWidth = '100%';
   }
