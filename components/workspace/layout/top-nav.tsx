@@ -58,7 +58,7 @@ interface TopNavProps {
   posterRatio: PosterRatio;
   setPosterRatio: (ratio: PosterRatio) => void;
   onCopy: () => void;
-  copyStatus: "idle" | "success" | "error";
+  copyStatus: "idle" | "loading" | "success" | "error";
   previewRef: React.RefObject<HTMLDivElement | null>;
   onExportPoster: () => void;
   isExportingPoster: boolean;
@@ -626,18 +626,21 @@ export const TopNav = React.memo(({
             />
           )}
 
-          <motion.div whileTap={{ scale: 0.97 }}>
+          <motion.div whileTap={{ scale: copyStatus === "loading" ? 1 : 0.97 }}>
             <Button
               variant="ghost"
               size="sm"
               onClick={onCopy}
+              disabled={copyStatus === "loading"}
               className={cn(
                 "h-10 min-w-[88px] rounded-xl border border-zinc-200 px-3 text-xs font-bold transition-all",
                 copyStatus === "success"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-600"
                   : copyStatus === "error"
                     ? "border-red-200 bg-red-50 text-red-600"
-                    : "text-zinc-700 hover:bg-zinc-50",
+                    : copyStatus === "loading"
+                      ? "border-zinc-200 bg-zinc-50 text-zinc-500"
+                      : "text-zinc-700 hover:bg-zinc-50",
               )}
             >
             <AnimatePresence mode="wait">
@@ -652,6 +655,30 @@ export const TopNav = React.memo(({
                 >
                   <Check className="mr-1 size-3.5" />
                   已复制！
+                </motion.div>
+              ) : copyStatus === "loading" ? (
+                <motion.div
+                  key="loading"
+                  initial={{ opacity: 0, scale: 0.9, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="flex items-center text-zinc-500"
+                >
+                  <Loader2 className="mr-1 size-3.5 animate-spin" />
+                  复制中…
+                </motion.div>
+              ) : copyStatus === "error" ? (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, scale: 0.9, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  className="flex items-center text-red-600"
+                >
+                  <Copy className="mr-1 size-3.5" />
+                  复制失败
                 </motion.div>
               ) : (
                 <motion.div

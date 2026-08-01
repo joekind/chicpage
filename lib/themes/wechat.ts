@@ -35,19 +35,35 @@ const BASE_CSS = `
   #chicpage h4, #chicpage h5, #chicpage h6 { font-size: 1.06em; font-weight: 700; margin: 1em 0 0.45em; line-height: 1.34; }
   #chicpage p { margin: 0.95em 0; line-height: 1.8; font-size: 1em; }
   #chicpage ul, #chicpage ol { padding-left: 1.7em; margin: 0.95em 0; }
-  #chicpage li { margin: 0.35em 0; line-height: 1.8; font-size: 1em; }
-  #chicpage blockquote { margin: 1.6em 0; padding: 14px 18px; font-style: normal; border-radius: 12px; }
-  #chicpage blockquote p { margin: 0.4em 0; }
+  #chicpage ul { list-style-type: disc; }
+  #chicpage ol { list-style-type: decimal; }
+  #chicpage li { margin: 0.35em 0; line-height: 1.8; font-size: 1em; list-style: inherit; }
+  #chicpage ul.contains-task-list { list-style: none; padding-left: 0; }
+  #chicpage li.task-list-item { list-style: none; }
+  #chicpage li.task-list-item input[type="checkbox"] { margin-right: 8px; vertical-align: -0.12em; }
+  #chicpage blockquote { margin: 1.6em 0; padding: 14px 18px; font-style: normal; font-weight: 400; border-radius: 12px; }
+  #chicpage blockquote p { margin: 0.4em 0; font-weight: 400; }
   #chicpage blockquote p:first-child { margin-top: 0; }
   #chicpage blockquote p:last-child { margin-bottom: 0; }
   #chicpage strong { font-weight: 700; }
   #chicpage em { font-style: italic; }
   #chicpage a { text-decoration: none; }
   #chicpage hr { border: none; margin: 2.8em 0; opacity: 0.9; }
-  #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 14px; }
+  #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto;  }
+  #chicpage .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 1.6em 0;
+    max-width: 100%;
+  }
+  #chicpage .table-scroll table {
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+  }
   #chicpage table { width: 100%; border-collapse: collapse; margin: 1.6em 0; font-size: 0.94em; }
-  #chicpage th { font-weight: 700; padding: 11px 14px; text-align: left; }
-  #chicpage td { padding: 11px 14px; }
+  #chicpage th { font-weight: 700; padding: 11px 14px; text-align: left; white-space: nowrap; }
+  #chicpage td { padding: 5px 14px; white-space: nowrap; }
   #chicpage details { margin: 1.25em 0; border: 1px solid #e5e7eb; border-radius: 14px; background: #fafafa; overflow: hidden; }
   #chicpage summary { cursor: pointer; list-style: none; padding: 11px 14px; font-weight: 600; user-select: none; }
   #chicpage summary::-webkit-details-marker { display: none; }
@@ -189,29 +205,443 @@ const SKETCH_CODE_CSS = `
 export const WECHAT_THEMES: WechatTheme[] = [
   {
     id: 'default',
-    name: '默认',
-    description: '经典简约排版',
-    containerStyle: 'max-width:677px;margin:0 auto;color:#333;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color:#ffffff;',
+    name: '极简',
+    description: '极简清爽 · 干净浅白',
+    containerStyle: 'max-width:677px;margin:0 auto;color:#4a4a4a;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color:#ffffff;',
     css: BASE_CSS + `
       #chicpage {
-        color: #333;
+        color: #4a4a4a;
         font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-       
-        }
-      #chicpage h1 { color: #111; font-size: 28px; font-weight: 700; margin: 1em 0 0.9em 0; letter-spacing: -0.02em; }
-      #chicpage h2 { color: #111; font-size: 22px; font-weight: 600; margin: 1.25em 0 0.85em 0; letter-spacing: -0.01em; }
-      #chicpage h3 { color: #222; font-size: 19px; font-weight: 600; margin: 1.15em 0 0.8em 0; }
-      #chicpage p { font-size: 17px; margin: 0.95em 0; line-height: 1.82; color: #374151; }
-      #chicpage blockquote { background: #f9fafb;  color: #4b5563; padding: 1.15em 1.45em; border-radius: 14px; }
-      #chicpage li { list-style: disc; margin: 0.5em 0;}
-      #chicpage ul, #chicpage ol { margin: 1.05em 0;padding-left: 1.1em; }
-      #chicpage a { color: #2563eb; text-decoration: underline; text-underline-offset: 4px; }
-      #chicpage hr { border-top: 1px solid #f3f4f6; margin: 2.8em 0; }
-      #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 10px; }
-      #chicpage blockquote { margin: 1.45em 0; padding: 12px 20px; font-style: normal; border-radius: 14px;border-left:0px}
+        background: transparent;
+        line-height: 1.95;
+        letter-spacing: 0.01em;
+        padding-top: 12px;
+        padding-bottom: 36px;
+      }
+      #chicpage h1 {
+        color: #2b2b2b;
+        font-size: 26px;
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: 0.02em;
+        margin: 0.4em 0 1.1em;
+      }
+      #chicpage h2 {
+        color: #2f2f2f;
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.4;
+        letter-spacing: 0.03em;
+        margin: 2.4em 0 0.85em;
+        padding-bottom: 0;
+        border: none;
+        border-bottom: none;
+      }
+      #chicpage h3 {
+        color: #333;
+        font-size: 17px;
+        font-weight: 600;
+        line-height: 1.45;
+        margin: 1.8em 0 0.6em;
+      }
+      #chicpage h4, #chicpage h5, #chicpage h6 {
+        color: #555;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 1.4em 0 0.5em;
+      }
+      #chicpage p {
+        color: #5a5a5a;
+        font-size: 16px;
+        line-height: 2;
+        margin: 1.15em 0;
+      }
+      #chicpage strong {
+        font-weight: 600;
+        color: #2b2b2b;
+      }
+      #chicpage em {
+        font-style: normal;
+        color: #8a8a8a;
+      }
+      #chicpage a {
+        color: #6b8f7e;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(107, 143, 126, 0.35);
+      }
+      #chicpage blockquote {
+        margin: 1.8em 0;
+        padding: 1em 1em;
+        background: #f5f5f7;
+        border: none;
+        border-radius: 0;
+        color: #5a5a5a;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 2;
+        letter-spacing: 0.01em;
+        text-align: left;
+      }
+      #chicpage blockquote p {
+        color: #5a5a5a;
+        margin: 0.35em 0;
+        text-align: left;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+      }
+      #chicpage ul, #chicpage ol {
+        margin: 1.1em 0;
+        padding-left: 1.35em;
+      }
+      #chicpage ul { list-style-type: disc; }
+      #chicpage ol { list-style-type: decimal; }
+      #chicpage li {
+        margin: 0.5em 0;
+        color: #5a5a5a;
+        line-height: 1.95;
+        font-size: 15px;
+      }
+      #chicpage hr {
+        border: none;
+        height: 0;
+        border-top: 1px solid #ececee;
+        background: transparent;
+        margin: 2.8em 0;
+        opacity: 1;
+      }
+      #chicpage img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 2em auto;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        outline: none;
+        background: transparent;
+        filter: none;
+        -webkit-filter: none;
+        mix-blend-mode: normal;
+        opacity: 1;
+      }
+      #chicpage code {
+        background: #f5f5f5;
+        color: #3a3a3a;
+        border: none;
+        border-radius: 0px;
+        font-family: "SF Mono", Consolas, "Courier New", monospace;
+      }
+      #chicpage pre {
+        background: #f7f7f7;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      #chicpage pre code {
+        color: #3a3a3a;
+        background: transparent;
+        border: none;
+      }
+      #chicpage .hljs { color: #3a3a3a; }
+      #chicpage .hljs-keyword,
+      #chicpage .hljs-selector-tag,
+      #chicpage .hljs-literal,
+      #chicpage .hljs-title,
+      #chicpage .hljs-section,
+      #chicpage .hljs-doctag,
+      #chicpage .hljs-type,
+      #chicpage .hljs-name,
+      #chicpage .hljs-strong { color: #5f7d6e; font-weight: 600; }
+      #chicpage .hljs-string,
+      #chicpage .hljs-attr,
+      #chicpage .hljs-template-tag,
+      #chicpage .hljs-template-variable,
+      #chicpage .hljs-bullet { color: #6b8f7e; }
+      #chicpage .hljs-number,
+      #chicpage .hljs-symbol,
+      #chicpage .hljs-variable,
+      #chicpage .hljs-params,
+      #chicpage .hljs-link { color: #7a8a9a; }
+      #chicpage .hljs-comment,
+      #chicpage .hljs-quote { color: #9a9a9a; font-style: italic; }
+      #chicpage .table-scroll {
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        overflow: hidden;
+      }
+      #chicpage table {
+        font-size: 14px;
+        border: none;
+      }
+      #chicpage th {
+        background: transparent;
+        color: #2f2f2f;
+        font-weight: 600;
+        border: none;
+        border-bottom: 1px solid #e8e8ea;
+      }
+      #chicpage td {
+        border: none;
+        border-bottom: 1px solid #f0f0f2;
+        color: #5a5a5a;
+      }
+      #chicpage details {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      #chicpage summary {
+        font-weight: 600;
+        color: #2f2f2f;
+      }
+      #chicpage details[open] summary {
+        border-bottom: 1px solid #ececee;
+      }
+      #chicpage kbd {
+        background: #fff;
+        color: #4a4a4a;
+        border: 1px solid #e0e1e3;
+        border-bottom-width: 2px;
+        border-radius: 6px;
+      }
+      #chicpage input[type="checkbox"] {
+        accent-color: #6b8f7e;
+      }
     `,
     preview: '#ffffff',
   },
+
+  {
+    id: 'receipt',
+    name: '热敏',
+    description: '热敏打印 · 黑白小票',
+    containerStyle:
+      'max-width:677px;margin:0 auto;color:#000000;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background-color:#ffffff;',
+    css: BASE_CSS + `
+      #chicpage {
+        color: #000000;
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background: #ffffff;
+        line-height: 1.55;
+        letter-spacing: 0;
+        padding: 16px 18px 32px;
+        font-size: 15px;
+      }
+      #chicpage h1 {
+        color: #000000;
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin: 8px 0 16px;
+      }
+      #chicpage h2 {
+        color: #000000;
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.35;
+        letter-spacing: 0;
+        margin: 32px 0 8px;
+        padding: 0;
+        border: none;
+      }
+      #chicpage h2::before {
+        content: "★ ";
+        font-weight: 700;
+      }
+      #chicpage h3 {
+        color: #000000;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.4;
+        margin: 16px 0 8px;
+      }
+      #chicpage h3::before {
+        content: "★ ";
+        font-weight: 700;
+      }
+      #chicpage h4, #chicpage h5, #chicpage h6 {
+        color: #000000;
+        font-size: 14px;
+        font-weight: 700;
+        margin: 16px 0 8px;
+        line-height: 1.4;
+      }
+      #chicpage p {
+        color: #000000;
+        font-size: 15px;
+        line-height: 1.55;
+        margin: 8px 0;
+      }
+      #chicpage strong {
+        font-weight: 700;
+        color: #000000;
+      }
+      #chicpage em {
+        font-style: normal;
+        color: #000000;
+      }
+      #chicpage a {
+        color: #000000;
+        text-decoration: underline;
+        border-bottom: none;
+      }
+      #chicpage blockquote {
+        margin: 16px 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-left: 2px solid #000000;
+        border-radius: 0;
+        color: #000000;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.55;
+        padding-left: 12px;
+      }
+      #chicpage blockquote p {
+        color: #000000;
+        margin: 4px 0;
+        font-size: inherit;
+        line-height: inherit;
+      }
+      #chicpage ul, #chicpage ol {
+        margin: 8px 0;
+        padding-left: 1.35em;
+      }
+      #chicpage ul { list-style-type: disc; }
+      #chicpage ol { list-style-type: decimal; }
+      #chicpage li {
+        margin: 4px 0;
+        color: #000000;
+        line-height: 1.55;
+        font-size: 15px;
+      }
+      #chicpage hr {
+        border: none;
+        height: 0;
+        border-top: 1px dashed #000000;
+        background: transparent;
+        margin: 16px 0;
+        opacity: 1;
+      }
+      #chicpage img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 16px auto;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        outline: none;
+        background: transparent;
+        filter: none;
+        -webkit-filter: none;
+        mix-blend-mode: normal;
+        opacity: 1;
+      }
+      #chicpage code {
+        background: transparent;
+        color: #000000;
+        border: 1px solid #000000;
+        border-radius: 0;
+        padding: 0.1em 0.35em;
+        font-family: "SF Mono", Consolas, "Courier New", monospace;
+      }
+      #chicpage pre {
+        background: #ffffff;
+        border: 1px solid #000000;
+        border-radius: 0;
+        box-shadow: none;
+        margin: 16px 0;
+      }
+      #chicpage pre code {
+        color: #000000;
+        background: transparent;
+        border: none;
+        padding: 12px;
+      }
+      #chicpage .hljs { color: #000000; }
+      #chicpage .hljs-keyword,
+      #chicpage .hljs-selector-tag,
+      #chicpage .hljs-literal,
+      #chicpage .hljs-title,
+      #chicpage .hljs-section,
+      #chicpage .hljs-doctag,
+      #chicpage .hljs-type,
+      #chicpage .hljs-name,
+      #chicpage .hljs-strong { color: #000000; font-weight: 700; }
+      #chicpage .hljs-string,
+      #chicpage .hljs-attr,
+      #chicpage .hljs-template-tag,
+      #chicpage .hljs-template-variable,
+      #chicpage .hljs-bullet { color: #222222; }
+      #chicpage .hljs-number,
+      #chicpage .hljs-symbol,
+      #chicpage .hljs-variable,
+      #chicpage .hljs-params,
+      #chicpage .hljs-link { color: #111111; }
+      #chicpage .hljs-comment,
+      #chicpage .hljs-quote { color: #555555; font-style: italic; }
+      #chicpage .table-scroll {
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        overflow: hidden;
+        margin: 16px 0;
+      }
+      #chicpage table {
+        font-size: 14px;
+        border: none;
+      }
+      #chicpage th {
+        background: transparent;
+        color: #000000;
+        font-weight: 700;
+        border: none;
+        border-bottom: 1px dashed #000000;
+        padding: 8px 10px;
+      }
+      #chicpage td {
+        border: none;
+        border-bottom: 1px dashed #cccccc;
+        color: #000000;
+        padding: 6px 10px;
+      }
+      #chicpage details {
+        background: transparent;
+        border: 1px solid #000000;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      #chicpage summary {
+        font-weight: 700;
+        color: #000000;
+      }
+      #chicpage details[open] summary {
+        border-bottom: 1px dashed #000000;
+      }
+      #chicpage kbd {
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
+        border-bottom-width: 2px;
+        border-radius: 0;
+      }
+      #chicpage input[type="checkbox"] {
+        accent-color: #000000;
+      }
+    `,
+    preview: '#ffffff',
+  },
+
   {
     id: '暖纸',
     name: '暖纸',
@@ -337,10 +767,13 @@ export const WECHAT_THEMES: WechatTheme[] = [
         border-radius: 6px;
         font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
       }
-      #chicpage table {
+      #chicpage .table-scroll {
         border: 1px solid #e6d5b3;
         border-radius: 16px;
-        overflow: hidden;
+      }
+      #chicpage table {
+        border: none;
+        border-radius: 0;
       }
       #chicpage th {
         background: #1b365d;
@@ -391,8 +824,10 @@ export const WECHAT_THEMES: WechatTheme[] = [
       #chicpage h6 { color: #756c62; font-size: 14px; font-weight: 700; margin: 0.95em 0 0.55em 0; letter-spacing: 0.06em; text-transform: uppercase; }
       #chicpage p { font-size: 16px; margin: 1em 0; line-height: 1.8; color: #3f4650; }
       #chicpage blockquote { background: rgba(255, 252, 244, 0.72); color: #5b534b; padding: 1.2em 1.5em; }
-      #chicpage li { list-style: disc; margin: 0.6em 0;}
-      #chicpage ul, #chicpage ol { margin: 1.2em 0;padding-left: 1em; }
+      #chicpage li { margin: 0.6em 0; }
+      #chicpage ul, #chicpage ol { margin: 1.2em 0; padding-left: 1em; }
+      #chicpage ul { list-style-type: disc; }
+      #chicpage ol { list-style-type: decimal; }
       #chicpage a { color: #354b68; text-decoration: underline; text-underline-offset: 4px; }
       #chicpage hr { border-top: 1px solid rgba(117, 108, 98, 0.22); margin: 3em 0; }
       #chicpage img { max-width: 100%; height: auto; display: block; margin: 1.5em auto; border-radius: 0px; }
@@ -713,8 +1148,9 @@ export const WECHAT_THEMES: WechatTheme[] = [
         margin: 2em auto;
       }
       
+      #chicpage ul { list-style-type: disc; }
+      #chicpage ol { list-style-type: decimal; }
       #chicpage li {
-        list-style: disc;
         padding-left: 0;
         color: #3a352f;
       }

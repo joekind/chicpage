@@ -28,6 +28,7 @@ import { InsertLinkDialog } from "@/components/workspace/dialogs/insert-link-dia
 
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { useMarkdownSync } from "@/hooks/use-markdown-sync";
+import { copyHtmlToClipboard, copyTextToClipboard } from "@/lib/clipboard";
 
 export default function ChicEditor() {
   const {
@@ -68,9 +69,10 @@ export default function ChicEditor() {
   const exportPreviewRef = useRef<HTMLDivElement>(null);
   const uploadNoticeTimerRef = useRef<NodeJS.Timeout | null>(null);
   const imageWidthHistoryTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
+  const [copyStatus, setCopyStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle",
   );
+  const copyLoadingRef = useRef(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadNotice, setUploadNotice] = useState<
     { type: "loading" | "success" | "error"; message: string } | null
@@ -331,41 +333,48 @@ export default function ChicEditor() {
   });
 
   const handleCopy = useCallback(async () => {
+    if (copyLoadingRef.current) return;
+    copyLoadingRef.current = true;
+    setCopyStatus("loading");
     try {
       if (styleTheme === "poster") {
         // 小红书模式：一键复制纯正文，移除 Markdown 语法
         const currentMarkdown = useStore.getState().markdown;
         let textToCopy = showWordCount ? injectReadInfo(currentMarkdown) : currentMarkdown;
         textToCopy = getCleanText(textToCopy);
-        await navigator.clipboard.writeText(textToCopy);
+        await copyTextToClipboard(textToCopy);
         setCopyStatus("success");
         setTimeout(() => setCopyStatus("idle"), 2000);
         return;
       }
 
-      if (!previewRef.current) return;
+      if (!previewRef.current) {
+        setCopyStatus("idle");
+        return;
+      }
       const chicpageEl = previewRef.current.querySelector(
         "#chicpage",
       ) as HTMLElement | null;
       const target = chicpageEl ?? previewRef.current;
-      const contentHtml = getInlinedHtml(target, { wechatOptimized: true, imgRadius });
-      const finalHtml = await getWeChatHtml(contentHtml, activeTheme.containerStyle);
       const currentMarkdown = useStore.getState().markdown;
       const textToCopy = showWordCount ? injectReadInfo(currentMarkdown) : currentMarkdown;
-      const data = [
-        new ClipboardItem({
-          "text/html": new Blob([finalHtml], { type: "text/html" }),
-          "text/plain": new Blob([textToCopy], { type: "text/plain" }),
-        }),
-      ];
 
-      await navigator.clipboard.write(data);
+      // Start clipboard write in the same user-gesture turn; pass a Promise so
+      // getWeChatHtml (async asset inlining) can finish without losing permission.
+      const htmlPromise = Promise.resolve().then(async () => {
+        const contentHtml = getInlinedHtml(target, { wechatOptimized: true, imgRadius });
+        return getWeChatHtml(contentHtml, activeTheme.containerStyle);
+      });
+
+      await copyHtmlToClipboard(htmlPromise, textToCopy);
       setCopyStatus("success");
       setTimeout(() => setCopyStatus("idle"), 2000);
     } catch (err) {
       console.error("复制失败:", err);
       setCopyStatus("error");
       setTimeout(() => setCopyStatus("idle"), 2000);
+    } finally {
+      copyLoadingRef.current = false;
     }
   }, [styleTheme, showWordCount, activeTheme.containerStyle, imgRadius]);
 
@@ -644,18 +653,23 @@ export default function ChicEditor() {
           onCopy={async () => {
             const text = editorRef.current?.copySelection() || "";
             if (!text) return;
-            await navigator.clipboard.writeText(text);
+            await copyTextToClipboard(text);
             editorRef.current?.focus();
           }}
           onCut={async () => {
             const text = editorRef.current?.cutSelection() || "";
             if (!text) return;
-            await navigator.clipboard.writeText(text);
+            await copyTextToClipboard(text);
             setMarkdown(editorRef.current?.getMarkdown() || "");
             editorRef.current?.focus();
           }}
           onPaste={async () => {
-            const text = await navigator.clipboard.readText();
+            let text = "";
+            try {
+              text = await navigator.clipboard.readText();
+            } catch {
+              return;
+            }
             if (!text) return;
             editorRef.current?.pasteText(text);
             setMarkdown(editorRef.current?.getMarkdown() || "");

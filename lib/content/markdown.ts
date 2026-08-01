@@ -10,6 +10,7 @@ import hljs from 'highlight.js';
 import type { Node, Parent } from 'unist';
 import type { Element, Root } from 'hast';
 import { getLocalImage } from '@/lib/images';
+import { normalizePageBreaks } from '@/lib/paging/utils';
 
 interface ImageNode extends Node {
   type: "image";
@@ -111,6 +112,45 @@ function remarkImageSizePlugin() {
   };
 }
 
+function rehypeWrapTables() {
+  return (tree: Root) => {
+    const targets: { node: Element; index: number; parent: Parent }[] = [];
+
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName !== 'table' || index == null || !parent) return;
+      if (parent.type !== 'root' && parent.type !== 'element') return;
+
+      if (parent.type === 'element') {
+        const className = (parent as Element).properties?.className;
+        const classes = Array.isArray(className)
+          ? className
+          : typeof className === 'string'
+            ? className.split(/\s+/)
+            : [];
+        if (classes.includes('table-scroll')) return;
+      }
+
+      targets.push({ node, index, parent: parent as Parent });
+    });
+
+    // Replace from the end so earlier indices stay valid
+    for (let i = targets.length - 1; i >= 0; i -= 1) {
+      const { node, index, parent } = targets[i];
+      const wrapper: Element = {
+        type: 'element',
+        tagName: 'div',
+        properties: {
+          className: ['table-scroll'],
+          style:
+            'overflow-x:auto;-webkit-overflow-scrolling:touch;margin:1.6em 0;max-width:100%',
+        },
+        children: [node],
+      };
+      parent.children[index] = wrapper as Node;
+    }
+  };
+}
+
 function rehypeHighlightedCodeBlock() {
   return (tree: Root) => {
     visit(tree, 'element', (node, index, parent) => {
@@ -157,7 +197,6 @@ function rehypeHighlightedCodeBlock() {
         ...(preElement.properties ?? {}),
         style: [
           'margin:1.2em 0',
-          'border-radius:10px',
           'overflow:auto',
           'max-height:50vh',
           'max-height:50dvh',
@@ -184,11 +223,8 @@ function highlightCode(raw: string, language?: string): string {
 }
 
 export async function markdownToHtml(markdown: string): Promise<string> {
-  // 专用分页标记：将 <!--pagebreak--> 转成可识别的分页节点
-  const normalizedMarkdown = markdown.replace(
-    /<!--\s*pagebreak\s*-->/gi,
-    "\n<hr data-pagebreak=\"true\" />\n",
-  );
+  // 专用分页标记：只替换代码外的 <!--pagebreak-->，行内提示文案原样保留
+  const normalizedMarkdown = normalizePageBreaks(markdown);
 
   const result = await unified()
     .use(remarkParse)
@@ -199,6 +235,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(remarkDirectivePlugin)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypeWrapTables)
     .use(rehypeHighlightedCodeBlock)
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(normalizedMarkdown);

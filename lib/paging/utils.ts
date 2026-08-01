@@ -5,10 +5,30 @@
 import { REGEX } from '@/config/constants';
 
 /**
- * 将 markdown 中的分页标记转换为 HTML hr 标签
+ * 将 markdown 中的分页标记转换为 HTML hr 标签。
+ * 保护围栏代码与行内代码，避免文案提示里的 `<!--pagebreak-->` 被误替换。
  */
 export function normalizePageBreaks(markdown: string): string {
-  return markdown.replace(REGEX.PAGEBREAK, '\n<hr data-pagebreak="true" />\n');
+  const pockets: string[] = [];
+
+  const protect = (match: string) => {
+    const token = `\0CODE${pockets.length}\0`;
+    pockets.push(match);
+    return token;
+  };
+
+  const protectedMd = markdown
+    // 先保护围栏代码块
+    .replace(/```[\s\S]*?```/g, protect)
+    // 再保护行内代码（不含换行）
+    .replace(/`[^`\n]+`/g, protect);
+
+  const replaced = protectedMd.replace(
+    REGEX.PAGEBREAK,
+    '\n<hr data-pagebreak="true" />\n',
+  );
+
+  return replaced.replace(/\0CODE(\d+)\0/g, (_, index: string) => pockets[Number(index)] ?? '');
 }
 
 /**

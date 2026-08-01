@@ -39,4 +39,4 @@ export interface ExportProgress {
 }
 
 /** 复制状态 */
-export type CopyStatus = 'idle' | 'success' | 'error';
+export type CopyStatus = 'idle' | 'loading' | 'success' | 'error';

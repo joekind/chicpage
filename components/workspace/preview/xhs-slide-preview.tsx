@@ -312,9 +312,20 @@ export function getXHSContentCSS(
       line-height: 1.7 !important;
       list-style: inherit !important;
     }
+    #xhs-content #chicpage ul.contains-task-list {
+      list-style: none !important;
+      padding-left: 0 !important;
+    }
+    #xhs-content #chicpage li.task-list-item {
+      list-style: none !important;
+      display: list-item !important;
+    }
     #xhs-content #chicpage li::marker {
       color: currentColor !important;
       font-weight: 700 !important;
+    }
+    #xhs-content #chicpage li.task-list-item::marker {
+      content: "" !important;
     }
     #xhs-content #chicpage input[type="checkbox"] {
       width: 0.9em !important;

@@ -124,17 +124,19 @@ export const PreviewContent = ({
           outline-offset: 3px;
           box-shadow: 0 12px 30px rgba(24, 24, 27, 0.16);
         }
+        /* 只清掉 prose 默认引号，边框/外观交给主题 CSS */
         #chicpage blockquote {
-          border: none !important;
-          border-left: none !important;
-          background: #f8fafc;
-          border-radius: 12px;
+          quotes: none;
         }
-        #chicpage hr {
-          border: none !important;
-          height: 1px;
-          background: #dde1e6;
-          margin: 2rem 0;
+        #chicpage blockquote::before,
+        #chicpage blockquote::after {
+          content: none !important;
+        }
+        #chicpage img {
+          filter: none;
+          -webkit-filter: none;
+          mix-blend-mode: normal;
+          opacity: 1;
         }
         .poster-card-theme .poster-h1 { color:var(--foreground); font-size:1.15rem; font-weight:900; text-align:center; margin:1.5rem 1rem 0.25rem; }
         .poster-card-theme .poster-divider { text-align:center; color:var(--border); font-size:0.8rem; margin-bottom:1.5rem; }

@@ -14,7 +14,7 @@ const STYLE_PROPERTIES = [
   'display', 'boxSizing',
   'margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
   'padding', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
-  'maxWidth',
+  'maxWidth', 'minWidth', 'overflow', 'overflowX', 'overflowY',
   // Visual
   'backgroundColor', 'backgroundImage', 'backgroundSize', 'backgroundRepeat', 'backgroundPosition',
   'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft',
@@ -64,7 +64,7 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
     elem.style.padding = '1em';
     elem.style.backgroundColor = '#f8fafc';
     elem.style.border = '1px solid #e2e8f0';
-    elem.style.borderRadius = '8px';
+    // 圆角沿用主题计算样式，不在此写死
     // 公众号端不支持真正折叠，这里用固定高度 + 滚动模拟“可收纳”
     elem.style.maxHeight = '360px';
     elem.style.overflowX = 'auto';
@@ -91,6 +91,7 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
       elem.style.borderRadius = '3px';
       elem.style.fontSize = '85%';
       elem.style.fontFamily = 'Consolas, Monaco, monospace';
+      elem.style.display = 'inline';
       
       // 行内代码暗黑模式适配
       elem.setAttribute('data-darkmode-bgcolor', '#2d2d2d');
@@ -142,6 +143,14 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
     elem.style.margin = '0.4em 0';
     elem.style.lineHeight = '1.75';
     elem.style.listStylePosition = 'outside';
+    elem.style.display = 'list-item';
+  }
+
+  // 行内语义标签：公众号常把 strong 等当成块级，导致「加粗后换行」
+  if (tag === 'STRONG' || tag === 'B' || tag === 'EM' || tag === 'I') {
+    elem.style.display = 'inline';
+    elem.style.margin = '0';
+    elem.style.padding = '0';
   }
 
   // 标题优化 - 只处理间距，颜色由主题 CSS 决定
@@ -174,10 +183,24 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
   }
 
   // 表格优化
+  if (tag === 'DIV' && elem.classList.contains('table-scroll')) {
+    elem.style.overflowX = 'auto';
+    elem.style.webkitOverflowScrolling = 'touch';
+    elem.style.margin = '1.6em 0';
+    elem.style.maxWidth = '100%';
+  }
+
   if (tag === 'TABLE') {
-    elem.style.width = '100%';
+    const inScroll = elem.closest('.table-scroll');
+    if (inScroll) {
+      elem.style.width = 'max-content';
+      elem.style.minWidth = '100%';
+      elem.style.margin = '0';
+    } else {
+      elem.style.width = '100%';
+      elem.style.margin = '1.5em 0';
+    }
     elem.style.borderCollapse = 'collapse';
-    elem.style.margin = '1.5em 0';
     elem.style.fontSize = '14px';
     elem.style.border = '1px solid #e5e7eb';
   }
@@ -188,13 +211,90 @@ function applyWeChatOptimizations(elem: HTMLElement, imgRadius: number = 8): voi
     elem.style.border = '1px solid #e5e7eb';
     elem.style.fontWeight = 'bold';
     elem.style.textAlign = 'left';
+    elem.style.whiteSpace = 'nowrap';
   }
 
   if (tag === 'TD') {
     elem.style.padding = '10px 12px';
     elem.style.border = '1px solid #e5e7eb';
     elem.style.color = '#4b5563';
+    elem.style.whiteSpace = 'nowrap';
   }
+}
+
+/**
+ * 公众号粘贴时常见问题：
+ * 1) li 内的 strong/b 会被拆成块级 →「加粗短词」后强制换行
+ * 2) ol/ul 编号/缩进不稳定
+ * 处理：先把列表收成带编号的 p，再把 strong/em 等换成 inline span。
+ */
+function flattenInlineSemanticsForWeChat(root: HTMLElement): void {
+  // 先拆掉 li 里的 p 包裹，避免块级段落
+  root.querySelectorAll('li p').forEach((node) => {
+    const p = node as HTMLElement;
+    const parent = p.parentNode;
+    if (!parent) return;
+    while (p.firstChild) parent.insertBefore(p.firstChild, p);
+    parent.removeChild(p);
+  });
+
+  // 由深到浅处理嵌套列表
+  const lists = Array.from(root.querySelectorAll('ol, ul')).reverse();
+  for (const list of lists) {
+    const isOl = list.tagName === 'OL';
+    const startAttr = list.getAttribute('start');
+    const start = isOl ? Number(startAttr || '1') || 1 : 1;
+    const frag = document.createDocumentFragment();
+    const items = Array.from(list.querySelectorAll(':scope > li'));
+
+    items.forEach((liNode, itemIndex) => {
+      const li = liNode as HTMLElement;
+      const p = document.createElement('p');
+      const liStyle = li.getAttribute('style') || '';
+      if (liStyle) p.setAttribute('style', liStyle);
+      p.style.display = 'block';
+      p.style.margin = p.style.margin || '0.4em 0';
+      p.style.lineHeight = p.style.lineHeight || '1.75';
+      p.style.paddingLeft = '0';
+      p.style.listStyle = 'none';
+      p.style.textAlign = 'left';
+      p.style.textIndent = '0';
+
+      const prefix = document.createElement('span');
+      prefix.style.display = 'inline';
+      prefix.style.margin = '0';
+      prefix.style.padding = '0';
+      prefix.textContent = isOl ? `${start + itemIndex}. ` : '• ';
+      p.appendChild(prefix);
+
+      while (li.firstChild) p.appendChild(li.firstChild);
+      frag.appendChild(p);
+    });
+
+    list.parentNode?.replaceChild(frag, list);
+  }
+
+  // strong/b/em/i → span，避免公众号按语义标签拆块
+  root.querySelectorAll('strong, b, em, i').forEach((node) => {
+    const el = node as HTMLElement;
+    const span = document.createElement('span');
+    const existing = el.getAttribute('style') || '';
+    span.setAttribute('style', existing);
+
+    const tag = el.tagName;
+    if (tag === 'STRONG' || tag === 'B') {
+      if (!/font-weight\s*:/i.test(existing)) span.style.fontWeight = '700';
+    }
+    if (tag === 'EM' || tag === 'I') {
+      if (!/font-style\s*:/i.test(existing)) span.style.fontStyle = 'italic';
+    }
+    span.style.display = 'inline';
+    span.style.margin = '0';
+    span.style.padding = '0';
+
+    while (el.firstChild) span.appendChild(el.firstChild);
+    el.parentNode?.replaceChild(span, el);
+  });
 }
 
 /**
@@ -248,6 +348,10 @@ export function getInlinedHtml(
         }
       });
     }
+  }
+
+  if (wechatOptimized) {
+    flattenInlineSemanticsForWeChat(clone);
   }
 
   // 包装一层，确保样式应用
